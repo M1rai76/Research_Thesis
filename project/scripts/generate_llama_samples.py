@@ -13,9 +13,10 @@ from evalplus.data import get_human_eval_plus
 BACKEND: Literal["groq", "ollama"] = "ollama"  # switch b/w "groq" or "ollama"
 
 GROQ_MODEL  = "llama-3.3-70b-versatile"   # or "llama3-8b-8192", "mixtral-8x7b-32768"
-OLLAMA_MODEL = "qwen2.5-coder:7b"         # or "llama3.1:8b"
+OLLAMA_MODEL = "llama3.1:8b"         # or "llama3.1:8b"
 
-OUTPUT_PATH = "samples/gemini_samples.jsonl"  # keeping same name for eval compatibility
+# OUTPUT_PATH = "samples/qwen_samples.jsonl"
+OUTPUT_PATH = "samples/llama_samples.jsonl"
 
 # Rate limiting
 SLEEP_SECONDS = 1.0
