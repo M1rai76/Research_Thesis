@@ -1,16 +1,19 @@
 import json
 import os
+import random
 import re
 import time
-from typing import Dict, Any
+from typing import Any, Dict
 
 from google import genai
 from evalplus.data import get_human_eval_plus
 
+MODEL_NAME = "gemini-2.0-flash"
+SLEEP_SECONDS = 13.0
 
-MODEL_NAME = "gemini-2.5-flash"
-OUTPUT_PATH = "samples/gemini_samples.jsonl"
-SLEEP_SECONDS = 1.0
+SCRIPT_DIR = os.path.dirname(__file__)
+PROJECT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
+OUTPUT_PATH = os.path.join(PROJECT_DIR, "samples", "gemini_samples.jsonl")
 
 
 def build_prompt(task_prompt: str) -> str:
@@ -27,10 +30,10 @@ Rules:
 {task_prompt}
 """
 
+
 def extract_code(text: str) -> str:
     text = text.strip()
 
-    # Remove ```python ... ``` or ``` ... ```
     fence_match = re.search(r"```(?:python)?\n(.*?)```", text, re.DOTALL)
     if fence_match:
         return fence_match.group(1).strip()
@@ -38,26 +41,47 @@ def extract_code(text: str) -> str:
     return text
 
 
-def generate_completion(client: genai.Client, prompt: str) -> str:
-    response = client.models.generate_content(
-        model=MODEL_NAME,
-        contents=prompt,
-    )
+def generate_completion_with_retry(
+    client: genai.Client,
+    prompt: str,
+    max_retries: int = 5,
+) -> str:
+    for attempt in range(max_retries):
+        try:
+            response = client.models.generate_content(
+                model=MODEL_NAME,
+                contents=prompt,
+            )
+            if not response.text:
+                return ""
+            return extract_code(response.text)
 
-    if not response.text:
-        return ""
+        except Exception as exc:
+            msg = str(exc)
+            if "429" in msg or "RESOURCE_EXHAUSTED" in msg:
+                wait = (2 ** attempt) + random.uniform(0, 1)
+                print(
+                    f"  Rate limited. Waiting {wait:.1f}s before retry {attempt+1}/{max_retries}..."
+                )
+                time.sleep(wait)
+                continue
 
-    return extract_code(response.text)
+            print(f"  Non-rate-limit error: {exc}")
+            return ""
+
+    print("  Max retries exceeded, skipping.")
+    return ""
 
 
 def main() -> None:
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
     if not api_key:
-        raise RuntimeError("GEMINI_API_KEY is not set in your environment.")
+        raise RuntimeError("Set GEMINI_API_KEY (or GOOGLE_API_KEY) in your environment.")
 
-    os.makedirs("samples", exist_ok=True)
+    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
 
-    client = genai.Client()
+    client = genai.Client(api_key=api_key)
+
     problems: Dict[str, Dict[str, Any]] = get_human_eval_plus()
 
     samples = []
@@ -67,17 +91,18 @@ def main() -> None:
         print(f"[{index}/{total}] Generating for {task_id}...")
 
         prompt = build_prompt(task["prompt"])
+        completion = generate_completion_with_retry(client, prompt)
 
-        try:
-            completion = generate_completion(client, prompt)
-        except Exception as exc:
-            print(f"Failed on {task_id}: {exc}")
-            completion = ""
+        if not completion:
+            print(f"  Warning: empty completion for {task_id}, skipping...")
+            continue
 
-        samples.append({
-            "task_id": task_id,
-            "completion": completion,
-        })
+        samples.append(
+            {
+                "task_id": task_id,
+                "completion": completion,
+            }
+        )
 
         time.sleep(SLEEP_SECONDS)
 
