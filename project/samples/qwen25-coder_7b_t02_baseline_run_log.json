@@ -1,0 +1,19 @@
+{
+  "date": "2026-04-12",
+  "backend": "ollama",
+  "model": "qwen2.5-coder:7b",
+  "prompt_strategy": "baseline",
+  "temperature": 0.2,
+  "max_tokens": 512,
+  "max_retries": 5,
+  "output_file": "samples\\qwen25-coder_7b_t02_baseline.jsonl",
+  "tasks_completed": 164,
+  "tasks_skipped": 0,
+  "skipped_ids": [],
+  "pass_at_1_base_raw": null,
+  "pass_at_1_plus_raw": null,
+  "pass_at_1_base_sanitized": null,
+  "pass_at_1_plus_sanitized": null,
+  "robustness_gap_raw": null,
+  "robustness_gap_sanitized": null
+}
