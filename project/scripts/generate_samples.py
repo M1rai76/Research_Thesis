@@ -125,8 +125,8 @@ def get_output_path(model: str, prompt_strategy: str) -> str:
     """
     slug     = model_to_slug(model)
     temp_tag = f"t{int(TEMPERATURE * 10):02d}"
-    return os.path.join("samples", f"{slug}_{temp_tag}_{prompt_strategy}.jsonl")
-
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(BASE_DIR, "samples", f"{slug}_{temp_tag}_{prompt_strategy}.jsonl")
 
 def get_client(backend: str):
     """
