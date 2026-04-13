@@ -46,13 +46,14 @@ from typing import Optional
 from evalplus.data import get_human_eval_plus
 
 
-# Do not change these between runs — they are part of your methodology.
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Fixed Parameters.
 TEMPERATURE : float = 0.2
 MAX_TOKENS  : int   = 512
 MAX_RETRIES : int   = 5
 
-# Ollama is local so 1s is fine. Groq free tier allows ~30 RPM so 2s is safe.
-SLEEP = {"ollama": 1.0, "groq": 2.0}
+SLEEP = {"ollama": 1.0, "groq": 2.0, "cerebras": 2.0, "openrouter": 6.0, "gemini": 5.0}
 
 # Conservative Python top-level stop markers. These truncate obvious
 # post-function continuation (example usage, test blocks, second functions).
@@ -83,17 +84,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--backend",
         required=True,
-        choices=["ollama", "groq"],
+        choices=["ollama", "groq", "cerebras", "openrouter","gemini"],
         help="Inference backend.",
     )
     parser.add_argument(
         "--prompt",
         default="baseline",
-        help=(
-            "Prompt strategy label. Used in the output filename and run log. "
-            "Examples: baseline, zero_shot, cot, role_framing, edge_case. "
-            "Default: baseline."
-        ),
+        choices=list(PROMPT_TEMPLATES.keys()),
+        help="Prompt strategy to use. Selects from PROMPT_TEMPLATES. Default: baseline.",
     )
     return parser.parse_args()
 
@@ -125,7 +123,6 @@ def get_output_path(model: str, prompt_strategy: str) -> str:
     """
     slug     = model_to_slug(model)
     temp_tag = f"t{int(TEMPERATURE * 10):02d}"
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(BASE_DIR, "samples", f"{slug}_{temp_tag}_{prompt_strategy}.jsonl")
 
 def get_client(backend: str):
@@ -149,24 +146,43 @@ def get_client(backend: str):
                 "  export GROQ_API_KEY=<your_key>"
             )
         return Groq(api_key=api_key)
-
-    raise ValueError(f"Unknown backend: '{backend}'. Choose 'ollama' or 'groq'.")
-
-
-# THIS IS YOUR EXPERIMENTAL VARIABLE.
-# Change build_prompt() between runs to test different prompt strategies.
-# Do not change anything else between strategy runs.
-# Current strategy: baseline (minimal instruction prompt)
-def build_prompt(task_prompt: str) -> str:
-    """
-    Wrap the raw HumanEval task prompt in generation instructions.
-
-    task_prompt : the 'prompt' field from get_human_eval_plus(), which
-                  contains the function signature and docstring.
-
-    Returns the full string sent to the model.
-    """
-    return (
+    
+    if backend == "cerebras":
+        from openai import OpenAI
+        api_key = os.getenv("CEREBRAS_API_KEY")
+        if not api_key:
+            raise RuntimeError(
+                "CEREBRAS_API_KEY is not set. "
+                "Get a free key at https://cloud.cerebras.ai and run:\n"
+                "  $env:CEREBRAS_API_KEY='your_key_here'"
+           )
+        return OpenAI(
+            base_url="https://api.cerebras.ai/v1",
+            api_key=api_key,
+        )
+    
+    if backend == "openrouter":
+        from openai import OpenAI
+        api_key = os.getenv("OPENROUTER_API_KEY")
+        if not api_key:
+            raise RuntimeError("OPENROUTER_API_KEY not set. Sign up at openrouter.ai")
+        return OpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        api_key=api_key,
+    )
+    
+    if backend == "gemini":
+        from openai import OpenAI
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise RuntimeError("GEMINI_API_KEY not set.")
+        return OpenAI(
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+            api_key=api_key,
+        )
+  
+PROMPT_TEMPLATES = {
+    "baseline": lambda task_prompt: (
         "Complete the following Python function.\n\n"
         "Rules:\n"
         "- Output only the function body (the lines after the def line)\n"
@@ -175,7 +191,39 @@ def build_prompt(task_prompt: str) -> str:
         "- Do not include example usage or test code\n"
         "- Do not include explanations\n\n"
         f"{task_prompt}"
-    )
+    ),
+    "zero_shot": lambda task_prompt: (
+        f"Complete this Python function:\n\n{task_prompt}"
+    ),
+    "edge_case": lambda task_prompt: (
+        "Complete the following Python function.\n"
+        "Your implementation must correctly handle edge cases such as "
+        "empty inputs, boundary values, and unusual but valid inputs.\n\n"
+        f"{task_prompt}"
+    ),
+    "role_framing": lambda task_prompt: (
+        "You are a senior Python engineer writing production quality code. "
+        "Complete the following function with correct logic and careful handling "
+        "of edge cases.\n\n"
+        f"{task_prompt}"
+    ),
+    "cot": lambda task_prompt: (
+        "Complete the following Python function.\n"
+        "Think carefully about edge cases before writing the answer. "
+        "Output only the final code.\n\n"
+        f"{task_prompt}"
+    ),
+}
+
+
+def build_prompt(task_prompt: str, prompt_strategy: str) -> str:
+    """
+    Return the full prompt string for the given strategy.
+
+    task_prompt     : the 'prompt' field from get_human_eval_plus()
+    prompt_strategy : key into PROMPT_TEMPLATES
+    """
+    return PROMPT_TEMPLATES[prompt_strategy](task_prompt)
 
 
 def strip_markdown_fences(text: str) -> str:
@@ -217,7 +265,6 @@ def generate_raw_completion(
     client,
     model: str,
     prompt: str,
-    backend: str,
 ) -> Optional[str]:
     """
     Call the model API and return the raw text output.
@@ -321,7 +368,7 @@ def main() -> None:
     args = parse_args()
 
     output_path = get_output_path(args.model, args.prompt)
-    os.makedirs("samples", exist_ok=True)
+    os.makedirs(os.path.join(BASE_DIR, "samples"), exist_ok=True)
 
     print(f"Backend  : {args.backend}")
     print(f"Model    : {args.model}")
@@ -341,8 +388,8 @@ def main() -> None:
     for index, (task_id, task) in enumerate(problems.items(), start=1):
         print(f"[{index:>3}/{total}] {task_id} ...", end=" ", flush=True)
 
-        prompt     = build_prompt(task["prompt"])
-        raw        = generate_raw_completion(client, args.model, prompt, args.backend)
+        prompt     = build_prompt(task["prompt"], args.prompt)
+        raw        = generate_raw_completion(client, args.model, prompt)
 
         if raw is None:
             print("SKIPPED (API error)")
@@ -375,12 +422,14 @@ def main() -> None:
         skipped         = skipped,
     )
 
+    rel_path       = os.path.relpath(output_path, BASE_DIR)
     sanitized_path = output_path.replace(".jsonl", "-sanitized.jsonl")
+    rel_sanitized  = os.path.relpath(sanitized_path, BASE_DIR)
     print()
     print("Next steps:")
-    print(f"  1. docker run --rm --pull=always -v \"${{PWD}}:/app\" ganler/evalplus:latest evalplus.evaluate --dataset humaneval --samples /app/{output_path}")
-    print(f"  2. evalplus.sanitize --samples {output_path} --dataset humaneval")
-    print(f"  3. docker run --rm --pull=always -v \"${{PWD}}:/app\" ganler/evalplus:latest evalplus.evaluate --dataset humaneval --samples /app/{sanitized_path}")
+    print(f"  1. docker run --rm --pull=always -v \"${{PWD}}:/app\" ganler/evalplus:latest evalplus.evaluate --dataset humaneval --samples /app/{rel_path}")
+    print(f"  2. evalplus.sanitize --samples {rel_path} --dataset humaneval")
+    print(f"  3. docker run --rm --pull=always -v \"${{PWD}}:/app\" ganler/evalplus:latest evalplus.evaluate --dataset humaneval --samples /app/{rel_sanitized}")
     print(f"  4. Fill in pass@1 scores in: {output_path.replace('.jsonl', '_run_log.json')}")
 
 
