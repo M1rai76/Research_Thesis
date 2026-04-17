@@ -1,0 +1,19 @@
+{
+  "date": "2026-04-17",
+  "backend": "groq",
+  "model": "llama-3.3-70b-versatile",
+  "prompt_strategy": "role_framing",
+  "temperature": 0.2,
+  "max_tokens": 512,
+  "max_retries": 5,
+  "output_file": "C:\\Users\\Samayak\\COMP4952\\project\\samples\\llama-33-70b-versatile_t02_role_framing.jsonl",
+  "tasks_completed": 164,
+  "tasks_skipped": 0,
+  "skipped_ids": [],
+  "pass_at_1_base_raw": null,
+  "pass_at_1_plus_raw": null,
+  "pass_at_1_base_sanitized": null,
+  "pass_at_1_plus_sanitized": null,
+  "robustness_gap_raw": null,
+  "robustness_gap_sanitized": null
+}
