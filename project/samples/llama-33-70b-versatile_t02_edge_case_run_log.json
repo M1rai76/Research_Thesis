@@ -1,5 +1,5 @@
 {
-  "date": "2026-04-13",
+  "date": "2026-05-07",
   "backend": "groq",
   "model": "llama-3.3-70b-versatile",
   "prompt_strategy": "edge_case",
@@ -7,16 +7,9 @@
   "max_tokens": 512,
   "max_retries": 5,
   "output_file": "C:\\Users\\Samayak\\COMP4952\\project\\samples\\llama-33-70b-versatile_t02_edge_case.jsonl",
-  "tasks_completed": 158,
-  "tasks_skipped": 6,
-  "skipped_ids": [
-    "HumanEval/157",
-    "HumanEval/158",
-    "HumanEval/159",
-    "HumanEval/160",
-    "HumanEval/162",
-    "HumanEval/163"
-  ],
+  "tasks_completed": 6,
+  "tasks_skipped": 0,
+  "skipped_ids": [],
   "pass_at_1_base_raw": null,
   "pass_at_1_plus_raw": null,
   "pass_at_1_base_sanitized": null,
