@@ -1,6 +1,6 @@
 # Prompt Engineering for LLM Code Generation
 
-Thesis project evaluating the effect of prompt strategies on code generation quality across multiple LLMs, benchmarked on **HumanEval** and **HumanEval+** using **EvalPlus**.
+Thesis project evaluating the effect of prompt strategies on code generation quality across multiple LLMs, benchmarked on **HumanEval+** and **MBPP+** using **EvalPlus**.
 
 ---
 
@@ -44,7 +44,7 @@ pip install evalplus openai groq
 
 ## Usage
 
-All commands can be run from the project root directory.
+Run these commands from the `project/` directory.
 
 **Ollama (local)**
 ```bash
@@ -63,7 +63,15 @@ $env:CEREBRAS_API_KEY = "your_key_here"
 python scripts/generate_samples.py --model llama-3.3-70b --backend cerebras --prompt baseline
 ```
 
-Output is saved to `samples/{model_slug}_t02_{strategy}.jsonl` with a sidecar `_run_log.json`.
+Output is saved with a sidecar `_run_log.json`.
+
+- HumanEval+: `samples/{model_slug}_t02_{strategy}.jsonl`
+- MBPP+: `samples/mbpp_{model_slug}_t02_{strategy}.jsonl`
+
+**MBPP+**
+```bash
+python scripts/generate_samples.py --dataset mbpp --model llama-3.3-70b-versatile --backend groq --prompt baseline
+```
 
 ---
 
@@ -78,6 +86,14 @@ docker run --rm --pull=always -v "${PWD}:/app" ganler/evalplus:latest \
   --samples /app/samples/<output_file>.jsonl
 ```
 
+For MBPP+, use `--dataset mbpp`:
+
+```bash
+docker run --rm --pull=always -v "${PWD}:/app" ganler/evalplus:latest \
+  evalplus.evaluate --dataset mbpp \
+  --samples /app/samples/<output_file>.jsonl
+```
+
 **Sanitized evaluation** (secondary)
 ```bash
 evalplus.sanitize --samples samples/<output_file>.jsonl --dataset humaneval
@@ -86,6 +102,8 @@ docker run --rm --pull=always -v "${PWD}:/app" ganler/evalplus:latest \
   evalplus.evaluate --dataset humaneval \
   --samples /app/samples/<output_file>-sanitized.jsonl
 ```
+
+For MBPP+ sanitization, use `--dataset mbpp`.
 
 ---
 
@@ -98,14 +116,14 @@ docker run --rm --pull=always -v "${PWD}:/app" ganler/evalplus:latest \
 ```
 project/
   scripts/
-    generate_samples.py       — unified generation script (all models, all strategies)
+    generate_samples.py       — unified generation script (all models, HumanEval+/MBPP+, all strategies)
     generate_gemini_samples.py
     test_gemini_setup.py
   samples/
     <model>_t02_<strategy>.jsonl
+    mbpp_<model>_t02_<strategy>.jsonl
     <model>_t02_<strategy>_run_log.json
     <model>_t02_<strategy>_eval_results.json
-  human-eval/                 — OpenAI HumanEval evaluation framework
   README.md
 ```
 
@@ -117,3 +135,4 @@ project/
 - Raw evaluation is the primary metric. Sanitized evaluation is secondary.
 - The `_run_log.json` sidecar records all run config and has fields for pass@1 scores to be filled in after evaluation.
 - Groq and Cerebras free tiers have a 100k token/day limit. At ~640 tokens per problem, a full 164-problem run costs ~105k tokens, so the last few tasks sometimes get skipped.
+- MBPP+ has more tasks than HumanEval+, so API quota pressure is higher. Prefer one prompt strategy/model at a time and expect a full run to take longer.
