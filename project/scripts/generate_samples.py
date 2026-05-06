@@ -257,7 +257,7 @@ PROMPT_TEMPLATES = {
         "Output only the final code.\n\n"
         f"{task_prompt}"
     ),
-    "cgo": lambda task_prompt: (
+    "cop": lambda task_prompt: (
         "You are an expert Python programmer.\n\n"
         "Your goal: implement a correct Python function that satisfies "
         "all input/output requirements described below.\n\n"
@@ -313,7 +313,7 @@ MBPP_PROMPT_TEMPLATES = {
         "Output only the final Python code.\n\n"
         f"{task_prompt}"
     ),
-    "cgo": lambda task_prompt: (
+    "cop": lambda task_prompt: (
         "You are an expert Python programmer.\n\n"
         "Your goal: implement a correct Python solution that satisfies "
         "all input/output requirements described below.\n\n"

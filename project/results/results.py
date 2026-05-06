@@ -2,89 +2,102 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import numpy as np
 
-strategies = ['combined', 'edge_case', 'role_framing', 'zero_shot', 'cot']
-base = [0.744, 0.640, 0.665, 0.677, 0.677]
-plus = [0.677, 0.598, 0.610, 0.628, 0.634]
-gap  = [0.067, 0.042, 0.055, 0.049, 0.043]
+humaneval = {
+    'COP':          {'base': 0.805, 'plus': 0.738, 'gap': 0.067},
+    'CoT':          {'base': 0.677, 'plus': 0.634, 'gap': 0.043},
+    'Zero Shot':    {'base': 0.677, 'plus': 0.628, 'gap': 0.049},
+    'Role Framing': {'base': 0.665, 'plus': 0.610, 'gap': 0.055},
+    'Edge Case':    {'base': 0.640, 'plus': 0.598, 'gap': 0.042},
+}
 
-width = 0.35
+mbpp = {
+    'Zero Shot':    {'base': 0.876, 'plus': 0.714, 'gap': 0.162},
+    'CoT':          {'base': 0.865, 'plus': 0.717, 'gap': 0.148},
+    'COP':          {'base': 0.865, 'plus': 0.725, 'gap': 0.140},
+    'Role Framing': {'base': 0.857, 'plus': 0.706, 'gap': 0.151},
+    'Edge Case':    {'base': 0.860, 'plus': 0.690, 'gap': 0.170},
+}
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
-fig.suptitle('Thesis A — Prompt Strategy Results (Llama 3.3 70B on HumanEval+)',
-             fontsize=13, fontweight='bold', y=1.02)
+BAR_BASE  = '#378ADD'
+BAR_PLUS  = '#1D9E75'
+DOT_COLOR = '#378ADD'
+DOT_WORST = '#E24B4A'
 
-# --- Chart 1: Grouped bar (sorted by base desc) ---
-sort_idx_base = np.argsort(base)[::-1]
-strategies_bar = [strategies[i] for i in sort_idx_base]
-base_sorted = [base[i] for i in sort_idx_base]
-plus_sorted = [plus[i] for i in sort_idx_base]
-gap_sorted_bar = [gap[i] for i in sort_idx_base]
+def plot_benchmark(data, title, filename, dot_xmin):
+    sorted_bar = sorted(data.items(), key=lambda x: x[1]['base'], reverse=True)
+    labels_bar = [k for k, _ in sorted_bar]
+    base_vals  = [v['base'] for _, v in sorted_bar]
+    plus_vals  = [v['plus'] for _, v in sorted_bar]
 
-x = np.arange(len(strategies_bar))
+    sorted_dot = sorted(data.items(), key=lambda x: x[1]['gap'])
+    labels_dot = [k for k, _ in sorted_dot]
+    gap_vals   = [v['gap'] for _, v in sorted_dot]
+    worst_gap  = max(gap_vals)
 
-bars1 = ax1.bar(x - width/2, base_sorted, width, label='Base pass@1', color='#378ADD', alpha=0.9)
-bars2 = ax1.bar(x + width/2, plus_sorted, width, label='Plus pass@1', color='#1D9E75', alpha=0.9)
+    fig, (ax_bar, ax_dot) = plt.subplots(1, 2, figsize=(14, 5))
+    fig.suptitle(f'Prompt Strategy Evaluation — {title} (Llama 3.3 70B)',
+                 fontsize=13, fontweight='bold', y=1.02)
 
-for bar in bars1:
-    ax1.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.005,
-             f'{bar.get_height():.3f}', ha='center', va='bottom', fontsize=8)
-for bar in bars2:
-    ax1.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.005,
-             f'{bar.get_height():.3f}', ha='center', va='bottom', fontsize=8)
+    x = np.arange(len(labels_bar))
+    width = 0.35
 
-ax1.set_xticks(x)
-ax1.set_xticklabels(strategies_bar, rotation=15, ha='right', fontsize=10)
-ax1.set_ylim(0.55, 0.80)
-ax1.set_ylabel('pass@1 score')
-ax1.set_title('Correctness vs Robustness per Strategy')
-ax1.legend()
-ax1.spines[['top', 'right']].set_visible(False)
+    # Grouped bar
+    b1 = ax_bar.bar(x - width/2, base_vals, width, label='Base pass@1', color=BAR_BASE, alpha=0.9)
+    b2 = ax_bar.bar(x + width/2, plus_vals, width, label='Plus pass@1', color=BAR_PLUS,  alpha=0.9)
 
-# Add a light grey bracket + label over the 'combined' bar pair
-if 'combined' in strategies_bar:
-    idx_comb = strategies_bar.index('combined')
-    left = x[idx_comb] - width/2
-    right = x[idx_comb] + width/2
-    top = max(base_sorted[idx_comb], plus_sorted[idx_comb])
-    bracket_y = top + 0.015
-    ax1.plot([left, left, right, right],
-             [bracket_y - 0.002, bracket_y, bracket_y, bracket_y - 0.002],
-             color='lightgray', linewidth=1.2, zorder=3)
-    ax1.text(x[idx_comb], bracket_y + 0.003,
-             f'gap = {gap_sorted_bar[idx_comb]:.3f}',
-             ha='center', va='bottom', fontsize=9, color='gray')
+    for bar in b1:
+        ax_bar.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.004,
+                    f'{bar.get_height():.3f}', ha='center', va='bottom', fontsize=8.5)
+    for bar in b2:
+        ax_bar.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.004,
+                    f'{bar.get_height():.3f}', ha='center', va='bottom', fontsize=8.5)
 
-# --- Chart 2: Robustness gap dot plot (sorted by gap asc, smallest at top) ---
-sort_idx_gap = np.argsort(gap)  # ascending
-strategies_gap = [strategies[i] for i in sort_idx_gap]
-gap_sorted = [gap[i] for i in sort_idx_gap]
+    # Gap annotation on worst gap strategy
+    worst_gap_label = max(data, key=lambda k: data[k]['gap'])
+    wi = labels_bar.index(worst_gap_label)
 
-y = np.arange(len(strategies_gap))
-colors = ['#E24B4A' if s == 'combined' else '#378ADD' for s in strategies_gap]
+    mid_y = (base_vals[wi] + plus_vals[wi]) / 2
 
-ax2.hlines(y=y, xmin=0, xmax=gap_sorted, color='#D3D1C7', linewidth=1.5, zorder=1)
-ax2.scatter(gap_sorted, y, color=colors, s=120, zorder=2)
+    ax_bar.annotate('',
+        xy=(x[wi] - width/2, base_vals[wi]),
+        xytext=(x[wi] - width/2, plus_vals[wi]),
+        arrowprops=dict(arrowstyle='<->', color='#E24B4A', lw=1.4))
 
-for i, (g, s) in enumerate(zip(gap_sorted, strategies_gap)):
-    ax2.text(g + 0.001, i, f'{g:.3f}', va='center', fontsize=9)
+    ax_bar.text(x[wi] - width/2 - 0.05, mid_y,
+                f' gap\n {data[worst_gap_label]["gap"]:.3f}',
+                ha='right', va='center', fontsize=8.5,
+                color='#E24B4A', fontweight='bold')
 
-ax2.set_yticks(y)
-ax2.set_yticklabels(strategies_gap, fontsize=10)
-ax2.set_xlabel('Robustness gap (Base − Plus pass@1)')
-ax2.set_title('Robustness Gap by Strategy\n(smaller = more robust)')
-ax2.spines[['top', 'right']].set_visible(False)
-ax2.set_xlim(0, 0.085)
+    ax_bar.set_ylim(min(plus_vals) - 0.05, max(base_vals) + 0.06)
+    ax_bar.set_xticks(x)
+    ax_bar.set_xticklabels(labels_bar, fontsize=10)
+    ax_bar.set_ylabel('pass@1 score', fontsize=10)
+    ax_bar.set_title('Correctness vs Robustness', fontsize=11, fontweight='bold')
+    ax_bar.legend(fontsize=9)
+    ax_bar.spines[['top', 'right']].set_visible(False)
 
-# Small red dashed vertical line to anchor combined gap (use the combined value from original data)
-combined_gap_value = next(g for s, g in zip(strategies, gap) if s == 'combined')
-ax2.axvline(x=combined_gap_value, color='#E24B4A', linestyle='--', alpha=0.4, linewidth=1.2)
+    # Dot plot
+    colors = [DOT_WORST if g == worst_gap else DOT_COLOR for g in gap_vals]
+    ax_dot.hlines(y=labels_dot, xmin=dot_xmin, xmax=gap_vals,
+                  color='#D3D1C7', linewidth=1.5, zorder=1)
+    ax_dot.scatter(gap_vals, labels_dot, color=colors, s=130, zorder=2)
+    ax_dot.axvline(x=worst_gap, color='#E24B4A', linestyle='--', linewidth=1.2, alpha=0.7)
 
-# Put largest gap at the bottom (viewer travels top=safer -> bottom=dangerous)
-ax2.invert_yaxis()
+    for g, s in zip(gap_vals, labels_dot):
+        ax_dot.text(g + (worst_gap * 0.02), s, f'{g:.3f}', va='center', fontsize=9)
 
-red_patch = mpatches.Patch(color='#E24B4A', label='Largest gap (worst robustness)')
-ax2.legend(handles=[red_patch], fontsize=9)
+    ax_dot.set_xlabel('Robustness gap (Base − Plus pass@1)', fontsize=10)
+    ax_dot.set_title('Robustness Gap by Strategy', fontsize=11, fontweight='bold')
+    ax_dot.set_xlim(dot_xmin, worst_gap + worst_gap * 0.15)
+    ax_dot.spines[['top', 'right']].set_visible(False)
 
-plt.tight_layout()
-plt.savefig('thesis_a_results.png', dpi=300, bbox_inches='tight')
-plt.show()
+    red_patch = mpatches.Patch(color=DOT_WORST, label='Largest gap (worst robustness)')
+    ax_dot.legend(handles=[red_patch], fontsize=9)
+
+    plt.tight_layout()
+    plt.savefig(filename, dpi=300, bbox_inches='tight', facecolor='white')
+    plt.show()
+    print(f'Saved: {filename}')
+
+plot_benchmark(humaneval, 'HumanEval+', 'humaneval_results.png', dot_xmin=0.00)
+plot_benchmark(mbpp,      'MBPP+',      'mbpp_results.png',      dot_xmin=0.12)
