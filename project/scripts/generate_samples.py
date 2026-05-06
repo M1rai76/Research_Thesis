@@ -93,6 +93,11 @@ def parse_args() -> argparse.Namespace:
         choices=list(PROMPT_TEMPLATES.keys()),
         help="Prompt strategy to use. Selects from PROMPT_TEMPLATES. Default: baseline.",
     )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Skip task IDs that already exist in the output JSONL. Resume an interrupted run.",
+    )
     return parser.parse_args()
 
 
@@ -211,6 +216,17 @@ PROMPT_TEMPLATES = {
         "Complete the following Python function.\n"
         "Think carefully about edge cases before writing the answer. "
         "Output only the final code.\n\n"
+        f"{task_prompt}"
+    ),
+    "cgo": lambda task_prompt: (
+        "You are an expert Python programmer.\n\n"
+        "Your goal: implement a correct Python function that satisfies "
+        "all input/output requirements described below.\n\n"
+        "Functional objectives:\n"
+        "- Return the exact output type specified\n"
+        "- Handle all valid inputs described in the docstring\n"
+        "- Correctly handle boundary values and edge cases\n\n"
+        "Output only the function body. No explanations. No markdown.\n\n"
         f"{task_prompt}"
     ),
     "io_spec": lambda task_prompt: (
@@ -348,12 +364,15 @@ def generate_raw_completion(
     return None
 
 
-def write_samples_jsonl(path: str, samples: list) -> None:
+def write_samples_jsonl(path: str, samples: list, append: bool = False) -> None:
     """Write samples to a JSONL file in HumanEval format.
 
     Each line: {"task_id": "HumanEval/N", "completion": "..."}
+    
+    If append=True, adds to existing file instead of overwriting.
     """
-    with open(path, "w", encoding="utf-8") as f:
+    mode = "a" if append else "w"
+    with open(path, mode, encoding="utf-8") as f:
         for sample in samples:
             f.write(json.dumps(sample) + "\n")
 
@@ -400,6 +419,24 @@ def save_run_log(
     print(f"  Run log -> {log_path}")
 
 
+def load_existing_task_ids(path: str) -> set:
+    """Load task IDs that were already generated in an existing output file."""
+    if not os.path.exists(path):
+        return set()
+    
+    existing = set()
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    data = json.loads(line)
+                    existing.add(data.get("task_id"))
+    except Exception as e:
+        print(f"Warning: could not read existing file {path}: {e}")
+    
+    return existing
+
+
 def main() -> None:
     args = parse_args()
 
@@ -415,6 +452,19 @@ def main() -> None:
 
     client   = get_client(args.backend)
     problems = get_human_eval_plus()
+    
+    # Load existing task IDs if resuming
+    existing_ids = set()
+    if args.resume:
+        existing_ids = load_existing_task_ids(output_path)
+        if existing_ids:
+            print(f"Resume mode: skipping {len(existing_ids)} already-generated task IDs")
+            print()
+    
+    # Filter out existing tasks if resuming
+    if existing_ids:
+        problems = {tid: task for tid, task in problems.items() if tid not in existing_ids}
+    
     total    = len(problems)
 
     samples : list = []
@@ -443,7 +493,7 @@ def main() -> None:
         samples.append({"task_id": task_id, "completion": completion})
         time.sleep(sleep_s)
 
-    write_samples_jsonl(output_path, samples)
+    write_samples_jsonl(output_path, samples, append=args.resume and bool(existing_ids))
     print(f"\n  Saved {len(samples)} samples -> {output_path}")
 
     if skipped:
