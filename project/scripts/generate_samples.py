@@ -213,6 +213,17 @@ PROMPT_TEMPLATES = {
         "Output only the final code.\n\n"
         f"{task_prompt}"
     ),
+    "io_spec": lambda task_prompt: (
+    "You are an expert Python programmer.\n\n"
+    "Complete the following Python function.\n\n"
+    "Before writing code, identify:\n"
+    "- Input types and valid ranges\n"
+    "- Expected output type and format\n"
+    "- Edge cases: empty input, zero, negative values, single elements\n\n"
+    "Then output only the function body that handles all of these correctly.\n"
+    "No markdown. No explanations. No repeated function signature.\n\n"
+    f"{task_prompt}"
+    )
 }
 
 
@@ -244,19 +255,44 @@ def truncate_at_stop_markers(text: str) -> str:
     return text[:earliest]
 
 
+def strip_leading_def(text: str) -> str:
+    """Remove a leading 'def ...:' line if the model echoed the signature back."""
+    lines = text.splitlines(keepends=True)
+    if lines and re.match(r"^def\s+\w+", lines[0]):
+        lines = lines[1:]
+    return "".join(lines)
+
+
+def ensure_indented(text: str) -> str:
+    """Add 4-space indent to all lines if the completion was returned unindented.
+
+    HumanEval evaluation appends the completion directly after the docstring,
+    so the body must be indented or the code runs at module level.
+    """
+    lines = text.splitlines(keepends=True)
+    first_code = next((l for l in lines if l.strip()), "")
+    if first_code and not first_code.startswith((" ", "\t")):
+        lines = ["    " + l if l.strip() else l for l in lines]
+    return "".join(lines)
+
+
 def post_process(raw_output: str) -> str:
     """
     Apply the full post-processing pipeline to raw model output.
 
     Steps:
         1. strip_markdown_fences    — remove ``` wrappers
-        2. truncate_at_stop_markers — cut obvious trailing junk
-        3. rstrip()                 — remove trailing whitespace only
+        2. strip_leading_def        — drop echoed function signature
+        3. ensure_indented          — add 4-space indent if model returned bare code
+        4. truncate_at_stop_markers — cut obvious trailing junk
+        5. rstrip()                 — remove trailing whitespace only
                                       (never strip() — leading spaces = indentation)
 
     Returns the cleaned completion string, or "" if nothing remains.
     """
     code = strip_markdown_fences(raw_output)
+    code = strip_leading_def(code)
+    code = ensure_indented(code)
     code = truncate_at_stop_markers(code)
     return code.rstrip()
 

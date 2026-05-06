@@ -1,0 +1,33 @@
+{
+  "date": "2026-05-05",
+  "backend": "groq",
+  "model": "openai/gpt-oss-120b",
+  "prompt_strategy": "baseline",
+  "temperature": 0.2,
+  "max_tokens": 512,
+  "max_retries": 5,
+  "output_file": "C:\\Users\\Samayak\\COMP4952\\project\\samples\\openai-gpt-oss-120b_t02_baseline.jsonl",
+  "tasks_completed": 151,
+  "tasks_skipped": 13,
+  "skipped_ids": [
+    "HumanEval/32",
+    "HumanEval/39",
+    "HumanEval/54",
+    "HumanEval/81",
+    "HumanEval/93",
+    "HumanEval/103",
+    "HumanEval/116",
+    "HumanEval/118",
+    "HumanEval/129",
+    "HumanEval/130",
+    "HumanEval/132",
+    "HumanEval/134",
+    "HumanEval/147"
+  ],
+  "pass_at_1_base_raw": null,
+  "pass_at_1_plus_raw": null,
+  "pass_at_1_base_sanitized": null,
+  "pass_at_1_plus_sanitized": null,
+  "robustness_gap_raw": null,
+  "robustness_gap_sanitized": null
+}
