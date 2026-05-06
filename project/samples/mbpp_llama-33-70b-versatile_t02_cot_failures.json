@@ -1,0 +1,2493 @@
+{
+  "dataset": "mbpp",
+  "samples": "/home/raj/thesis_codegen/COMP4952/project/samples/mbpp_llama-33-70b-versatile_t02_cot.jsonl",
+  "results": "/home/raj/thesis_codegen/COMP4952/project/samples/mbpp_llama-33-70b-versatile_t02_cot_eval_results.json",
+  "summary": {
+    "total_tasks_in_results": 378,
+    "records_analyzed": 378,
+    "failure_count": 107,
+    "stage_counts": {
+      "pass": 271,
+      "plus_only": 56,
+      "base_and_plus": 48,
+      "base_only": 3
+    },
+    "base_pass_count": 327,
+    "plus_pass_count": 271,
+    "base_pass_at_1": 0.8650793650793651,
+    "plus_pass_at_1": 0.716931216931217,
+    "robustness_gap": 0.14814814814814814
+  },
+  "records_written": 107,
+  "failures": [
+    {
+      "task_id": "Mbpp/101",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the kth element in the given array using 1-based indexing.\nassert kth_element([12,3,5,7,19], 2) == 3\n\"\"\"\n",
+      "canonical_solution": "\ndef kth_element(arr, k):\n  return arr[k-1]\n",
+      "generated_solution": "def kth_element(arr, k):\n    if k < 1 or k > len(arr):\n        raise IndexError(\"k is out of range\")\n    return sorted(arr)[k-1]",
+      "base_fail_tests": [
+        [
+          [
+            12,
+            3,
+            5,
+            7,
+            19
+          ],
+          2
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          [
+            100,
+            99,
+            98,
+            97,
+            96
+          ],
+          5
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/102",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to convert a snake case string to camel case string.\nassert snake_to_camel('python_program')=='PythonProgram'\n\"\"\"\n",
+      "canonical_solution": "\ndef snake_to_camel(word):\n    return ''.join(x.capitalize() or '_' for x in word.split('_'))\n",
+      "generated_solution": "def snake_to_camel(s):\n    words = s.split('_')\n    return ''.join(word.capitalize() for word in words)",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          "___python_program"
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/103",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the Eulerian number a(n, m).\nassert eulerian_num(3, 1) == 4\n\"\"\"\n",
+      "canonical_solution": "\ndef eulerian_num(n, m): \n\tif (m >= n or n == 0): \n\t\treturn 0 \n\tif (m == 0): \n\t\treturn 1 \n\treturn (n - m) * eulerian_num(n - 1, m - 1) + (m + 1) * eulerian_num(n - 1, m)\n",
+      "generated_solution": "def eulerian_num(n, m):\n    if n == 0 and m == 0:\n        return 1\n    if n == 0 or m < 0 or m > n:\n        return 0\n    return (n - m) * eulerian_num(n - 1, m - 1) + (m + 1) * eulerian_num(n - 1, m)",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/109",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to find the number of numbers with an odd value when rotating a binary string the given number of times.\nassert odd_Equivalent(\"011001\",6) == 3\n\"\"\"\n",
+      "canonical_solution": "\ndef odd_Equivalent(s,n): \n    count=0\n    for i in range(0,n): \n        if (s[i] == '1'): \n            count = count + 1\n    return count \n",
+      "generated_solution": "def odd_Equivalent(s, rotations):\n    def count_odd(s):\n        count = 0\n        for i in range(len(s)):\n            if int(s[i]) % 2 != 0:\n                count += 1\n        return count\n\n    counts = set()\n    for _ in range(rotations):\n        s = s[-1] + s[:-1]\n        counts.add(count_odd(s))\n    return len(counts)",
+      "base_fail_tests": [
+        [
+          "011001",
+          6
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          "1100110011",
+          5
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/113",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to check if a string represents an integer or not.\nassert check_integer(\"python\")==False\n\"\"\"\n",
+      "canonical_solution": "\ndef check_integer(text):\n text = text.strip()\n if len(text) < 1:\n    return None\n else:\n    if text[0] in '+-':\n        text = text[1:]\n    return text.isdigit()\n",
+      "generated_solution": "def check_integer(s):\n    try:\n        int(s)\n        return True\n    except ValueError:\n        return False",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          ""
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/118",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to convert a string to a list of strings split on the space character.\nassert string_to_list(\"python programming\")==['python','programming']\n\"\"\"\n",
+      "canonical_solution": "\ndef string_to_list(string): \n    return string.split(\" \")\n",
+      "generated_solution": "def string_to_list(s):\n    if not isinstance(s, str):\n        raise TypeError(\"Input must be a string\")\n    return s.split()",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          ""
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/119",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to find the element that appears only once in a sorted array.\nassert search([1,1,2,2,3]) == 3\n\"\"\"\n",
+      "canonical_solution": "\ndef search(arr):\n    n = len(arr)\n    XOR = 0\n    for i in range(n) :\n        XOR = XOR ^ arr[i]\n    return (XOR)\n",
+      "generated_solution": "def search(nums):\n    count_dict = {}\n    for num in nums:\n        if num in count_dict:\n            count_dict[num] += 1\n        else:\n            count_dict[num] = 1\n    for num, count in count_dict.items():\n        if count == 1:\n            return num",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          []
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/123",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to sum all amicable numbers from 1 to a specified number.\nassert amicable_numbers_sum(999)==504\n\"\"\"\n",
+      "canonical_solution": "\ndef div_sum(num):\n    res = 1\n    i = 2\n    while i * i <= num:\n        if num % i == 0:\n            res += i\n            if i * i != num:\n                res += num / i\n        i += 1\n    return res\ndef amicable_numbers_sum(limit):\n    amicables = set()\n    for num in range(2, limit + 1):\n        if num in amicables:\n            continue\n        sum_fact = div_sum(num)\n        sum_fact2 = div_sum(sum_fact)\n        if num == sum_fact2 and num != sum_fact:\n            amicables.add(num)\n            amicables.add(sum_fact2)\n    return sum(amicables)\n",
+      "generated_solution": "def sum_of_divisors(n):\n    divisors = [i for i in range(1, n) if n % i == 0]\n    return sum(divisors)\n\ndef amicable_numbers_sum(n):\n    amicable_numbers = set()\n    for i in range(1, n + 1):\n        j = sum_of_divisors(i)\n        if i != j and sum_of_divisors(j) == i and i < j:\n            amicable_numbers.add(i)\n            amicable_numbers.add(j)\n    return sum(amicable_numbers)",
+      "base_fail_tests": [
+        [
+          9999
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          10000
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/124",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to get the angle of a complex number.\nassert math.isclose(angle_complex(0,1j), 1.5707963267948966, rel_tol=0.001)\n\"\"\"\n",
+      "canonical_solution": "\nimport cmath\ndef angle_complex(a,b):\n  angle=cmath.phase(a+b)\n  return angle\n",
+      "generated_solution": "import math\n\ndef angle_complex(real, imag):\n    return math.atan2(imag, real)",
+      "base_fail_tests": [
+        [
+          "0.0",
+          "1j"
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          "0.0",
+          "0j"
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/125",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the maximum difference between the number of 0s and number of 1s in any sub-string of the given binary string.\nassert find_length(\"11000010001\") == 6\n\"\"\"\n",
+      "canonical_solution": "\ndef find_length(string): \n\tcurrent_sum = 0\n\tmax_sum = 0\n\tfor c in string: \n\t\tcurrent_sum += 1 if c == '0' else -1\n\t\tif current_sum < 0: \n\t\t\tcurrent_sum = 0\n\t\tmax_sum = max(current_sum, max_sum) \n\treturn max_sum\n",
+      "generated_solution": "def find_length(s):\n    max_diff = 0\n    for i in range(len(s)):\n        zeros = 0\n        ones = 0\n        for j in range(i, len(s)):\n            if s[j] == '0':\n                zeros += 1\n            else:\n                ones += 1\n            max_diff = max(max_diff, abs(zeros - ones))\n    return max_diff",
+      "base_fail_tests": [
+        [
+          "10111"
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          "0000000000001111111111111"
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/126",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to find the sum of common divisors of two given numbers.\nassert sum(10,15) == 6\n\"\"\"\n",
+      "canonical_solution": "\nimport math\ndef sum(a,b): \n    sum = 0\n    n = math.gcd(a, b)\n    N = int(math.sqrt(n)) + 1\n    for i in range (1, N): \n        if (n % i == 0): \n            sum += i\n            if (n / i != i): \n                sum += (n / i)\n    return sum\n",
+      "generated_solution": "def sum(a, b):\n    def gcd(a, b):\n        while b:\n            a, b = b, a % b\n        return a\n\n    def get_divisors(n):\n        divisors = []\n        for i in range(1, int(n**0.5) + 1):\n            if n % i == 0:\n                divisors.append(i)\n                if i != n // i:\n                    divisors.append(n // i)\n        return divisors\n\n    common_divisors = set(get_divisors(a)) & set(get_divisors(b))\n    return sum(common_divisors)",
+      "base_fail_tests": [
+        [
+          10,
+          15
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          27,
+          81
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/137",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the ratio of zeroes to non-zeroes in an array of integers.\nassert math.isclose(zero_count([0, 1, 2, -1, -5, 6, 0, -3, -2, 3, 4, 6, 8]), 0.181818, rel_tol=0.001)\n\"\"\"\n",
+      "canonical_solution": "\ndef zero_count(nums):\n    if all(x == 0 for x in nums):\n        return float('inf')\n    return sum(x == 0 for x in nums) / sum(x != 0 for x in nums)\n",
+      "generated_solution": "import math\n\ndef zero_count(arr):\n    zeroes = sum(1 for x in arr if x == 0)\n    non_zeroes = sum(1 for x in arr if x != 0)\n    if non_zeroes == 0:\n        return 0\n    return zeroes / non_zeroes",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/138",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to check whether the given number can be represented as sum of non-zero powers of 2 or not.\nassert is_Sum_Of_Powers_Of_Two(10) == True\n\"\"\"\n",
+      "canonical_solution": "\ndef is_Sum_Of_Powers_Of_Two(n): \n    return n > 0 and n % 2 == 0\n",
+      "generated_solution": "def is_Sum_Of_Powers_Of_Two(n):\n    if n == 0:\n        return False\n    binary = bin(n)[2:]\n    return binary.count('1') > 0",
+      "base_fail_tests": [
+        [
+          7
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          123456789
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/160",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function that returns integers x and y that satisfy ax + by = n as a tuple, or return None if no solution exists.\nassert find_solution(2, 3, 7) == (2, 1)\n\"\"\"\n",
+      "canonical_solution": "\ndef find_solution(a, b, n):\n\ti = 0\n\twhile i * a <= n:\n\t\tif (n - (i * a)) % b == 0: \n\t\t\treturn (i, (n - (i * a)) // b)\n\t\ti = i + 1\n\treturn None\n",
+      "generated_solution": "def find_solution(a, b, n):\n    for x in range(n + 1):\n        if (n - a * x) % b == 0:\n            y = (n - a * x) // b\n            return (x, y)\n    return None",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          122,
+          7,
+          11
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/170",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the sum of numbers in a list within a range specified by two indices.\nassert sum_range_list([2,1,5,6,8,3,4,9,10,11,8,12], 8, 10) == 29\n\"\"\"\n",
+      "canonical_solution": "\ndef sum_range_list(list1, m, n):                                                                                                                                                                                                \n    return sum(list1[m : n + 1])\n",
+      "generated_solution": "def sum_range_list(lst, start, end):\n    return sum(i for i in lst if start <= i <= end)",
+      "base_fail_tests": [
+        [
+          [
+            2,
+            1,
+            5,
+            6,
+            8,
+            3,
+            4,
+            9,
+            10,
+            11,
+            8,
+            12
+          ],
+          8,
+          10
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          [
+            -2,
+            -1,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          3,
+          7
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/171",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the perimeter of a regular pentagon from the length of its sides.\nassert perimeter_pentagon(5) == 25\n\"\"\"\n",
+      "canonical_solution": "\ndef perimeter_pentagon(a):\n  return 5 * a\n",
+      "generated_solution": "def perimeter_pentagon(side_length):\n    if side_length <= 0:\n        raise ValueError(\"Side length must be a positive number\")\n    return 5 * side_length",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          0
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/20",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to check if the given number is woodball or not.\nassert is_woodall(383) == True\n\"\"\"\n",
+      "canonical_solution": "\ndef is_woodall(x): \n\tif not isinstance(x, int):\n\t\treturn False\n\tif x <= 0 or x % 2 == 0:\n\t\treturn False\n\tif (x == 1): \n\t\treturn True\n\tx += 1 \n\ti = 0\n\twhile (x % 2 == 0): \n\t\tx /= 2\n\t\ti += 1\n\t\tif (i == x): \n\t\t\treturn True\n\treturn False\n",
+      "generated_solution": "def is_woodall(n):\n    def is_prime(num):\n        if num < 2:\n            return False\n        for i in range(2, int(num**0.5) + 1):\n            if num % i == 0:\n                return False\n        return True\n\n    p = 2\n    while True:\n        woodall = p * (2**p) - 1\n        if woodall == n:\n            return True\n        elif woodall > n:\n            return False\n        p += 1",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          true
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/223",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function that takes in a sorted array, its length (n), and an element and returns whether the element is the majority element in the given sorted array. (The majority element is the element that occurs more than n/2 times.)\nassert is_majority([1, 2, 3, 3, 3, 3, 10], 7, 3) == True\n\"\"\"\n",
+      "canonical_solution": "\nfrom bisect import bisect_left, bisect_right\ndef is_majority(arr, n, x):\n\tif x not in arr:\n\t\treturn False\n\tl = bisect_left(arr, x)\n\tr = bisect_right(arr, x)\n\treturn r - l > n / 2\n",
+      "generated_solution": "def is_majority(arr, n, target):\n    count = 0\n    for i in range(n):\n        if arr[i] == target:\n            count += 1\n    return count > n / 2",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [],
+          1,
+          0
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/232",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function that takes in a list and an integer n and returns a list containing the n largest items from the list.\nassert set(larg_nnum([10, 20, 50, 70, 90, 20, 50, 40, 60, 80, 100],2))==set([100,90])\n\"\"\"\n",
+      "canonical_solution": "\nimport heapq\ndef larg_nnum(list1, n):\n    return heapq.nlargest(n,list1)\n",
+      "generated_solution": "def larg_nnum(lst, n):\n    return sorted(set(lst), reverse=True)[:n]",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            4,
+            5,
+            3,
+            8,
+            5,
+            2,
+            6,
+            4
+          ],
+          4
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/235",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to set all even bits of a given number.\nassert even_bit_set_number(10) == 10\n\"\"\"\n",
+      "canonical_solution": "\ndef even_bit_set_number(n): \n    mask = 2\n    while mask < n:\n        n |= mask\n        mask <<= 2\n    return n\n",
+      "generated_solution": "def even_bit_set_number(n):\n    mask = 0b10101010\n    return n | mask",
+      "base_fail_tests": [
+        [
+          10
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          999999999
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/242",
+      "failure_stage": "base_only",
+      "base_status": "fail",
+      "plus_status": "pass",
+      "prompt": "\"\"\"\nWrite a function to count the total number of characters in a string.\nassert count_charac(\"python programming\")==18\n\"\"\"\n",
+      "canonical_solution": "\ndef count_charac(str1):\n    return len(str1)\n",
+      "generated_solution": "def count_charac(s):\n    return len(s.replace(\" \", \"\"))",
+      "base_fail_tests": [
+        [
+          "python programming"
+        ]
+      ],
+      "plus_fail_tests": []
+    },
+    {
+      "task_id": "Mbpp/244",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to find the next perfect square greater than a given number.\nassert next_Perfect_Square(35) == 36\n\"\"\"\n",
+      "canonical_solution": "\nimport math  \ndef next_Perfect_Square(N): \n    if N < 0:\n        return 0\n    nextN = math.floor(math.sqrt(N)) + 1\n    return nextN * nextN \n",
+      "generated_solution": "import math\n\ndef next_Perfect_Square(n):\n    root = math.ceil(math.sqrt(n))\n    if root * root == n:\n        root += 1\n    return root * root",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          -5
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/247",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the length of the longest palindromic subsequence in the given string.\nassert lps(\"TENS FOR TENS\") == 5\n\"\"\"\n",
+      "canonical_solution": "\ndef lps(str1): \n\tn = len(str1)\n\tdp = [[0] * n for _ in range(n)]\n\tfor i in range(n - 1, -1, -1):\n\t\tdp[i][i] = 1\n\t\tfor j in range(i + 1, n):\n\t\t\tif str1[i] == str1[j]:\n\t\t\t\tdp[i][j] = dp[i + 1][j - 1] + 2\n\t\t\telse:\n\t\t\t\tdp[i][j] = max(dp[i + 1][j], dp[i][j - 1])\n\treturn dp[0][n - 1]\n",
+      "generated_solution": "def lps(s):\n    s = ''.join(e for e in s if e.isalnum()).lower()\n    n = len(s)\n    dp = [[0] * n for _ in range(n)]\n    for i in range(n - 1, -1, -1):\n        dp[i][i] = 1\n        for j in range(i + 1, n):\n            if s[i] == s[j]:\n                dp[i][j] = dp[i + 1][j - 1] + 2\n            else:\n                dp[i][j] = max(dp[i + 1][j], dp[i][j - 1])\n    return dp[0][n - 1]",
+      "base_fail_tests": [
+        [
+          "TENS FOR TENS"
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          "xZQOogNh"
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/255",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function that takes in a list and length n, and generates all combinations (with repetition) of the elements of the list and returns a list with a tuple for each combination.\nassert combinations_colors( [\"Red\",\"Green\",\"Blue\"],1)==[('Red',), ('Green',), ('Blue',)]\n\"\"\"\n",
+      "canonical_solution": "\nfrom itertools import combinations_with_replacement \ndef combinations_colors(l, n):\n    return list(combinations_with_replacement(l, n))\n",
+      "generated_solution": "import itertools\n\ndef combinations_colors(lst, n):\n    return list(itertools.product(lst, repeat=n))",
+      "base_fail_tests": [
+        [
+          [
+            "Red",
+            "Green",
+            "Blue"
+          ],
+          2
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          [
+            "A",
+            "B",
+            "C",
+            "D"
+          ],
+          4
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/260",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the nth newman\u2013shanks\u2013williams prime number.\nassert newman_prime(3) == 7\n\"\"\"\n",
+      "canonical_solution": "\ndef newman_prime(n): \n\tif n == 0 or n == 1: \n\t\treturn 1\n\ta = 1\n\tb = 1\n\tc = 1\n\tfor _ in range(2, n + 1):\n\t\tc = 2 * b + a\n\t\ta = b\n\t\tb = c\n\treturn c\n",
+      "generated_solution": "def is_prime(n):\n    if n < 2:\n        return False\n    for i in range(2, int(n**0.5) + 1):\n        if n % i == 0:\n            return False\n    return True\n\ndef newman_prime(n):\n    count = 0\n    num = 2\n    while True:\n        if is_prime(num) and (num - 1) % 4 == 0:\n            count += 1\n            if count == n:\n                return num\n        num += 1",
+      "base_fail_tests": [
+        [
+          3
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          100
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/261",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function that takes in two tuples and performs mathematical division operation element-wise across the given tuples.\nassert division_elements((10, 4, 6, 9),(5, 2, 3, 3)) == (2, 2, 2, 3)\n\"\"\"\n",
+      "canonical_solution": "\ndef division_elements(test_tup1, test_tup2):\n  return tuple(ele1 / ele2 for ele1, ele2 in zip(test_tup1, test_tup2))\n",
+      "generated_solution": "def division_elements(tuple1, tuple2):\n    result = []\n    for i in range(len(tuple1)):\n        if tuple2[i] == 0:\n            raise ZeroDivisionError(\"Cannot divide by zero\")\n        result.append(tuple1[i] // tuple2[i])\n    return tuple(result)",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            5,
+            2,
+            3,
+            3
+          ],
+          [
+            5,
+            2,
+            3,
+            4
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/267",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function that takes in an integer n and returns the sum of the squares of the first n odd natural numbers.\nassert square_Sum(2) == 10\n\"\"\"\n",
+      "canonical_solution": "\ndef square_Sum(n):  \n    return n * (4 * n * n - 1) / 3\n",
+      "generated_solution": "def square_Sum(n):\n    return sum(i**2 for i in range(1, n*2, 2))",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          1000000.0
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/268",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the n'th star number.\nassert find_star_num(3) == 37\n\"\"\"\n",
+      "canonical_solution": "\ndef find_star_num(n): \n\treturn 6 * n * (n - 1) + 1 \n",
+      "generated_solution": "def find_star_num(n):\n    if n < 1:\n        raise ValueError(\"n must be a positive integer\")\n    star_num = 0\n    i = 1\n    while n > 0:\n        star_num += 6 * i - 5\n        n -= 1\n        i += 1\n    return star_num",
+      "base_fail_tests": [
+        [
+          3
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          1000000
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/278",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the number of elements that occurs before the tuple element in the given tuple.\nassert count_first_elements((1, 5, 7, (4, 6), 10) ) == 3\n\"\"\"\n",
+      "canonical_solution": "\ndef count_first_elements(test_tup):\n  for count, ele in enumerate(test_tup):\n    if isinstance(ele, tuple):\n      break\n  return count\n",
+      "generated_solution": "def count_first_elements(t):\n    for i, element in enumerate(t):\n        if isinstance(element, tuple):\n            return i\n    return len(t)",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/279",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the nth decagonal number.\nassert is_num_decagonal(3) == 27\n\"\"\"\n",
+      "canonical_solution": "\ndef is_num_decagonal(n): \n\treturn 4 * n * n - 3 * n \n",
+      "generated_solution": "def is_num_decagonal(n):\n    return n * (8 * n - 7)",
+      "base_fail_tests": [
+        [
+          3
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          1000000
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/286",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the largest sum of a contiguous array in the modified array which is formed by repeating the given array k times.\nassert max_sub_array_sum_repeated([10, 20, -30, -1], 4, 3) == 30\n\"\"\"\n",
+      "canonical_solution": "\ndef max_sub_array_sum_repeated(a, n, k): \n\tmodifed = a * k\n\tpre = 0\t# dp[i-1]\n\tres = modifed[0]\n\tfor n in modifed:\n\t\tpre = max(pre + n, n)\n\t\tres = max(pre, res)\n\treturn res\n",
+      "generated_solution": "def max_sub_array_sum_repeated(arr, k, n):\n    def max_sub_array_sum(arr):\n        max_sum = float('-inf')\n        current_sum = 0\n        for num in arr:\n            current_sum = max(num, current_sum + num)\n            max_sum = max(max_sum, current_sum)\n        return max_sum\n\n    repeated_arr = arr * k\n    max_sum = float('-inf')\n    for i in range(n):\n        for j in range(i + 1, len(repeated_arr) + 1):\n            max_sum = max(max_sum, sum(repeated_arr[i:j]))\n    return max_sum",
+      "base_fail_tests": [
+        [
+          [
+            -1,
+            10,
+            20
+          ],
+          3,
+          2
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          [
+            5,
+            -2,
+            10,
+            4,
+            -7,
+            3
+          ],
+          6,
+          5
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/287",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function takes in an integer n and returns the sum of squares of first n even natural numbers.\nassert square_Sum(2) == 20\n\"\"\"\n",
+      "canonical_solution": "\ndef square_Sum(n):  \n    return 2 * n * (n + 1) * (2 * n + 1) /3\n",
+      "generated_solution": "def square_Sum(n):\n    sum = 0\n    for i in range(1, n+1):\n        sum += (i*2)**2\n    return sum",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          1000000
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/290",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the list of maximum length in a list of lists.\nassert max_length([[0], [1, 3], [5, 7], [9, 11], [13, 15, 17]])==(3, [13, 15, 17])\n\"\"\"\n",
+      "canonical_solution": "\ndef max_length(list1):\n    return max([(len(x), x) for x in list1], key=lambda x: x[0])\n",
+      "generated_solution": "def max_length(lists):\n    max_len = 0\n    max_list = None\n    for lst in lists:\n        if len(lst) > max_len:\n            max_len = len(lst)\n            max_list = lst\n    return max_len, max_list",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            []
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/294",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the maximum value in a given heterogeneous list.\nassert max_val(['Python', 3, 2, 4, 5, 'version'])==5\n\"\"\"\n",
+      "canonical_solution": "\ndef max_val(listval):\n     max_val = max(i for i in listval if isinstance(i, int)) \n     return max_val\n",
+      "generated_solution": "def max_val(lst):\n    numeric_values = [x for x in lst if isinstance(x, (int, float))]\n    if not numeric_values:\n        raise ValueError(\"List does not contain any numeric values\")\n    return max(numeric_values)",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            "3.14",
+            false,
+            7.5
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/300",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the count of all binary sequences of length 2n such that sum of first n bits is same as sum of last n bits.\nassert math.isclose(count_binary_seq(1), 2.0, rel_tol=0.001)\n\"\"\"\n",
+      "canonical_solution": "\ndef count_binary_seq(n): \n\tnCr = 1\n\tres = 1\n\tfor r in range(1, n + 1): \n\t\tnCr = (nCr * (n + 1 - r)) / r \n\t\tres += nCr * nCr \n\treturn res \n",
+      "generated_solution": "import math\n\ndef count_binary_seq(n):\n    total = 2 ** (2 * n)\n    return math.comb(2 * n, n)",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          50
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/301",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the depth of a dictionary.\nassert dict_depth({'a':1, 'b': {'c': {'d': {}}}})==4\n\"\"\"\n",
+      "canonical_solution": "\ndef dict_depth_aux(d):\n    if isinstance(d, dict):\n        return 1 + (max(map(dict_depth_aux, d.values())) if d else 0)\n    return 0\ndef dict_depth(d):\n    return dict_depth_aux(d)\n",
+      "generated_solution": "def dict_depth(d):\n    if not isinstance(d, dict) or not d:\n        return 0\n    else:\n        return 1 + max((dict_depth(v) for v in d.values() if isinstance(v, dict)), default=0)",
+      "base_fail_tests": [
+        [
+          {
+            "a": 1,
+            "b": {
+              "c": {
+                "d": {}
+              }
+            }
+          }
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          {}
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/305",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to return two words from a list of words starting with letter 'p'.\nassert start_withp([\"Python PHP\", \"Java JavaScript\", \"c c++\"])==('Python', 'PHP')\n\"\"\"\n",
+      "canonical_solution": "\nimport re\ndef start_withp(words):\n    for w in words:\n        m = re.match(\"(P\\w+)\\W(P\\w+)\", w)\n        if m:\n            return m.groups()\n",
+      "generated_solution": "def start_withp(words):\n    p_words = [word for sentence in words for word in sentence.split() if word.lower().startswith('p')]\n    return tuple(p_words[:2])",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          []
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/306",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the maximum sum of increasing subsequence from prefix until ith index and also including a given kth element which is after i, i.e., k > i .\nassert max_sum_increasing_subseq([1, 101, 2, 3, 100, 4, 5 ], 7, 4, 6) == 11\n\"\"\"\n",
+      "canonical_solution": "\ndef max_sum_increasing_subseq(a, n, index, k):\n\tdp = [[0 for _ in range(n)] for _ in range(n)]\n\tfor i in range(n):\n\t\tif a[i] > a[0]:\n\t\t\tdp[0][i] = a[i] + a[0]\n\t\telse:\n\t\t\tdp[0][i] = a[i]\n\tfor i in range(1, n):\n\t\tfor j in range(n):\n\t\t\tif a[j] > a[i] and j > i:\n\t\t\t\tif dp[i - 1][i] + a[j] > dp[i - 1][j]:\n\t\t\t\t\tdp[i][j] = dp[i - 1][i] + a[j]\n\t\t\t\telse:\n\t\t\t\t\tdp[i][j] = dp[i - 1][j]\n\t\t\telse:\n\t\t\t\tdp[i][j] = dp[i - 1][j]\n\treturn dp[index][k]\n",
+      "generated_solution": "def max_sum_increasing_subseq(arr, n, i, k):\n    max_sum = float('-inf')\n    for j in range(i+1, k+1):\n        if arr[j] > arr[i]:\n            sub_arr = arr[:i+1] + [arr[j]]\n            sub_max_sum = max_sum_increasing_subseq_helper(sub_arr, len(sub_arr))\n            max_sum = max(max_sum, sub_max_sum)\n    return max_sum\n\n\ndef max_sum_increasing_subseq_helper(arr, n):\n    max_sum = [0] * n\n    max_sum[0] = arr[0]\n    for i in range(1, n):\n        max_sum[i] = arr[i]\n        for j in range(i):\n            if arr[i] > arr[j] and max_sum[i] < max_sum[j] + arr[i]:\n                max_sum[i] = max_sum[j] + arr[i]\n    return max(max_sum)",
+      "base_fail_tests": [
+        [
+          [
+            1,
+            101,
+            2,
+            3,
+            100,
+            4,
+            5
+          ],
+          7,
+          4,
+          6
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          [
+            5,
+            2,
+            4,
+            1,
+            3,
+            6
+          ],
+          6,
+          1,
+          3
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/310",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to convert a given string to a tuple of characters.\nassert string_to_tuple(\"python 3.0\")==('p', 'y', 't', 'h', 'o', 'n', '3', '.', '0')\n\"\"\"\n",
+      "canonical_solution": "\ndef string_to_tuple(str1):\n    result = tuple(x for x in str1 if not x.isspace()) \n    return result\n",
+      "generated_solution": "def string_to_tuple(s):\n    return tuple(s)",
+      "base_fail_tests": [
+        [
+          "python 3.0"
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          "hello   world"
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/311",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to set the left most unset bit.\nassert set_left_most_unset_bit(10) == 14\n\"\"\"\n",
+      "canonical_solution": "\ndef set_left_most_unset_bit(n): \n    if not (n & (n + 1)): \n        return n \n    pos, temp, count = 0, n, 0 \n    while temp: \n        if not (temp & 1): \n            pos = count      \n        count += 1\n        temp >>= 1\n    return (n | (1 << (pos))) \n",
+      "generated_solution": "def set_left_most_unset_bit(n):\n    if n == 0:\n        return 1\n    mask = 1 << (n.bit_length() - 1)\n    while n & mask:\n        mask <<= 1\n    return n | mask",
+      "base_fail_tests": [
+        [
+          10
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          125
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/398",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to compute the sum of digits of each number of a given list.\nassert sum_of_digits([10,2,56])==14\n\"\"\"\n",
+      "canonical_solution": "\ndef sum_of_digits(nums):\n    return sum(int(el) for n in nums for el in str(n) if el.isdigit())\n",
+      "generated_solution": "def sum_of_digits(numbers):\n    return sum(sum(int(digit) for digit in str(num)) for num in numbers)",
+      "base_fail_tests": [
+        [
+          [
+            [
+              10,
+              20,
+              4,
+              5,
+              "b",
+              70,
+              "a"
+            ]
+          ]
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          [
+            -10,
+            15,
+            0,
+            -5,
+            2
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/410",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the minimum value in a given heterogeneous list.\nassert min_val(['Python', 3, 2, 4, 5, 'version'])==2\n\"\"\"\n",
+      "canonical_solution": "\ndef min_val(listval):\n     min_val = min(i for i in listval if isinstance(i, int))\n     return min_val\n",
+      "generated_solution": "def min_val(lst):\n    numeric_values = [x for x in lst if isinstance(x, (int, float))]\n    if not numeric_values:\n        raise ValueError(\"List does not contain any numeric values\")\n    return min(numeric_values)",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            "Python",
+            10,
+            5,
+            2.5,
+            2.5,
+            "version"
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/415",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to find a pair with highest product from a given array of integers.\nassert max_Product([1,2,3,4,7,0,8,4]) == (7,8)\n\"\"\"\n",
+      "canonical_solution": "\ndef max_Product(arr): \n    pairs = [(a, b) for a in arr for b in arr if a != b]\n    return max(pairs, key=lambda x: x[0] * x[1])\n",
+      "generated_solution": "def max_Product(arr):\n    if len(arr) < 2:\n        return None\n    max1 = max2 = float('-inf')\n    for num in arr:\n        if num > max1:\n            max2 = max1\n            max1 = num\n        elif num > max2 and num != max1:\n            max2 = num\n    return (max1, max2)",
+      "base_fail_tests": [
+        [
+          [
+            1,
+            2,
+            3,
+            4,
+            7,
+            0,
+            8,
+            4
+          ]
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          [
+            -2,
+            -1,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/427",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to convert a date of yyyy-mm-dd format to dd-mm-yyyy format.\nassert change_date_format(\"2026-01-02\") == '02-01-2026'\n\"\"\"\n",
+      "canonical_solution": "\nimport re\ndef change_date_format(dt):\n    return re.sub(r'(\\d{4})-(\\d{1,2})-(\\d{1,2})', '\\\\3-\\\\2-\\\\1', dt)\n",
+      "generated_solution": "from datetime import datetime\n\ndef change_date_format(date_str):\n    try:\n        date = datetime.strptime(date_str, '%Y-%m-%d')\n        return date.strftime('%d-%m-%Y')\n    except ValueError:\n        return None",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          "2021-1-026"
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/429",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to extract the elementwise and tuples from the given two tuples.\nassert and_tuples((10, 4, 6, 9), (5, 2, 3, 3)) == (0, 0, 2, 1)\n\"\"\"\n",
+      "canonical_solution": "\ndef and_tuples(test_tup1, test_tup2):\n  return tuple(x & y for x, y in zip(test_tup1, test_tup2))\n",
+      "generated_solution": "def and_tuples(t1, t2):\n    return tuple(a - b for a, b in zip(t1, t2))",
+      "base_fail_tests": [
+        [
+          [
+            10,
+            4,
+            6,
+            9
+          ],
+          [
+            5,
+            2,
+            3,
+            3
+          ]
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          [
+            123,
+            456,
+            789,
+            10
+          ],
+          [
+            987,
+            654,
+            321,
+            10
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/430",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the directrix of a parabola.\nassert parabola_directrix(5,3,2)==-198\n\"\"\"\n",
+      "canonical_solution": "\ndef parabola_directrix(a, b, c): \n  return ((int)(c - ((b * b) + 1) * 4 * a ))\n",
+      "generated_solution": "def parabola_directrix(a, b, c):\n    return -((b**2) - (4*a*c)) / (4*a)",
+      "base_fail_tests": [
+        [
+          5,
+          3,
+          2
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/432",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the median length of a trapezium.\nassert median_trapezium(15,25,35)==20\n\"\"\"\n",
+      "canonical_solution": "\ndef median_trapezium(base1,base2,height):\n    return (base1 + base2) / 2\n",
+      "generated_solution": "def median_trapezium(a, b, c):\n    lengths = sorted([a, b, c])\n    return lengths[1]",
+      "base_fail_tests": [
+        [
+          15,
+          25,
+          35
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          2.3,
+          4.7,
+          3.9
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/435",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to find the last digit of a given number.\nassert last_Digit(123) == 3\n\"\"\"\n",
+      "canonical_solution": "\ndef last_Digit(n) :\n    if n < 0: \n        n = -n\n    return n % 10\n",
+      "generated_solution": "def last_Digit(n):\n    return n % 10",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          -987
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/437",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to remove odd characters in a string.\nassert remove_odd(\"python\")==(\"yhn\")\n\"\"\"\n",
+      "canonical_solution": "\ndef remove_odd(str1):\n    return str1[1::2]\n",
+      "generated_solution": "def remove_odd(s):\n    return \"\".join([s[i] for i in range(len(s)) if i % 2 == 0])",
+      "base_fail_tests": [
+        [
+          "python"
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          "Hello, world!"
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/439",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to join a list of multiple integers into a single integer.\nassert multiple_to_single([11, 33, 50])==113350\n\"\"\"\n",
+      "canonical_solution": "\ndef multiple_to_single(L):\n  return int(''.join(map(str,L)))\n",
+      "generated_solution": "def multiple_to_single(numbers):\n    result = 0\n    for num in numbers:\n        result = result * 100 + num\n    return result",
+      "base_fail_tests": [
+        [
+          [
+            -1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ]
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          [
+            1000000,
+            999999,
+            100000,
+            99999
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/440",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the first adverb and their positions in a given sentence.\nassert find_adverb_position(\"clearly!! we can see the sky\")==(0, 7, 'clearly')\n\"\"\"\n",
+      "canonical_solution": "\nimport re\ndef find_adverb_position(text):\n    for m in re.finditer(r\"\\w+ly\", text):\n        return (m.start(), m.end(), m.group(0))\n",
+      "generated_solution": "import re\n\ndef find_adverb_position(sentence):\n    adverbs = re.findall(r'\\b\\w+ly\\b', sentence)\n    if adverbs:\n        adverb = adverbs[0]\n        start = sentence.find(adverb)\n        end = start + len(adverb)\n        return start, end, adverb\n    else:\n        return None",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          "awaquicklyy"
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/441",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the surface area of a cube of a given size.\nassert surfacearea_cube(5)==150\n\"\"\"\n",
+      "canonical_solution": "\ndef surfacearea_cube(l):\n  return 6 * l * l\n",
+      "generated_solution": "def surfacearea_cube(size):\n    if not isinstance(size, (int, float)) or size <= 0:\n        raise ValueError(\"Size must be a positive number\")\n    return 6 * size ** 2",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          -3
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/446",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to count the occurence of all elements of list in a tuple.\nassert count_Occurrence(('a', 'a', 'c', 'b', 'd'),['a', 'b'] ) == 3\n\"\"\"\n",
+      "canonical_solution": "\nfrom collections import Counter \ndef count_Occurrence(tup, lst): \n    return sum(tup.count(ele) for ele in lst)\n",
+      "generated_solution": "def count_Occurrence(tup, lst):\n    count = 0\n    for element in tup:\n        if element in lst:\n            count += 1\n    return count",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            1,
+            1,
+            1,
+            2,
+            2,
+            2,
+            3,
+            3,
+            3
+          ],
+          [
+            1,
+            1,
+            2,
+            2,
+            3,
+            3
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/448",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to calculate the sum of perrin numbers.\nassert cal_sum(9) == 49\n\"\"\"\n",
+      "canonical_solution": "\ndef cal_sum(n): \n\ta = 3\n\tb = 0\n\tc = 2\n\tif (n == 0): \n\t\treturn 3\n\tif (n == 1): \n\t\treturn 3\n\tif (n == 2): \n\t\treturn 5\n\tsum = 5\n\twhile (n > 2): \n\t\td = a + b \n\t\tsum = sum + d \n\t\ta = b \n\t\tb = c \n\t\tc = d \n\t\tn = n - 1\n\treturn sum\n",
+      "generated_solution": "def cal_sum(n):\n    perrin = [3, 0, 2]\n    for i in range(3, n+1):\n        perrin.append(perrin[i-2] + perrin[i-3])\n    return sum(perrin[:n+1])",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          -5
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/459",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to remove uppercase substrings from a given string.\nassert remove_uppercase('cAstyoUrFavoRitETVshoWs') == 'cstyoravoitshos'\n\"\"\"\n",
+      "canonical_solution": "\ndef remove_uppercase(str1):\n  return ''.join(c for c in str1 if c.islower())\n",
+      "generated_solution": "def remove_uppercase(s):\n    result = ''\n    i = 0\n    while i < len(s):\n        if s[i].isupper():\n            j = i\n            while j < len(s) and s[j].isupper():\n                j += 1\n            i = j\n        else:\n            result += s[i]\n            i += 1\n    return result",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          "ThiS%^%!s&a(mY)TesTStR%i*ng"
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/462",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find all possible combinations of the elements of a given list.\nassert combinations_list(['orange', 'red', 'green', 'blue'])==[[], ['orange'], ['red'], ['red', 'orange'], ['green'], ['green', 'orange'], ['green', 'red'], ['green', 'red', 'orange'], ['blue'], ['blue', 'orange'], ['blue', 'red'], ['blue', 'red', 'orange'], ['blue', 'green'], ['blue', 'green', 'orange'], ['blue', 'green', 'red'], ['blue', 'green', 'red', 'orange']]\n\"\"\"\n",
+      "canonical_solution": "\ndef combinations_list(list1):\n    if len(list1) == 0:\n        return [[]]\n    result = []\n    for el in combinations_list(list1[1:]):\n        result += [el, el+[list1[0]]]\n    return result\n",
+      "generated_solution": "def combinations_list(lst):\n    result = [[]]\n    for elem in lst:\n        result += [curr + [elem] for curr in result]\n    return result",
+      "base_fail_tests": [
+        [
+          [
+            "orange",
+            "red",
+            "green",
+            "blue"
+          ]
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e",
+            "f",
+            "g",
+            "h",
+            "i",
+            "j"
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/465",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to drop empty items from a given dictionary.\nassert drop_empty({'c1': 'Red', 'c2': 'Green', 'c3':None})=={'c1': 'Red', 'c2': 'Green'}\n\"\"\"\n",
+      "canonical_solution": "\ndef drop_empty(dict1):\n  dict1 = {key:value for (key, value) in dict1.items() if value is not None}\n  return dict1\n",
+      "generated_solution": "def drop_empty(dictionary):\n    return {key: value for key, value in dictionary.items() if value is not None and value != ''}",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          {
+            "1": "",
+            "2": "Red",
+            "3": "Green"
+          }
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/468",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the maximum product formed by multiplying numbers of an increasing subsequence of that array.\nassert max_product([3, 100, 4, 5, 150, 6]) == 3000\n\"\"\"\n",
+      "canonical_solution": "\ndef max_product(arr):   \n  # record the correspond ending element to maintain the increasing subsequence\n  ret = max_ending = min_ending = (arr[0], arr[0])\n  for n in arr[1:]:\n    if n > max_ending[1]:\n      max_ending = max((max_ending[0] * n, n), max_ending, key=lambda x: x[0])\n    else:\n      max_ending = (n, n)\n    if n > min_ending[1]:\n      min_ending = min((min_ending[0] * n, n), min_ending, key=lambda x: x[0])\n    else:\n      min_ending = (n, n)\n    ret = max(ret, max_ending, min_ending, key=lambda x: x[0])\n  return ret[0]\n",
+      "generated_solution": "def max_product(nums):\n    if not nums:\n        return 0\n\n    max_product = [1] * len(nums)\n    max_product[0] = nums[0]\n\n    for i in range(1, len(nums)):\n        max_product[i] = nums[i]\n        for j in range(i):\n            if nums[i] > nums[j]:\n                max_product[i] = max(max_product[i], max_product[j] * nums[i])\n\n    return max(max_product)",
+      "base_fail_tests": [
+        [
+          [
+            3,
+            100,
+            4,
+            5,
+            150,
+            6
+          ]
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          [
+            2,
+            3,
+            3,
+            4,
+            5,
+            3,
+            6
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/559",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the sum of the largest contiguous sublist in the given list.\nassert max_sub_array_sum([-2, -3, 4, -1, -2, 1, 5, -3], 8) == 7\n\"\"\"\n",
+      "canonical_solution": "\ndef max_sub_array_sum(a, size):\n  max_so_far = 0\n  max_ending_here = 0\n  for i in range(0, size):\n    max_ending_here = max_ending_here + a[i]\n    if max_ending_here < 0:\n      max_ending_here = 0\n    elif (max_so_far < max_ending_here):\n      max_so_far = max_ending_here\n  return max_so_far\n",
+      "generated_solution": "def max_sub_array_sum(nums, size):\n    if size > len(nums):\n        return None\n    max_sum = float('-inf')\n    for i in range(len(nums) - size + 1):\n        current_sum = sum(nums[i:i+size])\n        max_sum = max(max_sum, current_sum)\n    return max_sum",
+      "base_fail_tests": [
+        [
+          [
+            -2,
+            -3,
+            4,
+            -1,
+            -2,
+            1,
+            5,
+            -3
+          ],
+          8
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          [
+            -10,
+            -5,
+            -3,
+            -2,
+            -1
+          ],
+          5
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/564",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function which takes a list of integers and counts the number of possible unordered pairs where both elements are unequal.\nassert count_Pairs([1,2,1],3) == 2\n\"\"\"\n",
+      "canonical_solution": "\ndef count_Pairs(arr,n): \n    cnt = 0; \n    for i in range(n): \n        for j in range(i + 1,n): \n            if (arr[i] != arr[j]): \n                cnt += 1; \n    return cnt; \n",
+      "generated_solution": "def count_Pairs(nums, k):\n    count = 0\n    num_set = set()\n    for i in range(len(nums)):\n        for j in range(i + 1, len(nums)):\n            if nums[i] != nums[j]:\n                pair = tuple(sorted((nums[i], nums[j])))\n                if pair not in num_set:\n                    count += 1\n                    num_set.add(pair)\n    return count",
+      "base_fail_tests": [
+        [
+          [
+            1,
+            2,
+            1
+          ],
+          3
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          [
+            1,
+            1,
+            2,
+            2,
+            3,
+            3,
+            4,
+            4,
+            5,
+            5
+          ],
+          10
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/576",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to check whether a list is sublist of another or not.\nassert is_Sub_Array([1,4,3,5],[1,2]) == False\n\"\"\"\n",
+      "canonical_solution": "\ndef is_Sub_Array(A,B): \n    a = 0\n    b = 0\n    while a < len(A) and b < len(B):\n        if A[a] == B[b]:\n            a += 1\n            b += 1\n        else:\n            a += 1\n    return b == len(B)\n",
+      "generated_solution": "def is_Sub_Array(lst1, lst2):\n    if len(lst2) > len(lst1):\n        return False\n    for i in range(len(lst1) - len(lst2) + 1):\n        if lst1[i:i+len(lst2)] == lst2:\n            return True\n    return False",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          [
+            1,
+            3,
+            5
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/577",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to find the last digit in factorial of a given number.\nassert last_Digit_Factorial(4) == 4\n\"\"\"\n",
+      "canonical_solution": "\ndef last_Digit_Factorial(n): \n    if (n == 0): \n      return 1\n    elif (n <= 2): \n      return n  \n    elif (n == 3): \n      return 6\n    elif (n == 4): \n      return 4 \n    else: \n      return 0\n",
+      "generated_solution": "def last_Digit_Factorial(n):\n    if n < 0:\n        return \"Factorial is not defined for negative numbers\"\n    elif n == 0 or n == 1:\n        return 1\n    else:\n        factorial = 1\n        for i in range(2, n + 1):\n            factorial = (factorial * i) % 10\n        return factorial",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          2.5
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/579",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the dissimilar elements in the given two tuples.\nassert find_dissimilar((3, 4, 5, 6), (5, 7, 4, 10)) == (3, 6, 7, 10)\n\"\"\"\n",
+      "canonical_solution": "\ndef find_dissimilar(test_tup1, test_tup2):\n  return tuple(set(test_tup1) ^ set(test_tup2))\n",
+      "generated_solution": "def find_dissimilar(tuple1, tuple2):\n    set1 = set(tuple1)\n    set2 = set(tuple2)\n    dissimilar = set1.symmetric_difference(set2)\n    return tuple(sorted(dissimilar))",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e",
+            "f",
+            "g",
+            "h",
+            "i",
+            "j"
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/581",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to find the surface area of a square pyramid with a given base edge and height.\nassert surface_Area(3,4) == 33\n\"\"\"\n",
+      "canonical_solution": "\ndef surface_Area(b,s): \n    return 2 * b * s + pow(b,2) \n",
+      "generated_solution": "import math\n\ndef surface_Area(base_edge, height):\n    slant_height = math.sqrt((base_edge / 2) ** 2 + height ** 2)\n    base_area = base_edge ** 2\n    triangle_area = (base_edge * slant_height) / 2\n    return base_area + 4 * triangle_area",
+      "base_fail_tests": [
+        [
+          3,
+          4
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          10,
+          20
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/589",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find perfect squares between two given numbers.\nassert perfect_squares(1,30)==[1, 4, 9, 16, 25]\n\"\"\"\n",
+      "canonical_solution": "\nimport math\ndef perfect_squares(a, b):\n    if a > b:\n        a, b = b, a\n    if b < 0:\n        return []\n    if a < 0:\n        a = 0\n    return list(filter(lambda x: math.sqrt(x).is_integer(), range(a, b+1)))\n",
+      "generated_solution": "import math\n\ndef perfect_squares(start, end):\n    perfect_squares_list = []\n    for num in range(start, end + 1):\n        root = math.sqrt(num)\n        if int(root + 0.5) ** 2 == num:\n            perfect_squares_list.append(num)\n    return perfect_squares_list",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          -10,
+          -1
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/590",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to convert polar coordinates to rectangular coordinates.\nassert polar_rect(3,4)==((5.0, 0.9272952180016122), (-2+2.4492935982947064e-16j))\n\"\"\"\n",
+      "canonical_solution": "\nimport cmath\ndef polar_rect(x,y):\n    cn = cmath.polar(complex(x, y))\n    cn1 = cmath.rect(2, cmath.pi)\n    return (cn, cn1)\n",
+      "generated_solution": "import cmath\nimport math\n\ndef polar_rect(r, theta):\n    x = r * math.cos(theta)\n    y = r * math.sin(theta)\n    return ((x, y), complex(x, y))",
+      "base_fail_tests": [
+        [
+          3,
+          4
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/592",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to find the sum of the product of consecutive binomial co-efficients.\nassert sum_Of_product(3) == 15\n\"\"\"\n",
+      "canonical_solution": "\ndef binomial_Coeff(n, k): \n    C = [0] * (k + 1); \n    C[0] = 1; # nC0 is 1 \n    for i in range(1,n + 1):  \n        for j in range(min(i, k),0,-1): \n            C[j] = C[j] + C[j - 1]; \n    return C[k]; \ndef sum_Of_product(n): \n    return binomial_Coeff(2 * n, n - 1); \n",
+      "generated_solution": "import math\n\ndef sum_Of_product(n):\n    total_sum = 0\n    for i in range(1, n + 1):\n        product = 1\n        for j in range(i):\n            product *= math.comb(n, j)\n        total_sum += product\n    return total_sum",
+      "base_fail_tests": [
+        [
+          3
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          10
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/593",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to remove leading zeroes from an ip address.\nassert removezero_ip(\"216.08.094.196\")==('216.8.94.196')\n\"\"\"\n",
+      "canonical_solution": "\nimport re\ndef removezero_ip(ip):\n return re.sub('\\.[0]*', '.', ip)\n",
+      "generated_solution": "def removezero_ip(ip):\n    return '.'.join(str(int(i)) for i in ip.split('.'))",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          "0.0.0.0"
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/597",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find kth element from the given two sorted arrays.\nassert find_kth([2, 3, 6, 7, 9], [1, 4, 8, 10], 5) == 6\n\"\"\"\n",
+      "canonical_solution": "\ndef find_kth(arr1, arr2, k):\n\treturn sorted(arr1 + arr2)[k - 1]\n",
+      "generated_solution": "def find_kth(arr1, arr2, k):\n    i, j = 0, 0\n    while k > 1:\n        if i == len(arr1):\n            j += k - 1\n            break\n        if j == len(arr2):\n            i += k - 1\n            break\n        if arr1[i] < arr2[j]:\n            i += 1\n        else:\n            j += 1\n        k -= 1\n    if i == len(arr1):\n        return arr2[j]\n    if j == len(arr2):\n        return arr1[i]\n    return min(arr1[i], arr2[j])",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            1,
+            2,
+            3
+          ],
+          [
+            true,
+            true,
+            false
+          ],
+          3
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/603",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to get all lucid numbers smaller than or equal to a given integer.\nassert get_ludic(10) == [1, 2, 3, 5, 7]\n\"\"\"\n",
+      "canonical_solution": "\ndef get_ludic(n):\n\tludics = []\n\tfor i in range(1, n + 1):\n\t\tludics.append(i)\n\tindex = 1\n\twhile(index != len(ludics)):\n\t\tfirst_ludic = ludics[index]\n\t\tremove_index = index + first_ludic\n\t\twhile(remove_index < len(ludics)):\n\t\t\tludics.remove(ludics[remove_index])\n\t\t\tremove_index = remove_index + first_ludic - 1\n\t\tindex += 1\n\treturn ludics\n",
+      "generated_solution": "def get_ludic(n):\n    def is_prime(num):\n        if num < 2:\n            return False\n        for i in range(2, int(num**0.5) + 1):\n            if num % i == 0:\n                return False\n        return True\n\n    return [i for i in range(1, n+1) if is_prime(i)]",
+      "base_fail_tests": [
+        [
+          10
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          100
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/611",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function which given a matrix represented as a list of lists returns the max of the n'th column.\nassert max_of_nth([[5, 6, 7], [1, 3, 5], [8, 9, 19]], 2) == 19\n\"\"\"\n",
+      "canonical_solution": "\ndef max_of_nth(test_list, N):\n  return max([sub[N] for sub in test_list])\n",
+      "generated_solution": "def max_of_nth(matrix, n):\n    if not matrix:\n        raise ValueError(\"Matrix is empty\")\n    if n < 0 or n >= len(matrix[0]):\n        raise IndexError(\"Column index out of range\")\n    return max(row[n] for row in matrix)",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            [
+              -5,
+              -2,
+              -10
+            ],
+            [
+              -5,
+              -2,
+              -10
+            ],
+            [
+              -8,
+              -3,
+              -7
+            ],
+            [
+              -6,
+              -9,
+              -4
+            ]
+          ],
+          -1
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/615",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function which takes a tuple of tuples and returns the average value for each tuple as a list.\nassert average_tuple(((10, 10, 10, 12), (30, 45, 56, 45), (81, 80, 39, 32), (1, 2, 3, 4)))==[30.5, 34.25, 27.0, 23.25]\n\"\"\"\n",
+      "canonical_solution": "\ndef average_tuple(nums):\n    result = [sum(x) / len(x) for x in zip(*nums)]\n    return result\n",
+      "generated_solution": "def average_tuple(tuples):\n    result = []\n    for i in range(len(tuples[0])):\n        total = sum(t[i] for t in tuples)\n        result.append(total / len(tuples))\n    return result",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            [
+              2,
+              4,
+              6
+            ],
+            [
+              -8,
+              10
+            ],
+            [
+              14,
+              -16,
+              18,
+              -20
+            ],
+            [
+              22,
+              24
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/620",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the size of the largest subset of a list of numbers so that every pair is divisible.\nassert largest_subset([ 1, 3, 6, 13, 17, 18 ]) == 4\n\"\"\"\n",
+      "canonical_solution": "\ndef largest_subset(a):\n\tn = len(a)\n\tdp = [0 for _ in range(n)]\n\tdp[n - 1] = 1; \n\tfor i in range(n - 2, -1, -1):\n\t\tmxm = 0\n\t\tfor j in range(i + 1, n):\n\t\t\tif a[j] % a[i] == 0 or a[i] % a[j] == 0:\n\t\t\t\tmxm = max(mxm, dp[j])\n\t\tdp[i] = 1 + mxm\n\treturn max(dp)\n",
+      "generated_solution": "def largest_subset(nums):\n    if not nums:\n        return 0\n    nums.sort()\n    dp = [1] * len(nums)\n    for i in range(1, len(nums)):\n        for j in range(i):\n            if nums[i] % nums[j] == 0:\n                dp[i] = max(dp[i], dp[j] + 1)\n    return max(dp)",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            9,
+            3,
+            12,
+            7,
+            16,
+            3,
+            11,
+            8,
+            4,
+            13,
+            13
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/622",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the median of two sorted lists of same size.\nassert get_median([1, 12, 15, 26, 38], [2, 13, 17, 30, 45], 5) == 16.0\n\"\"\"\n",
+      "canonical_solution": "\ndef get_median(arr1, arr2, n):\n  i = 0\n  j = 0\n  m1 = -1\n  m2 = -1\n  count = 0\n  while count < n + 1:\n    count += 1\n    if i == n:\n      m1 = m2\n      m2 = arr2[0]\n      break\n    elif j == n:\n      m1 = m2\n      m2 = arr1[0]\n      break\n    if arr1[i] <= arr2[j]:\n      m1 = m2\n      m2 = arr1[i]\n      i += 1\n    else:\n      m1 = m2\n      m2 = arr2[j]\n      j += 1\n  return (m1 + m2)/2\n",
+      "generated_solution": "def get_median(arr1, arr2, n):\n    merged = sorted(arr1 + arr2)\n    mid = n * 2 // 2\n    if (n * 2) % 2 == 0:\n        return (merged[mid - 1] + merged[mid]) / 2.0\n    else:\n        return float(merged[mid])",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            1
+          ],
+          [
+            2
+          ],
+          0
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/626",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to find the area of the largest triangle that can be inscribed in a semicircle with a given radius.\nassert triangle_area(-1) == None\n\"\"\"\n",
+      "canonical_solution": "\ndef triangle_area(r) :  \n    if r < 0 : \n        return None\n    return r * r \n",
+      "generated_solution": "import math\n\ndef triangle_area(radius):\n    if radius < 0:\n        return None\n    elif radius == 0:\n        return 0\n    else:\n        return (radius ** 2) * math.pi / 2",
+      "base_fail_tests": [
+        [
+          2
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          0.5
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/630",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to extract all the adjacent coordinates of the given coordinate tuple.\nassert get_coordinates((3, 4)) == [[2, 3], [2, 4], [2, 5], [3, 3], [3, 4], [3, 5], [4, 3], [4, 4], [4, 5]]\n\"\"\"\n",
+      "canonical_solution": "\ndef adjac(ele, sub = []): \n  if not ele: \n     yield sub \n  else: \n     yield from [idx for j in range(ele[0] - 1, ele[0] + 2) \n                for idx in adjac(ele[1:], sub + [j])] \ndef get_coordinates(test_tup):\n  return list(adjac(test_tup))\n",
+      "generated_solution": "def get_coordinates(coord):\n    x, y = coord\n    coordinates = []\n    for i in range(-1, 2):\n        for j in range(-1, 2):\n            if i == 0 and j == 0:\n                coordinates.append([x, y])\n            else:\n                coordinates.append([x + i, y + j])\n    return coordinates",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            1,
+            1,
+            1
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/631",
+      "failure_stage": "base_only",
+      "base_status": "fail",
+      "plus_status": "pass",
+      "prompt": "\"\"\"\nWrite a function to replace whitespaces with an underscore and vice versa in a given string.\nassert replace_spaces('Jumanji The Jungle') == 'Jumanji_The_Jungle'\n\"\"\"\n",
+      "canonical_solution": "\ndef replace_spaces(text):\n  return \"\".join(\" \" if c == \"_\" else (\"_\" if c == \" \" else c) for c in text)\n",
+      "generated_solution": "def replace_spaces(s):\n    return s.replace(' ', '_')",
+      "base_fail_tests": [
+        [
+          "The_Avengers"
+        ]
+      ],
+      "plus_fail_tests": []
+    },
+    {
+      "task_id": "Mbpp/638",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to calculate the wind chill index rounded to the next integer given the wind velocity in km/h and a temperature in celsius.\nassert wind_chill(120,35)==40\n\"\"\"\n",
+      "canonical_solution": "\nimport math\ndef wind_chill(v,t):\n windchill = 13.12 + 0.6215*t -  11.37*math.pow(v, 0.16) + 0.3965*t*math.pow(v, 0.16)\n return int(round(windchill, 0))\n",
+      "generated_solution": "import math\n\ndef wind_chill(wind_velocity, temperature):\n    if temperature > 50 or wind_velocity < 3:\n        return temperature\n    v = wind_velocity * 1000 / 3600\n    wci = 13.12 + 0.6215 * temperature - 11.37 * math.pow(v, 0.16) + 0.3965 * temperature * math.pow(v, 0.16)\n    return math.ceil(wci)",
+      "base_fail_tests": [
+        [
+          40,
+          20
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/639",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to sum the length of the names of a given list of names after removing the names that start with a lowercase letter.\nassert sample_nam(['sally', 'Dylan', 'rebecca', 'Diana', 'Joanne', 'keith'])==16\n\"\"\"\n",
+      "canonical_solution": "\ndef sample_nam(sample_names):\n  sample_names=list(filter(lambda el:el[0].isupper() and el[1:].islower(),sample_names))\n  return len(''.join(sample_names))\n",
+      "generated_solution": "def sample_nam(names):\n    return sum(len(name) for name in names if name and name[0].isupper())",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            "AbCdE",
+            "fGH",
+            "IJKLMnOp",
+            "qrs",
+            "TUVW",
+            "xyz"
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/641",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the nth nonagonal number.\nassert is_nonagonal(10) == 325\n\"\"\"\n",
+      "canonical_solution": "\ndef is_nonagonal(n): \n\treturn int(n * (7 * n - 5) / 2) \n",
+      "generated_solution": "def is_nonagonal(n):\n    return (8 * n ** 2 - 8 * n + 1) // 8",
+      "base_fail_tests": [
+        [
+          10
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          1000000
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/7",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find all words which are at least 4 characters long in a string.\nassert set(find_char_long('Please move back to stream')) == set(['Please', 'move', 'back', 'stream'])\n\"\"\"\n",
+      "canonical_solution": "\nimport re\ndef find_char_long(text):\n  return (re.findall(r\"\\b\\w{4,}\\b\", text))\n",
+      "generated_solution": "def find_char_long(s):\n    words = s.split()\n    return [word for word in words if len(word) >= 4]",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          "This is a very long string with no words that are at least 4 characters long."
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/72",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to check whether the given number can be represented as the difference of two squares or not.\nassert dif_Square(5) == True\n\"\"\"\n",
+      "canonical_solution": "\ndef dif_Square(n): \n    # see https://www.quora.com/Which-numbers-can-be-expressed-as-the-difference-of-two-squares\n    return n % 4 != 2\n",
+      "generated_solution": "def dif_Square(n):\n    if n < 0:\n        return False\n    for i in range(int(n**0.5) + 1):\n        if i**2 <= n and ((n - i**2)**0.5) % 1 == 0:\n            return True\n    return False",
+      "base_fail_tests": [
+        [
+          10
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          991
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/721",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nGiven a square matrix of size N*N given as a list of lists, where each cell is associated with a specific cost. A path is defined as a specific sequence of cells that starts from the top-left cell move only right or down and ends on bottom right cell. We want to find a path with the maximum average over all existing paths. Average is computed as total cost divided by the number of cells visited in the path.\nassert maxAverageOfPath([[1, 2, 3], [6, 5, 4], [7, 3, 9]]) == 5.2\n\"\"\"\n",
+      "canonical_solution": "\ndef maxAverageOfPath(cost):\n  N = len(cost)\n  dp = [[0 for _ in range(N + 1)] for _ in range(N + 1)]\n  dp[0][0] = cost[0][0]\n  for i in range(1, N):\n    dp[i][0] = dp[i - 1][0] + cost[i][0]\n  for j in range(1, N):\n    dp[0][j] = dp[0][j - 1] + cost[0][j]\n  for i in range(1, N):\n    for j in range(1, N):\n      dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]) + cost[i][j]\n  # all paths are of length 2 * N - 1, so just divide by that\n  return dp[N - 1][N - 1] / (2 * N - 1)\n",
+      "generated_solution": "def maxAverageOfPath(matrix):\n    n = len(matrix)\n    memo = {}\n\n    def dfs(i, j, total, length):\n        if (i, j) in memo:\n            return memo[(i, j)]\n        if i == n - 1 and j == n - 1:\n            return total / length\n        max_avg = float('-inf')\n        if i < n - 1:\n            max_avg = max(max_avg, dfs(i + 1, j, total + matrix[i + 1][j], length + 1))\n        if j < n - 1:\n            max_avg = max(max_avg, dfs(i, j + 1, total + matrix[i][j + 1], length + 1))\n        memo[(i, j)] = max_avg\n        return max_avg\n\n    return dfs(0, 0, matrix[0][0], 1)",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            [
+              -1,
+              0,
+              0
+            ],
+            [
+              -1,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              -1
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/722",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nThe input is given as - a dictionary with a student name as a key and a tuple of float (student_height, student_weight) as a value, - minimal height, - minimal weight. Write a function to filter students that have height and weight above the minimum.\nassert filter_data({'Cierra Vega': (6.2, 70), 'Alden Cantrell': (5.9, 65), 'Kierra Gentry': (6.0, 68), 'Pierre Cox': (5.8, 66)},6.0,70)=={'Cierra Vega': (6.2, 70)}\n\"\"\"\n",
+      "canonical_solution": "\ndef filter_data(students,h,w):\n    return {k: s for k, s in students.items() if s[0] >= h and s[1] >= w}\n",
+      "generated_solution": "def filter_data(students, min_height, min_weight):\n    return {name: (height, weight) for name, (height, weight) in students.items() if height > min_height and weight > min_weight}",
+      "base_fail_tests": [
+        [
+          {
+            "Cierra Vega": [
+              6.2,
+              70
+            ],
+            "Alden Cantrell": [
+              5.9,
+              65
+            ],
+            "Kierra Gentry": [
+              6.0,
+              68
+            ],
+            "Pierre Cox": [
+              5.8,
+              66
+            ]
+          },
+          6.0,
+          70
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          {
+            "Alice": [
+              5.6,
+              60
+            ],
+            "Bob": [
+              6.1,
+              70
+            ],
+            "Charlie": [
+              5.9,
+              65
+            ],
+            "Dave": [
+              5.11,
+              72
+            ],
+            "Eve": [
+              6.0,
+              68
+            ],
+            "Frank": [
+              5.7,
+              63
+            ]
+          },
+          5.8,
+          65
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/734",
+      "failure_stage": "base_only",
+      "base_status": "fail",
+      "plus_status": "pass",
+      "prompt": "\"\"\"\nWrite a python function to find sum of products of all possible sublists of a given list. \nassert sum_Of_Subarray_Prod([1,2,3]) == 20\n\"\"\"\n",
+      "canonical_solution": "\ndef sum_Of_Subarray_Prod(arr):\n    result = 0  # final result\n    partial = 0 # partial sum\n    # stimulate the recursion\n    while arr != []:\n        partial = arr[-1] * (1 + partial)\n        result += partial\n        arr.pop()\n    return result\n",
+      "generated_solution": "def sum_Of_Subarray_Prod(lst):\n    n = len(lst)\n    total_sum = 0\n    for i in range(1 << n):\n        sublist = [lst[j] for j in range(n) if (i & (1 << j))]\n        if sublist:\n            product = 1\n            for num in sublist:\n                product *= num\n            total_sum += product\n    return total_sum",
+      "base_fail_tests": [
+        [
+          [
+            1,
+            2,
+            3
+          ]
+        ]
+      ],
+      "plus_fail_tests": []
+    },
+    {
+      "task_id": "Mbpp/735",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to toggle bits of the number except the first and the last bit. \nassert toggle_middle_bits(9) == 15\n\"\"\"\n",
+      "canonical_solution": "\ndef toggle_middle_bits(n): \n    binary = bin(n)[2:]\n    toggled = ''.join(['0' if i == '1' else '1' for i in binary[1:-1]])\n    return int(binary[0] + toggled + binary[-1], 2)\n",
+      "generated_solution": "def toggle_middle_bits(n):\n    bin_str = bin(n)[2:]\n    if len(bin_str) <= 2:\n        return n\n    middle = bin_str[1:-1]\n    toggled_middle = ''.join('1' if bit == '0' else '0' for bit in middle)\n    return int(bin_str[0] + toggled_middle + bin_str[-1], 2)",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          true
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/739",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to find the index of smallest triangular number with n digits. \nassert find_Index(2) == 4\n\"\"\"\n",
+      "canonical_solution": "\nimport math \ndef find_Index(n): \n    x = math.sqrt(2 * math.pow(10,(n - 1)))\n    return round(x)\n",
+      "generated_solution": "def find_Index(n):\n    index = 1\n    while True:\n        triangular_num = (index * (index + 1)) // 2\n        if len(str(triangular_num)) == n:\n            return index\n        index += 1",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          100
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/74",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to check whether it follows the sequence given in the patterns array.\nassert is_samepatterns([\"red\",\"green\",\"green\"], [\"a\", \"b\", \"b\"])==True\n\"\"\"\n",
+      "canonical_solution": "\ndef is_samepatterns(colors, patterns):    \n    if len(colors) != len(patterns):\n        return False    \n    pattern_color_dict = {pattern: set() for pattern in patterns}\n    for color, pattern in zip(colors, patterns):\n        pattern_color_dict[pattern].add(color)\n    return all(len(pattern_color_dict[pattern]) == 1 for pattern in patterns)\n",
+      "generated_solution": "def is_samepatterns(sequence, patterns):\n    if len(sequence) != len(patterns):\n        return False\n    mapping = {}\n    for seq, pattern in zip(sequence, patterns):\n        if pattern in mapping and mapping[pattern] != seq:\n            return False\n        if pattern not in mapping and seq in mapping.values():\n            return False\n        mapping[pattern] = seq\n    return True",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            "red",
+            "red",
+            "red",
+            "red",
+            "red",
+            "red"
+          ],
+          [
+            "a",
+            "b",
+            "c",
+            "a",
+            "b",
+            "c"
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/748",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to put spaces between words starting with capital letters in a given string.\nassert capital_words_spaces(\"Python\") == 'Python'\n\"\"\"\n",
+      "canonical_solution": "\nimport re\ndef capital_words_spaces(str1):\n  return re.sub(r\"(\\w)([A-Z])\", r\"\\1 \\2\", str1)\n",
+      "generated_solution": "def capital_words_spaces(s):\n    result = ''\n    for i, char in enumerate(s):\n        if char.isupper() and i != 0 and s[i-1] != ' ':\n            result += ' '\n        result += char\n    return result",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          "MyNameIsAIAndIAmHereToHelpYou"
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/754",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWe say that an element is common for lists l1, l2, l3 if it appears in all three lists under the same index. Write a function to find common elements from three lists. The function should return a list.\nassert extract_index_list([1, 1, 3, 4, 5, 6, 7],[0, 1, 2, 3, 4, 5, 7],[0, 1, 2, 3, 4, 5, 7])==[1, 7]\n\"\"\"\n",
+      "canonical_solution": "\ndef extract_index_list(l1, l2, l3):\n    return [a for a, b, c in zip(l1, l2, l3) if a == b == c]\n",
+      "generated_solution": "def extract_index_list(l1, l2, l3):\n    common_elements = set(l1) & set(l2) & set(l3)\n    result = []\n    for element in common_elements:\n        if l1.index(element) == l2.index(element) == l3.index(element):\n            result.append(element)\n    return result",
+      "base_fail_tests": [
+        [
+          [
+            1,
+            1,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            7
+          ],
+          [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            7
+          ]
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          [
+            1,
+            2,
+            22,
+            3,
+            4,
+            5,
+            6
+          ],
+          [
+            3,
+            1,
+            9,
+            3,
+            4,
+            6,
+            6
+          ],
+          [
+            3,
+            1,
+            9,
+            3,
+            4,
+            6,
+            6
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/755",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the second smallest number in a list.\nassert second_smallest([1, 2, -8, -2, 0, -2])==-2\n\"\"\"\n",
+      "canonical_solution": "\ndef second_smallest(numbers):\n  sorted_set = sorted(set(numbers))\n  if len(sorted_set) < 2:\n    return None\n  return sorted_set[1]\n",
+      "generated_solution": "def second_smallest(numbers):\n    if len(numbers) < 2:\n        raise ValueError(\"List must contain at least two elements\")\n    unique_numbers = set(numbers)\n    if len(unique_numbers) < 2:\n        raise ValueError(\"List must contain at least two distinct elements\")\n    return sorted(unique_numbers)[1]",
+      "base_fail_tests": [
+        [
+          [
+            2,
+            2
+          ]
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          []
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/759",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to check whether a given string is a decimal number with a precision of 2.\nassert is_decimal('123.11')==True\n\"\"\"\n",
+      "canonical_solution": "\ndef is_decimal(num):\n    import re\n    dnumre = re.compile(r\"\"\"^[0-9]+(\\.[0-9]{1,2})?$\"\"\")\n    return dnumre.search(num) is not None\n",
+      "generated_solution": "import re\n\ndef is_decimal(s):\n    pattern = re.compile(r'^\\d+(\\.\\d{2})?$')\n    return bool(pattern.match(s))",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          "1.1"
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/765",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find nth polite number. geeksforgeeks.org/n-th-polite-number/\nassert is_polite(7) == 11\n\"\"\"\n",
+      "canonical_solution": "\nimport math \ndef is_polite(n): \n\tn = n + 1\n\treturn (int)(n+(math.log((n + math.log(n, 2)), 2))) \n",
+      "generated_solution": "def is_polite(n):\n    def find_divisors(num):\n        divisors = set()\n        for i in range(1, int(num**0.5) + 1):\n            if num % i == 0:\n                divisors.add(i)\n                divisors.add(num // i)\n        return divisors\n\n    def sum_of_divisors(num):\n        return sum(find_divisors(num))\n\n    count = 0\n    num = 1\n    while True:\n        if sum_of_divisors(num) == num:\n            count += 1\n            if count == n:\n                return num\n        num += 1",
+      "base_fail_tests": [
+        [
+          7
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          10000000
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/769",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to get the difference between two lists.\nassert (Diff([10, 15, 20, 25, 30, 35, 40], [25, 40, 35])) == [10, 20, 30, 15]\n\"\"\"\n",
+      "canonical_solution": "\ndef Diff(li1,li2):\n    return list(set(li1)-set(li2)) + list(set(li2)-set(li1))\n \n",
+      "generated_solution": "def Diff(list1, list2):\n    return [element for element in list1 if element not in list2]",
+      "base_fail_tests": [
+        [
+          [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          [
+            6,
+            7,
+            1
+          ]
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          [],
+          [
+            1,
+            2,
+            3
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/771",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to check if the given expression is balanced or not. \nassert check_expression(\"{()}[{}]\") == True\n\"\"\"\n",
+      "canonical_solution": "\nfrom collections import deque\ndef check_expression(exp):\n    if len(exp) == 0 or len(exp) % 2 == 1:\n        return False\n    stack = deque()\n    for ch in exp:\n        if ch == '(' or ch == '{' or ch == '[':\n            stack.append(ch)\n        if ch == ')' or ch == '}' or ch == ']':\n            if not stack:\n                return False\n            top = stack.pop()\n            if (top == '(' and ch != ')') or (top == '{' and ch != '}' or (top == '[' and ch != ']')):\n                return False\n    return not stack\n",
+      "generated_solution": "def check_expression(s):\n    stack = []\n    mapping = {\")\": \"(\", \"}\": \"{\", \"]\": \"[\"}\n    for char in s:\n        if char in mapping.values():\n            stack.append(char)\n        elif char in mapping:\n            if not stack or mapping[char] != stack.pop():\n                return False\n    return not stack",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          ""
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/773",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the occurrence and position of the substrings within a string. Return None if there is no match.\nassert occurance_substring('python programming, python language','python')==('python', 0, 6)\n\"\"\"\n",
+      "canonical_solution": "\nimport re\ndef occurance_substring(text,pattern):\n for match in re.finditer(pattern, text):\n    s = match.start()\n    e = match.end()\n    return (text[s:e], s, e)\n return None\n",
+      "generated_solution": "def occurance_substring(string, substring):\n    index = string.find(substring)\n    if index == -1:\n        return None\n    last_index = string.rfind(substring)\n    count = string.count(substring)\n    return (substring, index, last_index)",
+      "base_fail_tests": [
+        [
+          "python programming, python language",
+          "python"
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          "UPmVaKepPO",
+          "UPmVaKepPO"
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/777",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to find the sum of non-repeated elements in a given list.\nassert find_sum([1,2,3,1,1,4,5,6]) == 21\n\"\"\"\n",
+      "canonical_solution": "\ndef find_sum(arr): \n    return sum(set(arr))\n",
+      "generated_solution": "def find_sum(lst):\n    count_dict = {}\n    for num in lst:\n        if num in count_dict:\n            count_dict[num] += 1\n        else:\n            count_dict[num] = 1\n    return sum(key for key, value in count_dict.items() if value == 1) + sum(key * value for key, value in count_dict.items() if value > 1)",
+      "base_fail_tests": [
+        [
+          [
+            1,
+            2,
+            3,
+            1,
+            1,
+            4,
+            5,
+            6
+          ]
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          [
+            -1,
+            -2,
+            -3,
+            -1,
+            -1,
+            -4,
+            -5,
+            -6
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/778",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to pack consecutive duplicates of a given list elements into sublists.\nassert pack_consecutive_duplicates([0, 0, 1, 2, 3, 4, 4, 5, 6, 6, 6, 7, 8, 9, 4, 4])==[[0, 0], [1], [2], [3], [4, 4], [5], [6, 6, 6], [7], [8], [9], [4, 4]]\n\"\"\"\n",
+      "canonical_solution": "\nfrom itertools import groupby\ndef pack_consecutive_duplicates(list1):\n    return [list(group) for _, group in groupby(list1)]\n",
+      "generated_solution": "def pack_consecutive_duplicates(lst):\n    result = []\n    current = [lst[0]]\n    for i in range(1, len(lst)):\n        if lst[i] == lst[i-1]:\n            current.append(lst[i])\n        else:\n            result.append(current)\n            current = [lst[i]]\n    result.append(current)\n    return result",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          []
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/780",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the combinations of sums with tuples in the given tuple list. \nassert find_combinations([(2, 4), (6, 7), (5, 1), (6, 10)]) == [(8, 11), (7, 5), (8, 14), (11, 8), (12, 17), (11, 11)]\n\"\"\"\n",
+      "canonical_solution": "\nfrom itertools import combinations \ndef find_combinations(test_list):\n  return [tuple(map(sum, zip(*t))) for t in combinations(test_list, 2)]\n",
+      "generated_solution": "def find_combinations(tuples):\n    combinations = []\n    for i in range(len(tuples)):\n        for j in range(i + 1, len(tuples)):\n            combinations.append((tuples[i][0] + tuples[j][0], tuples[i][1] + tuples[j][1]))\n    return combinations",
+      "base_fail_tests": [
+        [
+          [
+            [
+              1,
+              2,
+              3
+            ],
+            [
+              3,
+              4,
+              5
+            ]
+          ]
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          [
+            [
+              1,
+              2,
+              3
+            ],
+            [
+              4,
+              5,
+              6
+            ],
+            [
+              7,
+              8,
+              9
+            ],
+            [
+              10,
+              11,
+              12
+            ],
+            [
+              13,
+              14,
+              15
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/790",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a python function to check whether every even index contains even numbers of a given list.\nassert even_position([3,2,1]) == False\n\"\"\"\n",
+      "canonical_solution": "\ndef even_position(nums):\n\treturn all(nums[i]%2==i%2 for i in range(len(nums)))\n",
+      "generated_solution": "def even_position(lst):\n    for i in range(len(lst)):\n        if i % 2 == 0 and lst[i] % 2 != 0:\n            return False\n    return True",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          [
+            2,
+            1,
+            4,
+            2,
+            6,
+            1,
+            8,
+            2,
+            10,
+            1,
+            12
+          ]
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/794",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function that matches a string that has an 'a' followed by anything, ending in 'b'.\nassert text_starta_endb(\"aabbbb\")\n\"\"\"\n",
+      "canonical_solution": "\nimport re\ndef text_starta_endb(text):\n    patterns = 'a.*?b$'\n    return re.search(patterns,  text)\n",
+      "generated_solution": "import re\n\ndef text_starta_endb(text):\n    pattern = r'^a.*b$'\n    return bool(re.match(pattern, text))",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          "xaabbyz1323ababb"
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/80",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the nth tetrahedral number.\nassert tetrahedral_number(5) == 35\n\"\"\"\n",
+      "canonical_solution": "\ndef tetrahedral_number(n): \n\treturn (n * (n + 1) * (n + 2)) / 6\n",
+      "generated_solution": "def tetrahedral_number(n):\n    if not isinstance(n, int) or n < 1:\n        raise ValueError(\"n must be a positive integer\")\n    return n * (n + 1) * (n + 2) // 6",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          false
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/806",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find maximum run of uppercase characters in the given string.\nassert max_run_uppercase('GeMKSForGERksISBESt') == 5\n\"\"\"\n",
+      "canonical_solution": "\ndef max_run_uppercase(test_str):\n  cnt = 0\n  res = 0\n  for idx in range(0, len(test_str)):\n    if test_str[idx].isupper():\n      cnt += 1\n    else:\n      res = cnt\n      cnt = 0\n  if test_str[len(test_str) - 1].isupper():\n    res = cnt\n  return res\n",
+      "generated_solution": "def max_run_uppercase(s):\n    max_run = 0\n    current_run = 0\n    for char in s:\n        if char.isupper():\n            current_run += 1\n            max_run = max(max_run, current_run)\n        else:\n            current_run = 0\n    return max_run",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          "Aaa"
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/84",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find the nth number in the newman conway sequence.\nassert sequence(10) == 6\n\"\"\"\n",
+      "canonical_solution": "\ndef sequence(n): \n\tif n == 1 or n == 2: \n\t\treturn 1\n\tseq = [0] * (n + 1)\n\tseq[1] = seq[2] = 1\n\tfor i in range(3, n + 1):\n\t\tseq[i] = seq[seq[i - 1]] + seq[i - seq[i - 1]]\n\treturn seq[n]\n",
+      "generated_solution": "def sequence(n):\n    a = [0] * (n + 1)\n    a[1] = 1\n    for i in range(2, n + 1):\n        a[i] = a[a[i - 1]] + a[i - a[i - 1]]\n    return a[n]",
+      "base_fail_tests": [
+        [
+          10
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          100
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/86",
+      "failure_stage": "base_and_plus",
+      "base_status": "fail",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to find nth centered hexagonal number.\nassert centered_hexagonal_number(10) == 271\n\"\"\"\n",
+      "canonical_solution": "\ndef centered_hexagonal_number(n):\n  return 3 * n * (n - 1) + 1\n",
+      "generated_solution": "def centered_hexagonal_number(n):\n    if n < 1:\n        raise ValueError(\"n must be a positive integer\")\n    return n * (3 * n - 1) // 2 + 1",
+      "base_fail_tests": [
+        [
+          10
+        ]
+      ],
+      "plus_fail_tests": [
+        [
+          1000000
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/92",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to check whether the given number is undulating or not.\nassert is_undulating(1212121) == True\n\"\"\"\n",
+      "canonical_solution": "\ndef is_undulating(n): \n\tdigits = [int(digit) for digit in str(n)]\n\tif len(set(digits)) != 2:\n\t\treturn False\n\treturn all(a != b for a, b in zip(digits, digits[1:]))\n",
+      "generated_solution": "def is_undulating(n):\n    n = str(n)\n    if len(n) < 3:\n        return False\n    diff = int(n[1]) - int(n[0])\n    for i in range(2, len(n)):\n        new_diff = int(n[i]) - int(n[i-1])\n        if new_diff == 0 or (new_diff > 0) == (diff > 0):\n            return False\n        diff = new_diff\n    return True",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          2121212121212120
+        ]
+      ]
+    },
+    {
+      "task_id": "Mbpp/99",
+      "failure_stage": "plus_only",
+      "base_status": "pass",
+      "plus_status": "fail",
+      "prompt": "\"\"\"\nWrite a function to convert the given decimal number to its binary equivalent, represented as a string with no leading zeros.\nassert decimal_to_binary(8) == '1000'\n\"\"\"\n",
+      "canonical_solution": "\ndef decimal_to_binary(n): \n    return bin(n).replace(\"0b\",\"\") \n",
+      "generated_solution": "def decimal_to_binary(n):\n    if n == 0:\n        return '0'\n    result = ''\n    while n > 0:\n        result = str(n % 2) + result\n        n = n // 2\n    return result",
+      "base_fail_tests": [],
+      "plus_fail_tests": [
+        [
+          -5
+        ]
+      ]
+    }
+  ]
+}
