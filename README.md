@@ -1,4 +1,4 @@
-# Prompt Engineering for LLM Code Generation
+# Enhancing code generation via Prompt Engineering
 
 Thesis project evaluating the effect of prompt strategies on code generation quality across multiple LLMs, benchmarked on **HumanEval+** and **MBPP+** using **EvalPlus**.
 
