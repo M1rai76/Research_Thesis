@@ -1,0 +1,64 @@
+{
+  "n_runs": 13,
+  "pooled_analysis": {
+    "n_total": 3416,
+    "n_base_passing": 2767,
+    "categories": {
+      "any_guard_present": {
+        "n_guarded": 1407,
+        "n_unguarded": 1360,
+        "plus_survival_rate_guarded": 0.8407960199004975,
+        "plus_survival_rate_unguarded": 0.8558823529411764,
+        "rate_difference": -0.015086333040678968,
+        "z_score": -1.1056650538344852,
+        "p_value": 0.2688715211051631,
+        "significant": false,
+        "small_sample": false
+      },
+      "has_none_check": {
+        "n_guarded": 20,
+        "n_unguarded": 2747,
+        "plus_survival_rate_guarded": 0.7,
+        "plus_survival_rate_unguarded": 0.8492901346923917,
+        "rate_difference": -0.14929013469239172,
+        "z_score": -1.8539534564944473,
+        "p_value": 0.06374581907327954,
+        "significant": false,
+        "small_sample": false
+      },
+      "has_specific_value_check": {
+        "n_guarded": 788,
+        "n_unguarded": 1979,
+        "plus_survival_rate_guarded": 0.8401015228426396,
+        "plus_survival_rate_unguarded": 0.8514401212733704,
+        "rate_difference": -0.011338598430730817,
+        "z_score": -0.7501856802433914,
+        "p_value": 0.45314288199739494,
+        "significant": false,
+        "small_sample": false
+      },
+      "has_range_check": {
+        "n_guarded": 737,
+        "n_unguarded": 2030,
+        "plus_survival_rate_guarded": 0.835820895522388,
+        "plus_survival_rate_unguarded": 0.8527093596059113,
+        "rate_difference": -0.01688846408352329,
+        "z_score": -1.0944484412056377,
+        "p_value": 0.2737583483842826,
+        "significant": false,
+        "small_sample": false
+      },
+      "has_type_check": {
+        "n_guarded": 213,
+        "n_unguarded": 2554,
+        "plus_survival_rate_guarded": 0.7793427230046949,
+        "plus_survival_rate_unguarded": 0.8539545810493344,
+        "rate_difference": -0.07461185804463955,
+        "z_score": -2.915623842625895,
+        "p_value": 0.0035497819438879753,
+        "significant": true,
+        "small_sample": false
+      }
+    }
+  }
+}

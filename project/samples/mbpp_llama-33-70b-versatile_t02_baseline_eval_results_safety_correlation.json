@@ -1,0 +1,65 @@
+{
+  "safety_oracle": "/home/raj/thesis_codegen/COMP4952/project/samples/mbpp_llama-33-70b-versatile_t02_baseline_safety_oracle.json",
+  "results": "/home/raj/thesis_codegen/COMP4952/project/samples/mbpp_llama-33-70b-versatile_t02_baseline_eval_results.json",
+  "analysis": {
+    "n_total": 378,
+    "n_base_passing": 317,
+    "categories": {
+      "any_guard_present": {
+        "n_guarded": 92,
+        "n_unguarded": 225,
+        "plus_survival_rate_guarded": 0.7717391304347826,
+        "plus_survival_rate_unguarded": 0.8088888888888889,
+        "rate_difference": -0.037149758454106285,
+        "z_score": -0.7478604225968984,
+        "p_value": 0.4545443519210469,
+        "significant": false,
+        "small_sample": false
+      },
+      "has_none_check": {
+        "n_guarded": 2,
+        "n_unguarded": 315,
+        "plus_survival_rate_guarded": 0.0,
+        "plus_survival_rate_unguarded": 0.8031746031746032,
+        "rate_difference": -0.8031746031746032,
+        "z_score": -2.820717712338194,
+        "p_value": 0.004791634711814005,
+        "significant": true,
+        "small_sample": true
+      },
+      "has_specific_value_check": {
+        "n_guarded": 50,
+        "n_unguarded": 267,
+        "plus_survival_rate_guarded": 0.76,
+        "plus_survival_rate_unguarded": 0.8052434456928839,
+        "rate_difference": -0.045243445692883855,
+        "z_score": -0.731434918002982,
+        "p_value": 0.46451354357356645,
+        "significant": false,
+        "small_sample": false
+      },
+      "has_range_check": {
+        "n_guarded": 46,
+        "n_unguarded": 271,
+        "plus_survival_rate_guarded": 0.782608695652174,
+        "plus_survival_rate_unguarded": 0.8007380073800738,
+        "rate_difference": -0.01812931172789989,
+        "z_score": -0.28322022365047006,
+        "p_value": 0.7770080265339312,
+        "significant": false,
+        "small_sample": false
+      },
+      "has_type_check": {
+        "n_guarded": 7,
+        "n_unguarded": 310,
+        "plus_survival_rate_guarded": 0.5714285714285714,
+        "plus_survival_rate_unguarded": 0.8032258064516129,
+        "rate_difference": -0.2317972350230415,
+        "z_score": -1.5108366159981688,
+        "p_value": 0.13083008311185063,
+        "significant": false,
+        "small_sample": true
+      }
+    }
+  }
+}

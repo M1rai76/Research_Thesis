@@ -1,0 +1,65 @@
+{
+  "safety_oracle": "/home/raj/thesis_codegen/COMP4952/project/samples/llama-33-70b-versatile_t02_baseline_safety_oracle.json",
+  "results": "/home/raj/thesis_codegen/COMP4952/project/samples/llama-33-70b-versatile_t02_baseline_eval_results.json",
+  "analysis": {
+    "n_total": 164,
+    "n_base_passing": 119,
+    "categories": {
+      "any_guard_present": {
+        "n_guarded": 78,
+        "n_unguarded": 41,
+        "plus_survival_rate_guarded": 0.9487179487179487,
+        "plus_survival_rate_unguarded": 0.8780487804878049,
+        "rate_difference": 0.0706691682301438,
+        "z_score": 1.3855592206472787,
+        "p_value": 0.16588153756028268,
+        "significant": false,
+        "small_sample": false
+      },
+      "has_none_check": {
+        "n_guarded": 0,
+        "n_unguarded": 119,
+        "plus_survival_rate_guarded": null,
+        "plus_survival_rate_unguarded": 0.9243697478991597,
+        "rate_difference": null,
+        "z_score": null,
+        "p_value": null,
+        "significant": false,
+        "small_sample": true
+      },
+      "has_specific_value_check": {
+        "n_guarded": 40,
+        "n_unguarded": 79,
+        "plus_survival_rate_guarded": 0.975,
+        "plus_survival_rate_unguarded": 0.8987341772151899,
+        "rate_difference": 0.07626582278481009,
+        "z_score": 1.486378396989114,
+        "p_value": 0.1371790606620984,
+        "significant": false,
+        "small_sample": false
+      },
+      "has_range_check": {
+        "n_guarded": 49,
+        "n_unguarded": 70,
+        "plus_survival_rate_guarded": 0.9387755102040817,
+        "plus_survival_rate_unguarded": 0.9142857142857143,
+        "rate_difference": 0.02448979591836742,
+        "z_score": 0.4972652484064505,
+        "p_value": 0.6190020146010892,
+        "significant": false,
+        "small_sample": false
+      },
+      "has_type_check": {
+        "n_guarded": 5,
+        "n_unguarded": 114,
+        "plus_survival_rate_guarded": 0.8,
+        "plus_survival_rate_unguarded": 0.9298245614035088,
+        "rate_difference": -0.12982456140350873,
+        "z_score": -1.0746082620602635,
+        "p_value": 0.28255015125715366,
+        "significant": false,
+        "small_sample": true
+      }
+    }
+  }
+}
