@@ -15,9 +15,15 @@ Thesis project evaluating the effect of prompt strategies on code generation qua
 
 ## Installation
 
+A dedicated venv lives at the repo root (`.venv/`), pinned via `requirements.txt`:
+
 ```bash
-pip install evalplus openai groq
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
+
+`requirements.txt` covers `evalplus`, `openai`, `groq`, `google-genai`, `matplotlib`, `numpy` — everything imported across `scripts/` and `robustness/`.
 
 ---
 
@@ -39,6 +45,8 @@ pip install evalplus openai groq
 | `edge_case` | Instructs the model to handle edge cases |
 | `role_framing` | Frames the model as a senior engineer |
 | `cot` | Asks the model to think before writing code |
+| `cgo` | Goal-oriented: lists functional objectives (return type, boundary values) |
+| `io_spec` | Asks the model to identify input/output types and edge cases before coding |
 
 ---
 
@@ -107,6 +115,24 @@ For MBPP+ sanitization, use `--dataset mbpp`.
 
 ---
 
+## Robustness Analysis (Safety Oracle)
+
+Run from the `project/` directory, after the Docker EvalPlus evaluation step above has produced an `_eval_results.json`.
+
+**1. Scan generated code for defensive guard patterns**
+```bash
+python -m robustness.safety_oracle --dataset {humaneval,mbpp} --samples samples/<output_file>.jsonl
+```
+Writes `<output_file>_safety_oracle.json`. Detects four AST-pattern guard categories (None checks, empty/zero checks, range/boundary checks, `isinstance` checks), adapted from Li et al. (2025, arXiv:2503.20197) §2.3 — see `decisions.md` D8 for what was excluded and why.
+
+**2. Test whether guard presence predicts Plus-test survival**
+```bash
+python -m robustness.safety_eval_correlation --safety-oracle samples/<output_file>_safety_oracle.json --results samples/<output_file>_eval_results.json
+```
+Joins the two files and compares Plus pass rate between guarded/unguarded code, **conditioned on the task already passing Base** (D9), reporting a two-proportion z-test per category (D10). Pooled across all 13 Llama 3.3 70B strategy runs (2,767 base-passing tasks, see `research_log.md` 2026-06-18): guard presence does **not** predict Plus survival — four of five categories are non-significant, and `has_type_check` is significantly *negative* (p=0.0035).
+
+---
+
 ## Results (Baseline)
 
 ---
@@ -114,17 +140,33 @@ For MBPP+ sanitization, use `--dataset mbpp`.
 ## Project Structure
 
 ```
-project/
-  scripts/
-    generate_samples.py       — unified generation script (all models, HumanEval+/MBPP+, all strategies)
-    generate_gemini_samples.py
-    test_gemini_setup.py
-  samples/
-    <model>_t02_<strategy>.jsonl
-    mbpp_<model>_t02_<strategy>.jsonl
-    <model>_t02_<strategy>_run_log.json
-    <model>_t02_<strategy>_eval_results.json
+COMP4952/
+  .venv/                       — dedicated project venv (gitignored)
+  requirements.txt
+  decisions.md                 — design decisions and rationale (D1-D11)
+  research_log.md              — dated session-by-session progress log
   README.md
+  project/
+    scripts/
+      generate_samples.py       — unified generation script (all models, HumanEval+/MBPP+, all strategies)
+      analyze_failures.py       — extracts failed EvalPlus tasks into a structured report
+      llm_prompt_refine.py      — diagnose-then-revise prompt refinement loop (live LLM call untested — see D11)
+      generate_gemini_samples.py
+      test_gemini_setup.py
+    robustness/
+      safety_oracle.py           — AST guard-pattern scan (Safety Oracle)
+      safety_eval_correlation.py — joins Safety Oracle output against eval_results.json
+    results/
+      results.py                 — matplotlib thesis figures
+      fitness_oracle.py           — diagram of the evaluation framework
+    samples/
+      <model>_t02_<strategy>.jsonl
+      mbpp_<model>_t02_<strategy>.jsonl
+      <model>_t02_<strategy>_run_log.json
+      <model>_t02_<strategy>_eval_results.json
+      <model>_t02_<strategy>_safety_oracle.json
+      <model>_t02_<strategy>_eval_results_safety_correlation.json
+      pooled_safety_correlation.json
 ```
 
 ---
