@@ -359,12 +359,23 @@ def strip_markdown_fences(text: str) -> str:
     return text
 
 
-def truncate_at_stop_markers(text: str) -> str:
-    """Cut off content after the first top-level stop marker."""
+def truncate_at_stop_markers(text: str, entry_point: Optional[str] = None) -> str:
+    """Cut off content after the first top-level stop marker.
+
+    If entry_point is provided, a ``\\ndef {entry_point}`` hit is not
+    treated as a stop marker — the model returned the target function
+    as part of a complete response and it should not be truncated.
+    """
     earliest = len(text)
     for marker in STOP_MARKERS:
         idx = text.find(marker)
         if idx != -1 and idx < earliest:
+            if (
+                entry_point is not None
+                and marker == "\ndef "
+                and text[idx:].startswith(f"\ndef {entry_point}")
+            ):
+                continue
             earliest = idx
     return text[:earliest]
 
@@ -376,12 +387,21 @@ def strip_leading_def(text: str) -> str:
     return "".join(lines)
 
 
-def ensure_indented(text: str) -> str:
+def ensure_indented(text: str, entry_point: Optional[str] = None) -> str:
     """Add 4-space indent to all lines if the completion was returned unindented.
 
     HumanEval evaluation appends the completion directly after the docstring,
     so the body must be indented or the code runs at module level.
+
+    If entry_point is provided and the text already contains a top-level
+    definition of that function, the text is returned unchanged — the model
+    echoed back a complete function and re-indenting would break it.
     """
+    if entry_point is not None:
+        for line in text.splitlines():
+            if re.match(rf"^def\s+{re.escape(entry_point)}\s*\(", line):
+                return text
+
     lines = text.splitlines(keepends=True)
     first_code = next((l for l in lines if l.strip()), "")
     if first_code and not first_code.startswith((" ", "\t")):
@@ -406,7 +426,7 @@ def truncate_solution_noise(text: str) -> str:
     return text[:earliest]
 
 
-def post_process(raw_output: str) -> str:
+def post_process(raw_output: str, entry_point: Optional[str] = None) -> str:
     """
     Apply the full post-processing pipeline to raw model output.
 
@@ -414,6 +434,7 @@ def post_process(raw_output: str) -> str:
         1. strip_markdown_fences    — remove ``` wrappers
         2. strip_leading_def        — drop echoed function signature
         3. ensure_indented          — add 4-space indent if model returned bare code
+                                      (skipped if the text already defines entry_point)
         4. truncate_at_stop_markers — cut obvious trailing junk
         5. rstrip()                 — remove trailing whitespace only
                                       (never strip() — leading spaces = indentation)
@@ -422,8 +443,8 @@ def post_process(raw_output: str) -> str:
     """
     code = strip_markdown_fences(raw_output)
     code = strip_leading_def(code)
-    code = ensure_indented(code)
-    code = truncate_at_stop_markers(code)
+    code = ensure_indented(code, entry_point)
+    code = truncate_at_stop_markers(code, entry_point)
     return code.rstrip()
 
 
@@ -642,7 +663,7 @@ def main() -> None:
         completion = (
             post_process_solution(raw)
             if args.dataset == "mbpp"
-            else post_process(raw)
+            else post_process(raw, entry_point=task["entry_point"])
         )
 
         if not completion:
