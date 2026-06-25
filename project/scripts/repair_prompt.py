@@ -36,6 +36,29 @@ from code_executor import run_executor
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+def _format_error_line(
+    error_type: Optional[str],
+    error_message: Optional[str],
+) -> str:
+    """Format executor error fields consistently across repair prompts."""
+    if error_type is not None:
+        if error_message:
+            return f"This attempt failed with: {error_type}: {error_message}"
+        return f"This attempt failed with: {error_type}"
+
+    return "This attempt passed visible tests but failed broader validation."
+
+
+def _output_constraints(dataset: str) -> str:
+    """Return dataset-specific output constraints for repaired code."""
+    if dataset == "humaneval":
+        return "Output only the function body. No explanations. No markdown."
+    return (
+        "Output only Python code. Include the required function definition "
+        "and any imports it needs. No explanations. No markdown."
+    )
+
+
 def get_problems(dataset: str) -> dict:
     """Load the selected EvalPlus dataset."""
     if dataset == "humaneval":
@@ -76,25 +99,8 @@ def build_repair_prompt(
     Returns
         The full prompt string ready to send to the model.
     """
-    if error_type is not None:
-        if error_message:
-            error_line = f"This attempt failed with: {error_type}: {error_message}"
-        else:
-            error_line = f"This attempt failed with: {error_type}"
-    else:
-        error_line = (
-            "This attempt passed visible tests but failed broader validation."
-        )
-
-    if dataset == "humaneval":
-        output_constraints = (
-            "Output only the function body. No explanations. No markdown."
-        )
-    else:
-        output_constraints = (
-            "Output only Python code. Include the required function definition "
-            "and any imports it needs. No explanations. No markdown."
-        )
+    error_line = _format_error_line(error_type, error_message)
+    output_constraints = _output_constraints(dataset)
 
     return (
         "You are an expert Python programmer. "
@@ -105,6 +111,57 @@ def build_repair_prompt(
         f"{error_line}\n\n"
         f"Fix the code. {output_constraints}\n"
     )
+
+
+def build_repair_prompt_cot(
+    task_prompt: str,
+    broken_completion: str,
+    error_type: Optional[str],
+    error_message: Optional[str],
+    dataset: str = "humaneval",
+) -> str:
+    """Construct a chain-of-thought repair prompt for the self-repair loop.
+
+    The model is asked to reason through the failure before emitting a final
+    corrected code section. The final code must appear after the exact marker
+    ``### Fixed Code`` so callers can separate reasoning from executable code.
+    """
+    error_line = _format_error_line(error_type, error_message)
+    output_constraints = _output_constraints(dataset)
+
+    return (
+        "You are an expert Python programmer. "
+        "The following code you wrote failed when executed. Fix it.\n\n"
+        "--- Task ---\n"
+        f"{task_prompt}\n\n"
+        "--- Your previous attempt ---\n"
+        f"{broken_completion}\n\n"
+        "--- Error ---\n"
+        f"{error_line}\n\n"
+        "Before fixing the code, reason through the problem in three steps: "
+        "1) What does the error tell us about the failure? "
+        "2) What is the root cause of the bug? "
+        "3) What is the correct fix?\n\n"
+        "After your reasoning, put the final corrected code after a line "
+        "reading EXACTLY:\n"
+        "### Fixed Code\n\n"
+        f"Under ### Fixed Code, {output_constraints}\n"
+    )
+
+
+def extract_code_from_cot_response(raw_response: str) -> tuple[str, bool]:
+    """Extract final code from a CoT repair response.
+
+    Returns
+        (code, used_fallback), where used_fallback is True when the model did
+        not include the required ``### Fixed Code`` marker and the raw response
+        had to be passed through unchanged.
+    """
+    marker = "### Fixed Code"
+    if marker not in raw_response:
+        return raw_response, True
+
+    return raw_response.split(marker, 1)[1].lstrip(), False
 
 
 def build_repair_context(executor_result: dict, dataset: str) -> dict:

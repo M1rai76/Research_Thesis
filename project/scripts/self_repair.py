@@ -14,7 +14,8 @@ Functions
 Usage
     python self_repair.py --task_id HumanEval/40 --dataset humaneval \
         --jsonl_path ../samples/llama-33-70b-versatile_t02_cgo.jsonl \
-        --backend groq --model llama-3.3-70b-versatile --max_rounds 2
+        --backend groq --model llama-3.3-70b-versatile --max_rounds 2 \
+        --repair_strategy cot
 """
 
 import argparse
@@ -29,7 +30,12 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from code_executor import run_executor
 from safety_check import check_safety
-from repair_prompt import build_repair_prompt, build_repair_context
+from repair_prompt import (
+    build_repair_prompt,
+    build_repair_prompt_cot,
+    build_repair_context,
+    extract_code_from_cot_response,
+)
 from generate_samples import (
     load_env_file,
     get_client,
@@ -67,16 +73,21 @@ def run_self_repair(
     model: str,
     backend: str,
     max_repair_rounds: int = 2,
+    repair_strategy: str = "cot",
 ) -> dict:
     """Run the full N-round repair loop for a single task.
 
     Round 0 executes the initial_completion. If it fails, up to
-    max_repair_rounds of LLM-driven repair are attempted, each time
-    feeding the broken code and its error signal back to the model.
+    max_repair_rounds of LLM-driven repair are attempted. ``repair_strategy``
+    selects the repair prompt: ``minimal`` preserves the original lean prompt,
+    while ``cot`` asks the model to reason first and emit final code after
+    ``### Fixed Code``.
 
     Each round entry (except round 0) includes ``completion_changed``
     indicating whether the model produced a different completion from
-    the previous round. Round 0 sets this to None (no prior round).
+    the previous round. Round 0 sets this to None (no prior round). CoT repair
+    rounds also include ``cot_fallback_used`` to show whether marker extraction
+    failed and the raw model response was used unchanged.
 
     The top-level result includes ``stalled``: True when the task is
     unsolved AND the model never produced a different completion across
@@ -90,15 +101,21 @@ def run_self_repair(
     Returns a trajectory dict capturing every round's completion,
     executor result, and safety scan for per-round thesis analysis.
     """
+    if repair_strategy not in {"minimal", "cot"}:
+        raise ValueError(
+            "Unsupported repair_strategy: "
+            f"{repair_strategy!r}. Expected 'minimal' or 'cot'."
+        )
+
     problems = get_problems(dataset)
     task = problems[task_id]
     task_prompt = task["prompt"]
     entry_point = task["entry_point"]
-    sample_key = "solution" if dataset == "mbpp" else "completion"
 
     rounds = []
     previous_completion = None
     current_completion = initial_completion
+    current_cot_fallback_used = False
 
     total_rounds = 1 + max_repair_rounds
 
@@ -134,6 +151,10 @@ def run_self_repair(
                 "findings": safety_result["findings"],
             },
         }
+        if repair_strategy == "cot":
+            round_entry["cot_fallback_used"] = (
+                False if round_num == 0 else current_cot_fallback_used
+            )
         rounds.append(round_entry)
 
         tag = "PASS" if exec_result["passed"] else "FAIL"
@@ -149,6 +170,7 @@ def run_self_repair(
             return {
                 "task_id": task_id,
                 "dataset": dataset,
+                "repair_strategy": repair_strategy,
                 "solved": True,
                 "solved_at_round": round_num,
                 "stalled": False,
@@ -159,13 +181,22 @@ def run_self_repair(
             break
 
         context = build_repair_context(exec_result, dataset)
-        repair_prompt_text = build_repair_prompt(
-            task_prompt=task_prompt,
-            broken_completion=current_completion,
-            error_type=context["error_type"],
-            error_message=context["error_message"],
-            dataset=dataset,
-        )
+        if repair_strategy == "minimal":
+            repair_prompt_text = build_repair_prompt(
+                task_prompt=task_prompt,
+                broken_completion=current_completion,
+                error_type=context["error_type"],
+                error_message=context["error_message"],
+                dataset=dataset,
+            )
+        else:
+            repair_prompt_text = build_repair_prompt_cot(
+                task_prompt=task_prompt,
+                broken_completion=current_completion,
+                error_type=context["error_type"],
+                error_message=context["error_message"],
+                dataset=dataset,
+            )
 
         raw_response = generate_raw_completion(client, model, repair_prompt_text)
 
@@ -173,10 +204,25 @@ def run_self_repair(
             print(f"  Round {round_num + 1}: SKIPPED (API error)")
             break
 
+        response_for_post_process = raw_response
+        next_cot_fallback_used = False
+        if repair_strategy == "cot":
+            response_for_post_process, next_cot_fallback_used = (
+                extract_code_from_cot_response(raw_response)
+            )
+            if next_cot_fallback_used:
+                print(
+                    f"  Round {round_num + 1}: "
+                    "CoT marker fallback used (missing ### Fixed Code)"
+                )
+
         if dataset == "mbpp":
-            new_completion = post_process_solution(raw_response)
+            new_completion = post_process_solution(response_for_post_process)
         else:
-            new_completion = post_process(raw_response, entry_point=entry_point)
+            new_completion = post_process(
+                response_for_post_process,
+                entry_point=entry_point,
+            )
 
         if not new_completion:
             print(f"  Round {round_num + 1}: SKIPPED (empty after post-process)")
@@ -184,6 +230,7 @@ def run_self_repair(
 
         previous_completion = current_completion
         current_completion = new_completion
+        current_cot_fallback_used = next_cot_fallback_used
 
     repair_rounds = [r for r in rounds if r["round"] > 0]
     stalled = (
@@ -194,6 +241,7 @@ def run_self_repair(
     return {
         "task_id": task_id,
         "dataset": dataset,
+        "repair_strategy": repair_strategy,
         "solved": False,
         "solved_at_round": None,
         "stalled": stalled,
@@ -259,6 +307,12 @@ def parse_args() -> argparse.Namespace:
         default=2,
         help="Maximum repair rounds (default: 2).",
     )
+    parser.add_argument(
+        "--repair_strategy",
+        default="cot",
+        choices=["minimal", "cot"],
+        help="Repair prompt strategy to use. Default: cot.",
+    )
     return parser.parse_args()
 
 
@@ -274,6 +328,7 @@ def main() -> None:
     print(f"Backend  : {args.backend}")
     print(f"Model    : {args.model}")
     print(f"Max rds  : {args.max_rounds}")
+    print(f"Strategy : {args.repair_strategy}")
     print()
 
     result = run_self_repair(
@@ -284,6 +339,7 @@ def main() -> None:
         model=args.model,
         backend=args.backend,
         max_repair_rounds=args.max_rounds,
+        repair_strategy=args.repair_strategy,
     )
 
     print()

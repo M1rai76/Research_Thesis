@@ -7,7 +7,11 @@
       "Bash(python scripts/repair_prompt.py --task_id HumanEval/40 --dataset humaneval --jsonl_path samples/llama-33-70b-versatile_t02_cgo.jsonl)",
       "Bash(python scripts/test_single_repair.py)",
       "Bash(python scripts/self_repair.py --task_id Mbpp/101 --dataset mbpp --jsonl_path samples/mbpp_llama-33-70b-versatile_t02_cgo.jsonl --backend groq --model llama-3.3-70b-versatile --max_rounds 2)",
-      "Bash(python scripts/self_repair.py --task_id HumanEval/40 --dataset humaneval --jsonl_path samples/llama-33-70b-versatile_t02_cgo.jsonl --backend groq --model llama-3.3-70b-versatile --max_rounds 2)"
+      "Bash(python scripts/self_repair.py --task_id HumanEval/40 --dataset humaneval --jsonl_path samples/llama-33-70b-versatile_t02_cgo.jsonl --backend groq --model llama-3.3-70b-versatile --max_rounds 2)",
+      "Bash(python -m py_compile scripts/self_repair.py)",
+      "Bash(python scripts/self_repair.py --task_id HumanEval/40 --dataset humaneval --jsonl_path samples/llama-33-70b-versatile_t02_cgo.jsonl --backend groq --model llama-3.3-70b-versatile --max_rounds 2 --repair_strategy cot)",
+      "Bash(python scripts/self_repair.py --task_id HumanEval/4 --dataset humaneval --jsonl_path samples/llama-33-70b-versatile_t02_cgo.jsonl --backend groq --model llama-3.3-70b-versatile --max_rounds 2 --repair_strategy cot)",
+      "Bash(python scripts/self_repair.py --task_id Mbpp/101 --dataset mbpp --jsonl_path samples/mbpp_llama-33-70b-versatile_t02_cgo.jsonl --backend groq --model llama-3.3-70b-versatile --max_rounds 2 --repair_strategy cot)"
     ]
   }
 }
