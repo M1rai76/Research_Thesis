@@ -86,8 +86,8 @@ def run_self_repair(
     Each round entry (except round 0) includes ``completion_changed``
     indicating whether the model produced a different completion from
     the previous round. Round 0 sets this to None (no prior round). CoT repair
-    rounds also include ``cot_fallback_used`` to show whether marker extraction
-    failed and the raw model response was used unchanged.
+    rounds also include ``cot_extraction_method`` with one of ``marker``,
+    ``fence``, or ``raw_fallback``.
 
     The top-level result includes ``stalled``: True when the task is
     unsolved AND the model never produced a different completion across
@@ -115,7 +115,7 @@ def run_self_repair(
     rounds = []
     previous_completion = None
     current_completion = initial_completion
-    current_cot_fallback_used = False
+    current_cot_extraction_method = None
 
     total_rounds = 1 + max_repair_rounds
 
@@ -152,8 +152,8 @@ def run_self_repair(
             },
         }
         if repair_strategy == "cot":
-            round_entry["cot_fallback_used"] = (
-                False if round_num == 0 else current_cot_fallback_used
+            round_entry["cot_extraction_method"] = (
+                None if round_num == 0 else current_cot_extraction_method
             )
         rounds.append(round_entry)
 
@@ -205,15 +205,15 @@ def run_self_repair(
             break
 
         response_for_post_process = raw_response
-        next_cot_fallback_used = False
+        next_cot_extraction_method = None
         if repair_strategy == "cot":
-            response_for_post_process, next_cot_fallback_used = (
+            response_for_post_process, next_cot_extraction_method = (
                 extract_code_from_cot_response(raw_response)
             )
-            if next_cot_fallback_used:
+            if next_cot_extraction_method == "raw_fallback":
                 print(
                     f"  Round {round_num + 1}: "
-                    "CoT marker fallback used (missing ### Fixed Code)"
+                    "CoT raw fallback used (missing marker and code fence)"
                 )
 
         if dataset == "mbpp":
@@ -230,7 +230,7 @@ def run_self_repair(
 
         previous_completion = current_completion
         current_completion = new_completion
-        current_cot_fallback_used = next_cot_fallback_used
+        current_cot_extraction_method = next_cot_extraction_method
 
     repair_rounds = [r for r in rounds if r["round"] > 0]
     stalled = (

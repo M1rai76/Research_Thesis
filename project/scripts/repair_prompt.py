@@ -24,6 +24,7 @@ Usage
 import argparse
 import json
 import os
+import re
 import sys
 from typing import Optional
 
@@ -149,19 +150,28 @@ def build_repair_prompt_cot(
     )
 
 
-def extract_code_from_cot_response(raw_response: str) -> tuple[str, bool]:
+def extract_code_from_cot_response(raw_response: str) -> tuple[str, str]:
     """Extract final code from a CoT repair response.
 
     Returns
-        (code, used_fallback), where used_fallback is True when the model did
-        not include the required ``### Fixed Code`` marker and the raw response
-        had to be passed through unchanged.
+        (code, extraction_method), where extraction_method is one of:
+        ``marker``       - extracted after the required ``### Fixed Code`` line
+        ``fence``        - extracted from the longest markdown code fence
+        ``raw_fallback`` - no marker or fence was found, so raw text was used
     """
     marker = "### Fixed Code"
-    if marker not in raw_response:
-        return raw_response, True
+    if marker in raw_response:
+        return raw_response.split(marker, 1)[1].lstrip(), "marker"
 
-    return raw_response.split(marker, 1)[1].lstrip(), False
+    blocks = re.findall(r"```(?:python)?\s*\n(.*?)```", raw_response, flags=re.DOTALL)
+    if blocks:
+        return max(blocks, key=len).strip(), "fence"
+
+    code = re.sub(r"^```(?:python)?\s*\n", "", raw_response.strip())
+    if code != raw_response.strip():
+        return code, "fence"
+
+    return raw_response, "raw_fallback"
 
 
 def build_repair_context(executor_result: dict, dataset: str) -> dict:
