@@ -159,13 +159,27 @@ def extract_code_from_cot_response(raw_response: str) -> tuple[str, str]:
         ``fence``        - extracted from the longest markdown code fence
         ``raw_fallback`` - no marker or fence was found, so raw text was used
     """
+    def drop_leading_blank_lines(text: str) -> str:
+        lines = text.splitlines()
+        while lines and not lines[0].strip():
+            lines.pop(0)
+        return "\n".join(lines)
+
+    def drop_surrounding_blank_lines(text: str) -> str:
+        lines = text.splitlines()
+        while lines and not lines[0].strip():
+            lines.pop(0)
+        while lines and not lines[-1].strip():
+            lines.pop()
+        return "\n".join(lines)
+
     marker = "### Fixed Code"
     if marker in raw_response:
-        return raw_response.split(marker, 1)[1].lstrip(), "marker"
+        return drop_leading_blank_lines(raw_response.split(marker, 1)[1]), "marker"
 
     blocks = re.findall(r"```(?:python)?\s*\n(.*?)```", raw_response, flags=re.DOTALL)
     if blocks:
-        return max(blocks, key=len).strip(), "fence"
+        return drop_surrounding_blank_lines(max(blocks, key=len)), "fence"
 
     code = re.sub(r"^```(?:python)?\s*\n", "", raw_response.strip())
     if code != raw_response.strip():

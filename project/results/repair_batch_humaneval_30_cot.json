@@ -1,0 +1,902 @@
+[
+  {
+    "task_id": "HumanEval/38",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    groups = [s[(3 * i):min((3 * i + 3), len(s))] for i in range((len(s) + 2) // 3)]\n    groups = [(group[-1] + group[:-1]) if len(group) == 3 else group for group in groups]\n    return \"\".join(groups)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/39",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if num < 2:\n        return False\n    for i in range(2, int(num ** 0.5) + 1):\n        if num % i == 0:\n            return False\n    return True",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "NameError",
+        "error_message": "name 'num' is not defined. Did you mean: 'sum'?",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      },
+      {
+        "round": 1,
+        "completion": "        if num < 2:\n            return False\n        for i in range(2, int(num ** 0.5) + 1):\n            if num % i == 0:\n                return False\n        return True\n\n    a, b = 0, 1\n    count = 0\n    while True:\n        a, b = b, a + b\n        if is_prime(b):\n            count += 1\n            if count == n:\n                return b",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "IndentationError",
+        "error_message": "unexpected indent",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": "marker"
+      },
+      {
+        "round": 2,
+        "completion": "    if num < 2:\n        return False\n    for i in range(2, int(num ** 0.5) + 1):\n        if num % i == 0:\n            return False\n    return True\n\ndef prime_fib(n: int):\n    a, b = 0, 1\n    count = 0\n    while True:\n        a, b = b, a + b\n        if is_prime(b):\n            count += 1\n            if count == n:\n                return b",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "IndentationError",
+        "error_message": "unexpected indent",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": "marker"
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/40",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    l.sort()\n    for i in range(len(l) - 2):\n        left, right = i + 1, len(l) - 1\n        while left < right:\n            total = l[i] + l[left] + l[right]\n            if total < 0:\n                left += 1\n            elif total > 0:\n                right -= 1\n            else:\n                if l[i] != l[left] and l[i] != l[right] and l[left] != l[right]:\n                    return True\n                left += 1\n                right -= 1\n    return False",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate([1, 3, -2, 1]) == True",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      },
+      {
+        "round": 1,
+        "completion": "    l.sort()\n        for i in range(len(l) - 2):\n            if i > 0 and l[i] == l[i - 1]:\n                continue\n            left, right = i + 1, len(l) - 1\n            while left < right:\n                total = l[i] + l[left] + l[right]\n                if total < 0:\n                    left += 1\n                elif total > 0:\n                    right -= 1\n                else:\n                    if l[i] != l[left] and l[i] != l[right] and l[left] != l[right]:\n                        return True\n                    while left < right and l[left] == l[left + 1]:\n                        left += 1\n                    while left < right and l[right] == l[right - 1]:\n                        right -= 1\n                    left += 1\n                    right -= 1\n        return False",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "IndentationError",
+        "error_message": "unexpected indent",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": "marker"
+      },
+      {
+        "round": 2,
+        "completion": "    l.sort()\n    for i in range(len(l) - 2):\n        if i > 0 and l[i] == l[i - 1]:\n            continue\n        left, right = i + 1, len(l) - 1\n        while left < right:\n            total = l[i] + l[left] + l[right]\n            if total < 0:\n                left += 1\n            elif total > 0:\n                right -= 1\n            else:\n                if l[i] != l[left] and l[i] != l[right] and l[left] != l[right]:\n                    return True\n                while left < right and l[left] == l[left + 1]:\n                    left += 1\n                while left < right and l[right] == l[right - 1]:\n                    right -= 1\n                left += 1\n                right -= 1\n    return False",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate([1, 3, -2, 1]) == True",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": "marker"
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/41",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return n * n",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/42",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return [x + 1 for x in l]",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/43",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    seen = set()\n    for num in l:\n        if -num in seen and -num != num:\n            return True\n        seen.add(num)\n    return False",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/44",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if x == 0:\n        return '0'\n    digits = []\n    while x:\n        digits.append(int(x % base))\n        x //= base\n    return ''.join(map(str, digits[::-1]))",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/45",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return 0.5 * a * h",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/46",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if n == 0:\n        return 0\n    if n == 1:\n        return 0\n    if n == 2:\n        return 2\n    if n == 3:\n        return 0\n    fib = [0, 0, 2, 0]\n    for i in range(4, n+1):\n        fib.append(fib[i-1] + fib[i-2] + fib[i-3] + fib[i-4])\n    return fib[n]",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/47",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    sorted_l = sorted(l)\n    n = len(sorted_l)\n    if n % 2 == 1:\n        return sorted_l[n // 2]\n    else:\n        return (sorted_l[n // 2 - 1] + sorted_l[n // 2]) / 2",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/48",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    text = text.lower()\n    left, right = 0, len(text) - 1\n    while left < right:\n        if text[left] != text[right]:\n            return False\n        left += 1\n        right -= 1\n    return True",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/49",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return pow(2, n, p)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/50",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return \"\".join([chr(((ord(ch) - 5 - ord(\"a\")) % 26) + ord(\"a\")) for ch in s])",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/51",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    vowels = 'aeiouAEIOU'\n    return ''.join([char for char in text if char not in vowels])",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/52",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return all(i < t for i in l)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/53",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return x + y",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/54",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return set(s0) == set(s1)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/55",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if n <= 0:\n        raise ValueError(\"n must be a positive integer\")\n    elif n == 1:\n        return 1\n    elif n == 2:\n        return 1\n    else:\n        a, b = 1, 1\n        for _ in range(2, n):\n            a, b = b, a + b\n        return b",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/56",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    stack = []\n    for bracket in brackets:\n        if bracket == \"<\":\n            stack.append(bracket)\n        elif bracket == \">\":\n            if not stack:\n                return False\n            stack.pop()\n    return not stack",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/57",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    increasing = decreasing = True\n    for i in range(len(l) - 1):\n        if l[i] > l[i + 1]:\n            increasing = False\n        if l[i] < l[i + 1]:\n            decreasing = False\n    return increasing or decreasing",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/58",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return sorted(list(set(l1) & set(l2)))",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/59",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    i = 2\n    while i * i <= n:\n        if n % i:\n            i += 1\n        else:\n            n //= i\n    return n",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/60",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if not isinstance(n, int) or n < 1:\n        raise ValueError(\"Input must be a positive integer\")\n    return n * (n + 1) // 2",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/61",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    stack = []\n    for bracket in brackets:\n        if bracket == \"(\":\n            stack.append(bracket)\n        elif bracket == \")\":\n            if not stack:\n                return False\n            stack.pop()\n    return not stack",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/62",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return [i * x for i, x in enumerate(xs[1:], start=1)]",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/63",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if n == 0 or n == 1:\n        return 0\n    elif n == 2:\n        return 1\n    else:\n        a, b, c = 0, 0, 1\n        for _ in range(3, n + 1):\n            a, b, c = b, c, a + b + c\n        return c",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/64",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 2,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    s = s.lower()\n    count = sum(1 for char in s[:-1] if char in 'aeiou')\n    if s and s[-1] in 'y':\n        count += 1\n    return count",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(\"abcde\") == 2, \"Test 1\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      },
+      {
+        "round": 1,
+        "completion": "    s = s.lower()\n        count = sum(1 for char in s if char in 'aeiou')\n        if s and s[-1] == 'y':\n            count += 1\n        return count",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "IndentationError",
+        "error_message": "unexpected indent",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": "marker"
+      },
+      {
+        "round": 2,
+        "completion": "    s = s.lower()\n    count = sum(1 for char in s if char in 'aeiou')\n    if s and s[-1] == 'y':\n        count += 1\n    return count",
+        "completion_changed": true,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": "marker"
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/65",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 2,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    x_str = str(x)\n    num_digits = len(x_str)\n    shift = shift % num_digits\n    if shift == 0:\n        return x_str\n    else:\n        return x_str[-shift:] + x_str[:-shift]",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(97, 8) == \"79\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      },
+      {
+        "round": 1,
+        "completion": "    x_str = str(x)\n        num_digits = len(x_str)\n        if shift > num_digits:\n            return x_str[::-1]\n        else:\n            shift = shift % num_digits\n            if shift == 0:\n                return x_str\n            else:\n                return x_str[-shift:] + x_str[:-shift]",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "IndentationError",
+        "error_message": "unexpected indent",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": "marker"
+      },
+      {
+        "round": 2,
+        "completion": "    x_str = str(x)\n    num_digits = len(x_str)\n    if shift > num_digits:\n        return x_str[::-1]\n    else:\n        shift = shift % num_digits\n        if shift == 0:\n            return x_str\n        else:\n            return x_str[-shift:] + x_str[:-shift]",
+        "completion_changed": true,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": "marker"
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/66",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return sum(ord(c) for c in s if c.isupper())",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/67",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 2,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    s = s.replace(\" and \", \" \")\n    s = s.replace(\"apples\", \"\")\n    s = s.replace(\"oranges\", \"\")\n    s = s.replace(\" \", \"\")\n    apples = int(s.split()[0])\n    oranges = int(s.split()[1])\n    return n - apples - oranges",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "IndexError",
+        "error_message": "list index out of range",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      },
+      {
+        "round": 1,
+        "completion": "    s = s.replace(\" and \", \" \")\n        numbers = s.split()\n        apples = int(numbers[0])\n        oranges = int(numbers[2])\n        return n - apples - oranges",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "IndentationError",
+        "error_message": "unexpected indent",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": "marker"
+      },
+      {
+        "round": 2,
+        "completion": "    s = s.replace(\" and \", \" \")\n    numbers = s.split()\n    apples = int(numbers[0])\n    oranges = int(numbers[2])\n    return n - apples - oranges",
+        "completion_changed": true,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": "marker"
+      }
+    ]
+  }
+]
