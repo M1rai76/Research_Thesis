@@ -28,8 +28,8 @@
     "task_id": "HumanEval/39",
     "dataset": "humaneval",
     "repair_strategy": "cot",
-    "solved": false,
-    "solved_at_round": null,
+    "solved": true,
+    "solved_at_round": 1,
     "stalled": false,
     "rounds": [
       {
@@ -49,26 +49,11 @@
       },
       {
         "round": 1,
-        "completion": "        if num < 2:\n            return False\n        for i in range(2, int(num ** 0.5) + 1):\n            if num % i == 0:\n                return False\n        return True\n\n    a, b = 0, 1\n    count = 0\n    while True:\n        a, b = b, a + b\n        if is_prime(b):\n            count += 1\n            if count == n:\n                return b",
+        "completion": "    def is_prime(num: int):\n        if num < 2:\n            return False\n        for i in range(2, int(num ** 0.5) + 1):\n            if num % i == 0:\n                return False\n        return True\n\n    a, b = 0, 1\n    count = 0\n    while True:\n        a, b = b, a + b\n        if is_prime(b):\n            count += 1\n            if count == n:\n                return b",
         "completion_changed": true,
-        "passed": false,
-        "error_type": "IndentationError",
-        "error_message": "unexpected indent",
-        "timed_out": false,
-        "safety": {
-          "issue_count": 0,
-          "max_severity": null,
-          "findings": []
-        },
-        "cot_extraction_method": "marker"
-      },
-      {
-        "round": 2,
-        "completion": "    if num < 2:\n        return False\n    for i in range(2, int(num ** 0.5) + 1):\n        if num % i == 0:\n            return False\n    return True\n\ndef prime_fib(n: int):\n    a, b = 0, 1\n    count = 0\n    while True:\n        a, b = b, a + b\n        if is_prime(b):\n            count += 1\n            if count == n:\n                return b",
-        "completion_changed": true,
-        "passed": false,
-        "error_type": "IndentationError",
-        "error_message": "unexpected indent",
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
         "timed_out": false,
         "safety": {
           "issue_count": 0,
@@ -104,11 +89,11 @@
       },
       {
         "round": 1,
-        "completion": "    l.sort()\n        for i in range(len(l) - 2):\n            if i > 0 and l[i] == l[i - 1]:\n                continue\n            left, right = i + 1, len(l) - 1\n            while left < right:\n                total = l[i] + l[left] + l[right]\n                if total < 0:\n                    left += 1\n                elif total > 0:\n                    right -= 1\n                else:\n                    if l[i] != l[left] and l[i] != l[right] and l[left] != l[right]:\n                        return True\n                    while left < right and l[left] == l[left + 1]:\n                        left += 1\n                    while left < right and l[right] == l[right - 1]:\n                        right -= 1\n                    left += 1\n                    right -= 1\n        return False",
+        "completion": "    l.sort()\n    for i in range(len(l) - 2):\n        if i > 0 and l[i] == l[i-1]:\n            continue\n        left, right = i + 1, len(l) - 1\n        while left < right:\n            total = l[i] + l[left] + l[right]\n            if total < 0:\n                left += 1\n            elif total > 0:\n                right -= 1\n            else:\n                if l[i] != l[left] and l[i] != l[right] and l[left] != l[right]:\n                    return True\n                temp_left = left\n                while temp_left < right and l[temp_left] == l[left]:\n                    temp_left += 1\n                left = temp_left\n                temp_right = right\n                while temp_right > left and l[temp_right] == l[right]:\n                    temp_right -= 1\n                right = temp_right\n    return False",
         "completion_changed": true,
         "passed": false,
-        "error_type": "IndentationError",
-        "error_message": "unexpected indent",
+        "error_type": "AssertionError",
+        "error_message": "assert candidate([1, 3, -2, 1]) == True",
         "timed_out": false,
         "safety": {
           "issue_count": 0,
@@ -119,7 +104,7 @@
       },
       {
         "round": 2,
-        "completion": "    l.sort()\n    for i in range(len(l) - 2):\n        if i > 0 and l[i] == l[i - 1]:\n            continue\n        left, right = i + 1, len(l) - 1\n        while left < right:\n            total = l[i] + l[left] + l[right]\n            if total < 0:\n                left += 1\n            elif total > 0:\n                right -= 1\n            else:\n                if l[i] != l[left] and l[i] != l[right] and l[left] != l[right]:\n                    return True\n                while left < right and l[left] == l[left + 1]:\n                    left += 1\n                while left < right and l[right] == l[right - 1]:\n                    right -= 1\n                left += 1\n                right -= 1\n    return False",
+        "completion": "    l.sort()\n    for i in range(len(l) - 2):\n        left, right = i + 1, len(l) - 1\n        while left < right:\n            total = l[i] + l[left] + l[right]\n            if total < 0:\n                left += 1\n            elif total > 0:\n                right -= 1\n            else:\n                if l[i] != l[left] and l[i] != l[right] and l[left] != l[right]:\n                    return True\n                temp_left = left\n                while temp_left < right and l[temp_left] == l[left]:\n                    temp_left += 1\n                left = temp_left\n                temp_right = right\n                while temp_right > left and l[temp_right] == l[right]:\n                    temp_right -= 1\n                right = temp_right\n    return False",
         "completion_changed": true,
         "passed": false,
         "error_type": "AssertionError",
@@ -714,7 +699,7 @@
     "dataset": "humaneval",
     "repair_strategy": "cot",
     "solved": true,
-    "solved_at_round": 2,
+    "solved_at_round": 1,
     "stalled": false,
     "rounds": [
       {
@@ -734,21 +719,6 @@
       },
       {
         "round": 1,
-        "completion": "    s = s.lower()\n        count = sum(1 for char in s if char in 'aeiou')\n        if s and s[-1] == 'y':\n            count += 1\n        return count",
-        "completion_changed": true,
-        "passed": false,
-        "error_type": "IndentationError",
-        "error_message": "unexpected indent",
-        "timed_out": false,
-        "safety": {
-          "issue_count": 0,
-          "max_severity": null,
-          "findings": []
-        },
-        "cot_extraction_method": "marker"
-      },
-      {
-        "round": 2,
         "completion": "    s = s.lower()\n    count = sum(1 for char in s if char in 'aeiou')\n    if s and s[-1] == 'y':\n        count += 1\n    return count",
         "completion_changed": true,
         "passed": true,
@@ -769,7 +739,7 @@
     "dataset": "humaneval",
     "repair_strategy": "cot",
     "solved": true,
-    "solved_at_round": 2,
+    "solved_at_round": 1,
     "stalled": false,
     "rounds": [
       {
@@ -789,21 +759,6 @@
       },
       {
         "round": 1,
-        "completion": "    x_str = str(x)\n        num_digits = len(x_str)\n        if shift > num_digits:\n            return x_str[::-1]\n        else:\n            shift = shift % num_digits\n            if shift == 0:\n                return x_str\n            else:\n                return x_str[-shift:] + x_str[:-shift]",
-        "completion_changed": true,
-        "passed": false,
-        "error_type": "IndentationError",
-        "error_message": "unexpected indent",
-        "timed_out": false,
-        "safety": {
-          "issue_count": 0,
-          "max_severity": null,
-          "findings": []
-        },
-        "cot_extraction_method": "marker"
-      },
-      {
-        "round": 2,
         "completion": "    x_str = str(x)\n    num_digits = len(x_str)\n    if shift > num_digits:\n        return x_str[::-1]\n    else:\n        shift = shift % num_digits\n        if shift == 0:\n            return x_str\n        else:\n            return x_str[-shift:] + x_str[:-shift]",
         "completion_changed": true,
         "passed": true,
@@ -869,11 +824,11 @@
       },
       {
         "round": 1,
-        "completion": "    s = s.replace(\" and \", \" \")\n        numbers = s.split()\n        apples = int(numbers[0])\n        oranges = int(numbers[2])\n        return n - apples - oranges",
+        "completion": "    s = s.replace(\" and \", \" \")\n    s = s.replace(\"apples\", \"\")\n    s = s.replace(\"oranges\", \"\")\n    s = s.replace(\" \", \"\")\n    numbers = [int(i) for i in s.split()]\n    if len(numbers) == 2:\n        apples = numbers[0]\n        oranges = numbers[1]\n    else:\n        raise ValueError(\"Invalid input string\")\n    return n - apples - oranges",
         "completion_changed": true,
         "passed": false,
-        "error_type": "IndentationError",
-        "error_message": "unexpected indent",
+        "error_type": "ValueError",
+        "error_message": "Invalid input string",
         "timed_out": false,
         "safety": {
           "issue_count": 0,
@@ -884,7 +839,7 @@
       },
       {
         "round": 2,
-        "completion": "    s = s.replace(\" and \", \" \")\n    numbers = s.split()\n    apples = int(numbers[0])\n    oranges = int(numbers[2])\n    return n - apples - oranges",
+        "completion": "    s = s.replace(\" and \", \" \")\n    numbers = []\n    for word in s.split():\n        if word.isdigit():\n            numbers.append(int(word))\n    if len(numbers) == 2:\n        apples = numbers[0]\n        oranges = numbers[1]\n    else:\n        raise ValueError(\"Invalid input string\")\n    return n - apples - oranges",
         "completion_changed": true,
         "passed": true,
         "error_type": null,

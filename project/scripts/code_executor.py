@@ -1,18 +1,18 @@
 """
 code_executor.py
-Thesis — Prompt Engineering for LLM Code Generation
+Thesis - Prompt Engineering for LLM Code Generation
 Author : Samyak Diwan (z5611048)
 
 Execute generated code against visible (base) test cases for the
 iterative self-repair loop. Only the original test assertions shipped
-with HumanEval / MBPP are used — the augmented EvalPlus test inputs
+with HumanEval / MBPP are used - the augmented EvalPlus test inputs
 are reserved for final evaluation.
 
 Functions
-    get_visible_tests()        — extract base test code from EvalPlus data
-    reconstruct_full_code()    — combine prompt + completion into runnable code
-    execute_in_sandbox()       — run code + tests in an isolated subprocess
-    run_executor()             — public entry point tying it all together
+    get_visible_tests()        - extract base test code from EvalPlus data
+    reconstruct_full_code()    - combine prompt + completion into runnable code
+    execute_in_sandbox()       - run code + tests in an isolated subprocess
+    run_executor()             - public entry point tying it all together
 
 Usage
     python code_executor.py --task_id HumanEval/0 --dataset humaneval \
@@ -49,11 +49,11 @@ def get_problems(dataset: str) -> dict:
 def get_visible_tests(task_id: str, dataset: str) -> dict:
     """Extract the visible/base test code for a given task.
 
-    HumanEval — the ``test`` field contains a ``check(candidate)`` function.
+    HumanEval - the ``test`` field contains a ``check(candidate)`` function.
                 Returns test_code that defines ``check`` and calls it with
                 the task's entry point.
 
-    MBPP      — the ``assertion`` field contains direct assert statements
+    MBPP      - the ``assertion`` field contains direct assert statements
                 that reference the entry point by name.
 
     Returns
@@ -84,13 +84,13 @@ def reconstruct_full_code(
 ) -> str:
     """Combine task prompt and model completion into executable code.
 
-    HumanEval — if the completion already contains ``def {entry_point}``,
+    HumanEval - if the completion already contains ``def {entry_point}``,
                 the model echoed the full function back; use it as-is to
                 avoid creating a nested definition. Otherwise prepend the
                 prompt (signature + docstring) as the completion is
                 body-only.
 
-    MBPP      — the completion is a standalone solution (stored under the
+    MBPP      - the completion is a standalone solution (stored under the
                 ``solution`` key in the samples JSONL) and is used as-is.
     """
     if dataset == "humaneval":

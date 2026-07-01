@@ -1,6 +1,6 @@
 """
 repair_prompt.py
-Thesis — Prompt Engineering for LLM Code Generation
+Thesis - Prompt Engineering for LLM Code Generation
 Author : Samyak Diwan (z5611048)
 
 Build repair prompts for the iterative self-repair loop. When a task
@@ -8,13 +8,13 @@ fails a round, this module constructs a new prompt containing the
 original task, the broken code, and the error signal from
 code_executor.py, then asks the model to fix its own attempt.
 
-One fixed template is used across all tasks and rounds — only the
+One fixed template is used across all tasks and rounds - only the
 task content, broken code, and error info vary. This isolates the
 effect of the repair loop design rather than per-task prompt tuning.
 
 Functions
-    build_repair_prompt()   — construct the full repair prompt text
-    build_repair_context()  — extract error fields from an executor result
+    build_repair_prompt()   - construct the full repair prompt text
+    build_repair_context()  - extract error fields from an executor result
 
 Usage
     python repair_prompt.py --task_id HumanEval/4 --dataset humaneval \
@@ -81,7 +81,7 @@ def build_repair_prompt(
     Deliberately omits the original task prompt/docstring from the repair
     text. Research on program repair shows that restating context which
     does not directly expose the defect adds prompt bloat that can hurt
-    repair performance more than it helps — the broken code plus the
+    repair performance more than it helps - the broken code plus the
     concrete error signal is the minimal sufficient evidence for the model
     to localise and fix the fault. The task_prompt parameter is retained
     in the signature for future A/B ablation experiments.

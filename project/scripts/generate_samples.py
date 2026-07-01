@@ -129,6 +129,37 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Keep existing samples in the output file and generate only missing task IDs.",
     )
+    parser.add_argument(
+        "--repair",
+        action="store_true",
+        help="Run iterative self-repair after the normal Round 0 generation.",
+    )
+    parser.add_argument(
+        "--repair_strategy",
+        default="cot",
+        choices=["minimal", "cot"],
+        help="Repair prompt strategy to use when --repair is set. Default: cot.",
+    )
+    parser.add_argument(
+        "--max_repair_rounds",
+        type=int,
+        default=2,
+        help="Maximum repair rounds when --repair is set. Default: 2.",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Optional task limit for smoke tests.",
+    )
+    parser.add_argument(
+        "--round0_source_jsonl",
+        default=None,
+        help=(
+            "Optional existing samples JSONL to reuse for Round 0 in repair mode. "
+            "Tasks present here are not regenerated."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -554,6 +585,242 @@ def load_existing_samples(path: str) -> dict:
     return samples
 
 
+def apply_limit_to_path(path: str, limit: Optional[int]) -> str:
+    """Add a smoke-test limit suffix to avoid clobbering full-run artifacts."""
+    if limit is None:
+        return path
+    root, ext = os.path.splitext(path)
+    return f"{root}_limit{limit}{ext}"
+
+
+def get_repair_round_path(
+    base_output_path: str,
+    repair_strategy: str,
+    round_num: int,
+) -> str:
+    """Build a cumulative per-round repair JSONL path."""
+    if round_num == 0:
+        return base_output_path
+    root, ext = os.path.splitext(base_output_path)
+    return f"{root}_repair-{repair_strategy}_round{round_num}{ext}"
+
+
+def get_repair_trajectory_path(
+    model: str,
+    prompt_strategy: str,
+    dataset: str,
+    repair_strategy: str,
+    limit: Optional[int] = None,
+) -> str:
+    """Build the full trajectory JSON path for repair analysis."""
+    slug = model_to_slug(model)
+    temp_tag = f"t{int(TEMPERATURE * 10):02d}"
+    limit_tag = "" if limit is None else f"_limit{limit}"
+    filename = (
+        f"repair_trajectories_{slug}_{temp_tag}_{prompt_strategy}_"
+        f"{dataset}_{repair_strategy}{limit_tag}.json"
+    )
+    return os.path.join(BASE_DIR, "results", filename)
+
+
+def load_existing_trajectories(path: str) -> dict:
+    """Load existing repair trajectories as task_id -> trajectory."""
+    if not os.path.exists(path):
+        return {}
+
+    with open(path, "r", encoding="utf-8") as f:
+        trajectories = json.load(f)
+
+    return {
+        result["task_id"]: result
+        for result in trajectories
+        if result.get("task_id")
+    }
+
+
+def sample_from_completion(task_id: str, completion: str, dataset: str) -> dict:
+    """Build one EvalPlus sample row from a task completion."""
+    sample_key = "solution" if dataset == "mbpp" else "completion"
+    return {"task_id": task_id, sample_key: completion}
+
+
+def completion_for_round(result: dict, target_round: int) -> str:
+    """Return the latest available completion at or before target_round."""
+    rounds = [
+        round_entry
+        for round_entry in result.get("rounds", [])
+        if round_entry.get("round", 0) <= target_round
+    ]
+    if not rounds:
+        raise ValueError(f"No rounds recorded for {result.get('task_id')}")
+    return max(rounds, key=lambda round_entry: round_entry["round"])["completion"]
+
+
+def write_repair_round_jsonls(
+    round_paths: dict,
+    trajectories_by_id: dict,
+    task_ids: list,
+    dataset: str,
+) -> dict:
+    """Write cumulative per-round JSONL files for EvalPlus compatibility."""
+    saved_counts = {}
+    for round_num, path in round_paths.items():
+        samples = []
+        for task_id in task_ids:
+            result = trajectories_by_id.get(task_id)
+            if result is None:
+                continue
+            completion = completion_for_round(result, round_num)
+            samples.append(sample_from_completion(task_id, completion, dataset))
+
+        write_samples_jsonl(path, samples)
+        saved_counts[round_num] = len(samples)
+        print(f"  Round {round_num} samples -> {path} ({len(samples)} rows)")
+    return saved_counts
+
+
+def solved_by_round(result: dict, round_num: int) -> bool:
+    """Return True if a task solved at or before round_num."""
+    solved_at = result.get("solved_at_round")
+    return solved_at is not None and solved_at <= round_num
+
+
+def summarize_repair_trajectories(results: list, repair_strategy: str) -> dict:
+    """Compute repair-mode summary metrics."""
+    from collections import Counter
+
+    total = len(results)
+    summary = {
+        "total_tasks": total,
+        "round_pass_counts": {},
+        "round_pass_rates": {},
+        "total_improvement_pp": 0.0,
+        "stalled_count": sum(1 for result in results if result.get("stalled", False)),
+        "round0_error_counts": {},
+        "cot_extraction_method_counts": {},
+    }
+
+    for round_num in [0, 1, 2]:
+        count = sum(1 for result in results if solved_by_round(result, round_num))
+        summary["round_pass_counts"][f"round{round_num}"] = count
+        summary["round_pass_rates"][f"round{round_num}"] = (
+            round(count / total * 100, 1) if total else 0.0
+        )
+
+    summary["total_improvement_pp"] = round(
+        summary["round_pass_rates"]["round2"]
+        - summary["round_pass_rates"]["round0"],
+        1,
+    )
+
+    error_counts = Counter()
+    cot_counts = Counter()
+    for result in results:
+        if result.get("rounds"):
+            r0 = result["rounds"][0]
+            if not r0.get("passed", False):
+                error_counts[r0.get("error_type")] += 1
+        if repair_strategy == "cot":
+            for round_entry in result.get("rounds", []):
+                method = round_entry.get("cot_extraction_method")
+                if round_entry.get("round", 0) > 0 and method:
+                    cot_counts[method] += 1
+
+    summary["round0_error_counts"] = dict(error_counts)
+    if repair_strategy == "cot":
+        summary["cot_extraction_method_counts"] = {
+            method: cot_counts[method]
+            for method in ["marker", "fence", "raw_fallback"]
+        }
+
+    return summary
+
+
+def print_repair_summary(summary: dict, repair_strategy: str) -> None:
+    """Print a compact repair-mode summary."""
+    total = summary["total_tasks"]
+
+    def fmt(round_key: str) -> str:
+        count = summary["round_pass_counts"][round_key]
+        rate = summary["round_pass_rates"][round_key]
+        return f"{count}/{total} ({rate:.1f}%)"
+
+    print("\n" + "=" * 60)
+    print("REPAIR SUMMARY")
+    print("=" * 60)
+    print(f"  Total tasks                : {total}")
+    print(f"  Round 0 pass@1             : {fmt('round0')}")
+    print(f"  Cumulative Round 1 pass@1  : {fmt('round1')}")
+    print(f"  Cumulative Round 2 pass@1  : {fmt('round2')}")
+    print(f"  Total improvement          : {summary['total_improvement_pp']:+.1f} pp")
+    print(f"  Stalled tasks              : {summary['stalled_count']}")
+
+    if summary["round0_error_counts"]:
+        print("\n  Round 0 error type breakdown:")
+        for err_type, count in summary["round0_error_counts"].items():
+            print(f"    {err_type}: {count}")
+
+    if repair_strategy == "cot":
+        print("\n  CoT extraction method breakdown:")
+        for method, count in summary["cot_extraction_method_counts"].items():
+            print(f"    {method}: {count}")
+
+
+def save_repair_run_log(
+    round_paths: dict,
+    trajectory_path: str,
+    round0_source_jsonl: Optional[str],
+    model: str,
+    backend: str,
+    dataset: str,
+    prompt_strategy: str,
+    repair_strategy: str,
+    max_repair_rounds: int,
+    total_api_calls: int,
+    round0_generation_api_calls: int,
+    round0_reused_count: int,
+    repair_api_calls: int,
+    skipped: list,
+    summary: dict,
+    limit: Optional[int],
+) -> None:
+    """Save a repair-mode JSON sidecar recording configuration and summary."""
+    log = {
+        "date": str(date.today()),
+        "backend": backend,
+        "dataset": dataset,
+        "model": model,
+        "prompt_strategy": prompt_strategy,
+        "temperature": TEMPERATURE,
+        "max_tokens": MAX_TOKENS,
+        "max_retries": MAX_RETRIES,
+        "repair": True,
+        "repair_strategy": repair_strategy,
+        "max_repair_rounds": max_repair_rounds,
+        "limit": limit,
+        "round_output_files": {
+            f"round{round_num}": path
+            for round_num, path in round_paths.items()
+        },
+        "trajectory_file": trajectory_path,
+        "round0_source_jsonl": round0_source_jsonl,
+        "total_api_calls": total_api_calls,
+        "round0_generation_api_calls": round0_generation_api_calls,
+        "round0_reused_count": round0_reused_count,
+        "repair_api_calls": repair_api_calls,
+        "tasks_completed": summary["total_tasks"],
+        "tasks_skipped": len(skipped),
+        "skipped_ids": skipped,
+        "summary": summary,
+    }
+
+    log_path = round_paths[0].replace(".jsonl", "_repair_run_log.json")
+    with open(log_path, "w", encoding="utf-8") as f:
+        json.dump(log, f, indent=2)
+
+    print(f"  Repair run log -> {log_path}")
+
+
 def save_run_log(
     output_path: str,
     model: str,
@@ -616,9 +883,212 @@ def load_existing_task_ids(path: str) -> set:
     return existing
 
 
+def run_repair_generation(args: argparse.Namespace) -> None:
+    """Run normal Round 0 generation followed by iterative self-repair."""
+    from self_repair import run_self_repair
+
+    base_output_path = apply_limit_to_path(
+        get_output_path(args.model, args.prompt, args.dataset),
+        args.limit,
+    )
+    round_paths = {
+        round_num: get_repair_round_path(
+            base_output_path,
+            args.repair_strategy,
+            round_num,
+        )
+        for round_num in range(args.max_repair_rounds + 1)
+    }
+    trajectory_path = get_repair_trajectory_path(
+        model=args.model,
+        prompt_strategy=args.prompt,
+        dataset=args.dataset,
+        repair_strategy=args.repair_strategy,
+        limit=args.limit,
+    )
+
+    os.makedirs(os.path.join(BASE_DIR, "samples"), exist_ok=True)
+    os.makedirs(os.path.join(BASE_DIR, "results"), exist_ok=True)
+
+    print(f"Backend  : {args.backend}")
+    print(f"Dataset  : {args.dataset}")
+    print(f"Model    : {args.model}")
+    print(f"Strategy : {args.prompt}")
+    print(f"Temp     : {TEMPERATURE}")
+    print(f"Repair   : {args.repair_strategy}")
+    print(f"Max rds  : {args.max_repair_rounds}")
+    print(f"Limit    : {args.limit}")
+    print(f"Round 0  : {round_paths[0]}")
+    for round_num in range(1, args.max_repair_rounds + 1):
+        print(f"Round {round_num}  : {round_paths[round_num]}")
+    print(f"Traj     : {trajectory_path}")
+    print(f"R0 source: {args.round0_source_jsonl or round_paths[0]}")
+    print()
+
+    client = get_client(args.backend)
+    problems = get_problems(args.dataset)
+    problem_items = list(problems.items())
+    if args.limit is not None:
+        if args.limit < 1:
+            raise ValueError("--limit must be at least 1")
+        problem_items = problem_items[:args.limit]
+
+    total = len(problem_items)
+    existing_trajectories = (
+        load_existing_trajectories(trajectory_path)
+        if args.resume_missing
+        else {}
+    )
+    round0_source_path = args.round0_source_jsonl or round_paths[0]
+    if args.round0_source_jsonl and not os.path.exists(round0_source_path):
+        raise FileNotFoundError(f"Round 0 source JSONL not found: {round0_source_path}")
+    round0_source_samples = load_existing_samples(round0_source_path)
+    sample_key = "solution" if args.dataset == "mbpp" else "completion"
+
+    trajectories_by_id = dict(existing_trajectories)
+    skipped = []
+    round0_generation_api_calls = 0
+    round0_reused_count = 0
+    repair_api_calls = 0
+    sleep_s = SLEEP.get(args.backend, 1.0)
+
+    if round0_source_samples:
+        source_count = sum(
+            1 for task_id, _ in problem_items if task_id in round0_source_samples
+        )
+        print(f"Round 0 source: found {source_count}/{total} selected task completions")
+        print()
+
+    if args.resume_missing:
+        existing_count = sum(
+            1 for task_id, _ in problem_items if task_id in existing_trajectories
+        )
+        print(f"Resume   : found {existing_count}/{total} existing trajectories")
+        print()
+
+    for index, (task_id, task) in enumerate(problem_items, start=1):
+        if task_id in existing_trajectories:
+            print(f"[{index:>3}/{total}] {task_id} ... RESUME")
+            continue
+
+        print(f"[{index:>3}/{total}] {task_id} ...", flush=True)
+
+        source_sample = round0_source_samples.get(task_id)
+        if source_sample is not None and sample_key in source_sample:
+            completion = source_sample[sample_key]
+            round0_reused_count += 1
+            print("  Round 0 source: reused existing completion")
+        else:
+            prompt = build_prompt(task["prompt"], args.prompt, args.dataset)
+            raw = generate_raw_completion(client, args.model, prompt)
+            round0_generation_api_calls += 1
+
+            if raw is None:
+                print("  SKIPPED (Round 0 API error)")
+                skipped.append(task_id)
+                continue
+
+            completion = (
+                post_process_solution(raw)
+                if args.dataset == "mbpp"
+                else post_process(raw, entry_point=task["entry_point"])
+            )
+            print("  Round 0 source: generated via API")
+
+        if not completion:
+            print("  SKIPPED (empty after Round 0 post-process)")
+            skipped.append(task_id)
+            continue
+
+        result = run_self_repair(
+            task_id=task_id,
+            initial_completion=completion,
+            dataset=args.dataset,
+            client=client,
+            model=args.model,
+            backend=args.backend,
+            max_repair_rounds=args.max_repair_rounds,
+            repair_strategy=args.repair_strategy,
+        )
+        repair_api_calls += max(0, len(result.get("rounds", [])) - 1)
+        trajectories_by_id[task_id] = result
+
+        if result.get("solved"):
+            print(f"[{index:>3}/{total}] {task_id} -> solved at round {result['solved_at_round']}")
+        else:
+            print(
+                f"[{index:>3}/{total}] {task_id} -> "
+                f"unsolved after {args.max_repair_rounds} rounds, "
+                f"stalled={result.get('stalled', False)}"
+            )
+
+        ordered_partial = [
+            trajectories_by_id[tid]
+            for tid, _ in problem_items
+            if tid in trajectories_by_id
+        ]
+        with open(trajectory_path, "w", encoding="utf-8") as f:
+            json.dump(ordered_partial, f, indent=2)
+
+        time.sleep(sleep_s)
+
+    task_ids = [task_id for task_id, _ in problem_items]
+    ordered_results = [
+        trajectories_by_id[task_id]
+        for task_id in task_ids
+        if task_id in trajectories_by_id
+    ]
+
+    with open(trajectory_path, "w", encoding="utf-8") as f:
+        json.dump(ordered_results, f, indent=2)
+    print(f"\n  Trajectories -> {trajectory_path} ({len(ordered_results)} rows)")
+
+    write_repair_round_jsonls(
+        round_paths=round_paths,
+        trajectories_by_id=trajectories_by_id,
+        task_ids=task_ids,
+        dataset=args.dataset,
+    )
+
+    if skipped:
+        print(f"  Skipped {len(skipped)} tasks: {skipped}")
+
+    summary = summarize_repair_trajectories(
+        ordered_results,
+        args.repair_strategy,
+    )
+    total_api_calls = round0_generation_api_calls + repair_api_calls
+    print_repair_summary(summary, args.repair_strategy)
+    print()
+    print(f"API calls: total={total_api_calls}, round0_generated={round0_generation_api_calls}, "
+          f"round0_reused={round0_reused_count}, repair={repair_api_calls}")
+    save_repair_run_log(
+        round_paths=round_paths,
+        trajectory_path=trajectory_path,
+        round0_source_jsonl=round0_source_path,
+        model=args.model,
+        backend=args.backend,
+        dataset=args.dataset,
+        prompt_strategy=args.prompt,
+        repair_strategy=args.repair_strategy,
+        max_repair_rounds=args.max_repair_rounds,
+        total_api_calls=total_api_calls,
+        round0_generation_api_calls=round0_generation_api_calls,
+        round0_reused_count=round0_reused_count,
+        repair_api_calls=repair_api_calls,
+        skipped=skipped,
+        summary=summary,
+        limit=args.limit,
+    )
+
+
 def main() -> None:
     args = parse_args()
     load_env_file()
+
+    if args.repair:
+        run_repair_generation(args)
+        return
 
     output_path = get_output_path(args.model, args.prompt, args.dataset)
     os.makedirs(os.path.join(BASE_DIR, "samples"), exist_ok=True)

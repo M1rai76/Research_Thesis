@@ -1,6 +1,6 @@
 """
 safety_check.py
-Thesis — Prompt Engineering for LLM Code Generation
+Thesis - Prompt Engineering for LLM Code Generation
 Author : Samyak Diwan (z5611048)
 
 Run Bandit static security analysis against generated code completions.
@@ -9,9 +9,9 @@ dimension alongside correctness and robustness) and as a gate before
 sandboxed execution for HIGH-severity findings.
 
 Functions
-    run_bandit_scan()   — scan a code string with Bandit, return findings
-    check_safety()      — public entry point: reconstruct code and scan it
-    is_high_risk()      — True if max_severity == "HIGH"
+    run_bandit_scan()   - scan a code string with Bandit, return findings
+    check_safety()      - public entry point: reconstruct code and scan it
+    is_high_risk()      - True if max_severity == "HIGH"
 
 Usage
     python safety_check.py --task_id HumanEval/0 --dataset humaneval \

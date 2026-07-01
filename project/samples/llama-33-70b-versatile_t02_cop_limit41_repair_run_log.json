@@ -1,0 +1,53 @@
+{
+  "date": "2026-06-30",
+  "backend": "groq",
+  "dataset": "humaneval",
+  "model": "llama-3.3-70b-versatile",
+  "prompt_strategy": "cop",
+  "temperature": 0.2,
+  "max_tokens": 512,
+  "max_retries": 5,
+  "repair": true,
+  "repair_strategy": "cot",
+  "max_repair_rounds": 2,
+  "limit": 41,
+  "round_output_files": {
+    "round0": "C:\\Users\\Samayak\\COMP4952\\project\\samples\\llama-33-70b-versatile_t02_cop_limit41.jsonl",
+    "round1": "C:\\Users\\Samayak\\COMP4952\\project\\samples\\llama-33-70b-versatile_t02_cop_limit41_repair-cot_round1.jsonl",
+    "round2": "C:\\Users\\Samayak\\COMP4952\\project\\samples\\llama-33-70b-versatile_t02_cop_limit41_repair-cot_round2.jsonl"
+  },
+  "trajectory_file": "C:\\Users\\Samayak\\COMP4952\\project\\results\\repair_trajectories_llama-33-70b-versatile_t02_cop_humaneval_cot_limit41.json",
+  "round0_source_jsonl": "samples/llama-33-70b-versatile_t02_cgo.jsonl",
+  "total_api_calls": 8,
+  "round0_generation_api_calls": 0,
+  "round0_reused_count": 41,
+  "repair_api_calls": 8,
+  "tasks_completed": 41,
+  "tasks_skipped": 0,
+  "skipped_ids": [],
+  "summary": {
+    "total_tasks": 41,
+    "round_pass_counts": {
+      "round0": 35,
+      "round1": 39,
+      "round2": 39
+    },
+    "round_pass_rates": {
+      "round0": 85.4,
+      "round1": 95.1,
+      "round2": 95.1
+    },
+    "total_improvement_pp": 9.7,
+    "stalled_count": 0,
+    "round0_error_counts": {
+      "IndentationError": 4,
+      "NameError": 1,
+      "AssertionError": 1
+    },
+    "cot_extraction_method_counts": {
+      "marker": 8,
+      "fence": 0,
+      "raw_fallback": 0
+    }
+  }
+}

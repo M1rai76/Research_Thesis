@@ -1,6 +1,6 @@
 """
 self_repair.py
-Thesis — Prompt Engineering for LLM Code Generation
+Thesis - Prompt Engineering for LLM Code Generation
 Author : Samyak Diwan (z5611048)
 
 Orchestrator for the iterative self-repair loop. Runs a single task
@@ -9,7 +9,7 @@ code_executor, safety_check, repair_prompt, and the LLM-calling
 logic from generate_samples.
 
 Functions
-    run_self_repair()   — full N-round repair loop for one task
+    run_self_repair()   - full N-round repair loop for one task
 
 Usage
     python self_repair.py --task_id HumanEval/40 --dataset humaneval \
@@ -60,11 +60,6 @@ def get_problems(dataset: str) -> dict:
     raise ValueError(f"Unsupported dataset: {dataset}")
 
 
-def _build_repair_messages(repair_prompt_text: str) -> list:
-    """Wrap a repair prompt in the chat message format used by generate_raw_completion."""
-    return repair_prompt_text
-
-
 def run_self_repair(
     task_id: str,
     initial_completion: str,
@@ -91,7 +86,7 @@ def run_self_repair(
 
     The top-level result includes ``stalled``: True when the task is
     unsolved AND the model never produced a different completion across
-    any repair round — meaning it did not engage with the repair signal
+    any repair round - meaning it did not engage with the repair signal
     at all, as opposed to genuinely attempting different (but still
     wrong) fixes. This distinction matters for thesis analysis: a stall
     indicates the repair prompt failed to elicit a behavioural change,
