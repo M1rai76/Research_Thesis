@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-01",
+  "date": "2026-07-02",
   "backend": "groq",
   "dataset": "humaneval",
   "model": "llama-3.3-70b-versatile",
@@ -8,20 +8,20 @@
   "max_tokens": 512,
   "max_retries": 5,
   "repair": true,
-  "repair_strategy": "cot",
+  "repair_strategy": "minimal",
   "max_repair_rounds": 2,
   "limit": null,
   "round_output_files": {
     "round0": "C:\\Users\\Samayak\\COMP4952\\project\\samples\\llama-33-70b-versatile_t02_cop.jsonl",
-    "round1": "C:\\Users\\Samayak\\COMP4952\\project\\samples\\llama-33-70b-versatile_t02_cop_repair-cot_round1.jsonl",
-    "round2": "C:\\Users\\Samayak\\COMP4952\\project\\samples\\llama-33-70b-versatile_t02_cop_repair-cot_round2.jsonl"
+    "round1": "C:\\Users\\Samayak\\COMP4952\\project\\samples\\llama-33-70b-versatile_t02_cop_repair-minimal_round1.jsonl",
+    "round2": "C:\\Users\\Samayak\\COMP4952\\project\\samples\\llama-33-70b-versatile_t02_cop_repair-minimal_round2.jsonl"
   },
-  "trajectory_file": "C:\\Users\\Samayak\\COMP4952\\project\\results\\repair_trajectories_llama-33-70b-versatile_t02_cop_humaneval_cot.json",
+  "trajectory_file": "C:\\Users\\Samayak\\COMP4952\\project\\results\\repair_trajectories_llama-33-70b-versatile_t02_cop_humaneval_minimal.json",
   "round0_source_jsonl": "samples/llama-33-70b-versatile_t02_cgo.jsonl",
-  "total_api_calls": 48,
+  "total_api_calls": 57,
   "round0_generation_api_calls": 0,
   "round0_reused_count": 164,
-  "repair_api_calls": 48,
+  "repair_api_calls": 57,
   "tasks_completed": 164,
   "tasks_skipped": 0,
   "skipped_ids": [],
@@ -29,26 +29,22 @@
     "total_tasks": 164,
     "round_pass_counts": {
       "round0": 132,
-      "round1": 148,
-      "round2": 152
+      "round1": 139,
+      "round2": 140
     },
     "round_pass_rates": {
       "round0": 80.5,
-      "round1": 90.2,
-      "round2": 92.7
+      "round1": 84.8,
+      "round2": 85.4
     },
-    "total_improvement_pp": 12.2,
-    "stalled_count": 0,
+    "total_improvement_pp": 4.9,
+    "stalled_count": 5,
     "round0_error_counts": {
       "IndentationError": 7,
       "NameError": 2,
       "AssertionError": 21,
       "IndexError": 2
     },
-    "cot_extraction_method_counts": {
-      "marker": 48,
-      "fence": 0,
-      "raw_fallback": 0
-    }
+    "cot_extraction_method_counts": {}
   }
 }
