@@ -3,6 +3,7 @@
 import json
 import os
 import sys
+import argparse
 from collections import Counter
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -25,17 +26,27 @@ def load_samples(path: str) -> list:
     return samples
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Verify Bandit safety findings for a samples JSONL file."
+    )
+    parser.add_argument("--jsonl_path", default=JSONL_PATH)
+    parser.add_argument("--dataset", default="humaneval", choices=["humaneval", "mbpp"])
+    return parser.parse_args()
+
+
 def main() -> None:
-    samples = load_samples(JSONL_PATH)
-    print(f"Loaded {len(samples)} samples from {JSONL_PATH}\n")
+    args = parse_args()
+    samples = load_samples(args.jsonl_path)
+    print(f"Loaded {len(samples)} samples from {args.jsonl_path}\n")
 
     results = []
     for i, sample in enumerate(samples, 1):
         task_id = sample["task_id"]
-        completion = sample["completion"]
+        completion = sample["solution"] if args.dataset == "mbpp" else sample["completion"]
         print(f"[{i:>3}/{len(samples)}] {task_id} ...", end=" ", flush=True)
 
-        result = check_safety(task_id=task_id, completion=completion, dataset="humaneval")
+        result = check_safety(task_id=task_id, completion=completion, dataset=args.dataset)
         tag = "CLEAN" if result["issue_count"] == 0 else f"{result['issue_count']} issues ({result['max_severity']})"
         print(tag)
         results.append(result)
