@@ -1,0 +1,142 @@
+[
+  {
+    "task_id": "HumanEval/0",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    numbers.sort()\n    for i in range(len(numbers) - 1):\n        if numbers[i + 1] - numbers[i] <= threshold:\n            return True\n    return False",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/1",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    paren_string = paren_string.replace(' ', '')\n    result = []\n    temp = ''\n    count = 0\n    for char in paren_string:\n        temp += char\n        if char == '(':\n            count += 1\n        elif char == ')':\n            count -= 1\n        if count == 0:\n            result.append(temp)\n            temp = ''\n    return result",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/2",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if not isinstance(number, (int, float)) or number < 0:\n        raise ValueError(\"Input must be a non-negative number\")\n    return number - int(number)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/3",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    balance = 0\n    for operation in operations:\n        balance += operation\n        if balance < 0:\n            return True\n    return False",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/4",
+    "dataset": "humaneval",
+    "repair_strategy": "cot",
+    "solved": true,
+    "solved_at_round": 1,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    from typing import List\n    import statistics\n\n    def mean_absolute_deviation(numbers: List[float]) -> float:\n        mean = statistics.mean(numbers)\n        absolute_deviations = [abs(num - mean) for num in numbers]\n        return statistics.mean(absolute_deviations)",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "IndentationError",
+        "error_message": "unexpected indent",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": null
+      },
+      {
+        "round": 1,
+        "completion": "from typing import List\nimport statistics\n\ndef mean_absolute_deviation(numbers: List[float]) -> float:\n    mean = statistics.mean(numbers)\n    absolute_deviations = [abs(num - mean) for num in numbers]\n    return statistics.mean(absolute_deviations)",
+        "completion_changed": true,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        },
+        "cot_extraction_method": "marker"
+      }
+    ]
+  }
+]

@@ -1,0 +1,4738 @@
+[
+  {
+    "task_id": "HumanEval/0",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    numbers.sort()\n    for i in range(len(numbers) - 1):\n        if numbers[i + 1] - numbers[i] <= threshold:\n            return True\n    return False",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/1",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    paren_string = paren_string.replace(' ', '')\n    result = []\n    temp = ''\n    count = 0\n    for char in paren_string:\n        temp += char\n        if char == '(':\n            count += 1\n        elif char == ')':\n            count -= 1\n        if count == 0:\n            result.append(temp)\n            temp = ''\n    return result",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/2",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if not isinstance(number, (int, float)) or number < 0:\n        raise ValueError(\"Input must be a non-negative number\")\n    return number - int(number)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/3",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    balance = 0\n    for operation in operations:\n        balance += operation\n        if balance < 0:\n            return True\n    return False",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/4",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 1,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    from typing import List\n    import statistics\n\n    def mean_absolute_deviation(numbers: List[float]) -> float:\n        mean = statistics.mean(numbers)\n        absolute_deviations = [abs(num - mean) for num in numbers]\n        return statistics.mean(absolute_deviations)",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "IndentationError",
+        "error_message": "unexpected indent",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "from typing import List\nimport statistics\n\ndef mean_absolute_deviation(numbers: List[float]) -> float:\n    mean = statistics.mean(numbers)\n    absolute_deviations = [abs(num - mean) for num in numbers]\n    return statistics.mean(absolute_deviations)",
+        "completion_changed": true,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/5",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    result = []\n    for i, num in enumerate(numbers):\n        if i > 0:\n            result.append(delimeter)\n        result.append(num)\n    return result",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/6",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    groups = paren_string.split()\n    result = []\n    for group in groups:\n        max_depth = 0\n        current_depth = 0\n        for char in group:\n            if char == '(':\n                current_depth += 1\n                max_depth = max(max_depth, current_depth)\n            elif char == ')':\n                current_depth -= 1\n        result.append(max_depth)\n    return result",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/7",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return [string for string in strings if substring in string]",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/8",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 1,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    from typing import List, Tuple\n    from functools import reduce\n    from operator import mul\n\n    def sum_product(numbers: List[int]) -> Tuple[int, int]:\n        total_sum = sum(numbers)\n        total_product = reduce(mul, numbers, 1)\n        return total_sum, total_product",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "IndentationError",
+        "error_message": "unexpected indent",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "from typing import List, Tuple\nfrom functools import reduce\nfrom operator import mul\n\ndef sum_product(numbers: List[int]) -> Tuple[int, int]:\n    total_sum = sum(numbers)\n    total_product = reduce(mul, numbers, 1)\n    return total_sum, total_product",
+        "completion_changed": true,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/9",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    result = []\n    max_so_far = float('-inf')\n    for num in numbers:\n        max_so_far = max(max_so_far, num)\n        result.append(max_so_far)\n    return result",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/10",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if not string:\n        return string\n\n    for i in range(len(string), 0, -1):\n        if is_palindrome(string[-i:]):\n            return string + string[:-i][::-1]\n\n    return string + string[::-1][1:]",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/11",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    max_len = max(len(a), len(b))\n    a = a.zfill(max_len)\n    b = b.zfill(max_len)\n    return ''.join(str(int(x) ^ int(y)) for x, y in zip(a, b))",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/12",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if not strings:\n        return None\n    return max(strings, key=len)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/13",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    while b:\n        a, b = b, a % b\n    return abs(a)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/14",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 1,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    from typing import List\n\n    def all_prefixes(string: str) -> List[str]:\n        return [string[:i+1] for i in range(len(string))]",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "IndentationError",
+        "error_message": "unexpected indent",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "from typing import List\n\ndef all_prefixes(string: str) -> List[str]:\n    return [string[:i+1] for i in range(len(string))]",
+        "completion_changed": true,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/15",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return ' '.join(map(str, range(n + 1)))",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/16",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    string = string.lower()\n    return len(set(string))",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/17",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    notes = music_string.split()\n    beats = []\n    for note in notes:\n        if note == 'o':\n            beats.append(4)\n        elif note == 'o|':\n            beats.append(2)\n        elif note == '.|':\n            beats.append(1)\n    return beats",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/18",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    count = 0\n    start = 0\n    while start < len(string):\n        pos = string.find(substring, start)\n        if pos != -1:\n            count += 1\n            start = pos + 1\n        else:\n            break\n    return count",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/19",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    num_map = {\n        'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4,\n        'five': 5, 'six': 6, 'seven': 7, 'eight': 8, 'nine': 9\n    }\n    num_list = numbers.split()\n    num_list.sort(key=lambda x: num_map[x])\n    return ' '.join(num_list)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/20",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 1,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    from typing import List, Tuple\n    import itertools\n\n    def find_closest_elements(numbers: List[float]) -> Tuple[float, float]:\n        min_diff = float('inf')\n        closest_pair = ()\n        for pair in itertools.combinations(numbers, 2):\n            diff = abs(pair[0] - pair[1])\n            if diff < min_diff:\n                min_diff = diff\n                closest_pair = pair\n            elif diff == min_diff:\n                if pair[0] < closest_pair[0] or (pair[0] == closest_pair[0] and pair[1] < closest_pair[1]):\n                    closest_pair = pair\n        return tuple(sorted(closest_pair))",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "IndentationError",
+        "error_message": "unexpected indent",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "from typing import List, Tuple\nimport itertools\n\ndef find_closest_elements(numbers: List[float]) -> Tuple[float, float]:\n    min_diff = float('inf')\n    closest_pair = ()\n    for pair in itertools.combinations(numbers, 2):\n        diff = abs(pair[0] - pair[1])\n        if diff < min_diff:\n            min_diff = diff\n            closest_pair = pair\n        elif diff == min_diff:\n            if pair[0] < closest_pair[0] or (pair[0] == closest_pair[0] and pair[1] < closest_pair[1]):\n                closest_pair = pair\n    return tuple(sorted(closest_pair))",
+        "completion_changed": true,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/21",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    min_val = min(numbers)\n    max_val = max(numbers)\n    return [(x - min_val) / (max_val - min_val) for x in numbers]",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/22",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return [value for value in values if isinstance(value, int)]",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/23",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return len(string)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/24",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    for i in range(n - 1, 0, -1):\n        if n % i == 0:\n            return i",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/25",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    i = 2\n    factors = []\n    while i * i <= n:\n        if n % i:\n            i += 1\n        else:\n            n //= i\n            factors.append(i)\n    if n > 1:\n        factors.append(n)\n    return factors",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/26",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    seen = set()\n    seen_more_than_once = set()\n    result = []\n    for num in numbers:\n        if num in seen_more_than_once:\n            continue\n        if num in seen:\n            seen_more_than_once.add(num)\n            result.remove(num)\n        else:\n            seen.add(num)\n            result.append(num)\n    return result",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/27",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return ''.join([char.upper() if char.islower() else char.lower() for char in string])",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/28",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return ''.join(strings)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/29",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return [s for s in strings if s.startswith(prefix)]",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/30",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return [num for num in l if num > 0]",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/31",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if n <= 1:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n    max_divisor = int(n**0.5) + 1\n    for d in range(3, max_divisor, 2):\n        if n % d == 0:\n            return False\n    return True",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/32",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    def poly(xs: list, x: float):\n        return sum([coeff * math.pow(x, i) for i, coeff in enumerate(xs)])\n\n    def derivative(xs: list, x: float):\n        return sum([i * coeff * math.pow(x, i - 1) for i, coeff in enumerate(xs)])\n\n    def newton_raphson(xs: list, x0: float, epsilon: float = 1e-5, max_iter: int = 1000):\n        x = x0\n        for _ in range(max_iter):\n            f_x = poly(xs, x)\n            if abs(f_x) < epsilon:\n                return x\n            f_prime_x = derivative(xs, x)\n            if f_prime_x == 0:\n                return None\n            x = x - f_x / f_prime_x\n        return x\n\n    if len(xs) % 2 != 0:\n        raise ValueError(\"The list of coefficients must have an even number of elements\")\n    if xs[-1] == 0:\n        raise ValueError(\"The largest coefficient must be non-zero\")\n\n    x0 = 1.0\n    return newton_raphson(xs, x0)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/33",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    third_indices = [i for i in range(len(l)) if i % 3 == 0]\n    third_values = sorted([l[i] for i in third_indices])\n    result = l[:]\n    for i, value in zip(third_indices, third_values):\n        result[i] = value\n    return result",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/34",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return sorted(set(l))",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/35",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if not l:\n        raise ValueError(\"List is empty\")\n    return max(l)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/36",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    count = 0\n    for i in range(n):\n        if i % 11 == 0 or i % 13 == 0:\n            count += str(i).count('7')\n    return count",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/37",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    even_values = sorted([l[i] for i in range(0, len(l), 2)])\n    result = []\n    even_index = 0\n    for i in range(len(l)):\n        if i % 2 == 0:\n            result.append(even_values[even_index])\n            even_index += 1\n        else:\n            result.append(l[i])\n    return result",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/38",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    groups = [s[(3 * i):min((3 * i + 3), len(s))] for i in range((len(s) + 2) // 3)]\n    groups = [(group[-1] + group[:-1]) if len(group) == 3 else group for group in groups]\n    return \"\".join(groups)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/39",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": true,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if num < 2:\n        return False\n    for i in range(2, int(num ** 0.5) + 1):\n        if num % i == 0:\n            return False\n    return True",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "NameError",
+        "error_message": "name 'num' is not defined. Did you mean: 'sum'?",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    if num < 2:\n        return False\n    for i in range(2, int(num ** 0.5) + 1):\n        if num % i == 0:\n            return False\n    return True",
+        "completion_changed": false,
+        "passed": false,
+        "error_type": "NameError",
+        "error_message": "name 'num' is not defined. Did you mean: 'sum'?",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    if num < 2:\n        return False\n    for i in range(2, int(num ** 0.5) + 1):\n        if num % i == 0:\n            return False\n    return True",
+        "completion_changed": false,
+        "passed": false,
+        "error_type": "NameError",
+        "error_message": "name 'num' is not defined. Did you mean: 'sum'?",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/40",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 2,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    l.sort()\n    for i in range(len(l) - 2):\n        left, right = i + 1, len(l) - 1\n        while left < right:\n            total = l[i] + l[left] + l[right]\n            if total < 0:\n                left += 1\n            elif total > 0:\n                right -= 1\n            else:\n                if l[i] != l[left] and l[i] != l[right] and l[left] != l[right]:\n                    return True\n                left += 1\n                right -= 1\n    return False",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate([1, 3, -2, 1]) == True",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    l.sort()\n    for i in range(len(l) - 2):\n        left, right = i + 1, len(l) - 1\n        while left < right:\n            total = l[i] + l[left] + l[right]\n            if total < 0:\n                left += 1\n            elif total > 0:\n                right -= 1\n            else:\n                if l[i] != l[left] and l[i] != l[right] and l[left] != l[right]:\n                    return True\n                left += 1\n                right -= 1\n    for i in range(len(l) - 1):\n        if l[i] == 0 and l[i + 1] == 0:\n            return True\n    return False",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate([1, 3, -2, 1]) == True",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    l.sort()\n    for i in range(len(l) - 2):\n        left, right = i + 1, len(l) - 1\n        while left < right:\n            total = l[i] + l[left] + l[right]\n            if total < 0:\n                left += 1\n            elif total > 0:\n                right -= 1\n            else:\n                return True\n            if total == 0:\n                return True\n    for i in range(len(l) - 1):\n        if l[i] == 0 and l[i + 1] == 0:\n            return True\n    for i in range(len(l) - 2):\n        if l[i] == 0 and l[i + 1] == 0 and l[i + 2] == 0:\n            return True\n    return False",
+        "completion_changed": true,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/41",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return n * n",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/42",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return [x + 1 for x in l]",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/43",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    seen = set()\n    for num in l:\n        if -num in seen and -num != num:\n            return True\n        seen.add(num)\n    return False",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/44",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if x == 0:\n        return '0'\n    digits = []\n    while x:\n        digits.append(int(x % base))\n        x //= base\n    return ''.join(map(str, digits[::-1]))",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/45",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return 0.5 * a * h",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/46",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if n == 0:\n        return 0\n    if n == 1:\n        return 0\n    if n == 2:\n        return 2\n    if n == 3:\n        return 0\n    fib = [0, 0, 2, 0]\n    for i in range(4, n+1):\n        fib.append(fib[i-1] + fib[i-2] + fib[i-3] + fib[i-4])\n    return fib[n]",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/47",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    sorted_l = sorted(l)\n    n = len(sorted_l)\n    if n % 2 == 1:\n        return sorted_l[n // 2]\n    else:\n        return (sorted_l[n // 2 - 1] + sorted_l[n // 2]) / 2",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/48",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    text = text.lower()\n    left, right = 0, len(text) - 1\n    while left < right:\n        if text[left] != text[right]:\n            return False\n        left += 1\n        right -= 1\n    return True",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/49",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return pow(2, n, p)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/50",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return \"\".join([chr(((ord(ch) - 5 - ord(\"a\")) % 26) + ord(\"a\")) for ch in s])",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/51",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    vowels = 'aeiouAEIOU'\n    return ''.join([char for char in text if char not in vowels])",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/52",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return all(i < t for i in l)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/53",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return x + y",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/54",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return set(s0) == set(s1)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/55",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if n <= 0:\n        raise ValueError(\"n must be a positive integer\")\n    elif n == 1:\n        return 1\n    elif n == 2:\n        return 1\n    else:\n        a, b = 1, 1\n        for _ in range(2, n):\n            a, b = b, a + b\n        return b",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/56",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    stack = []\n    for bracket in brackets:\n        if bracket == \"<\":\n            stack.append(bracket)\n        elif bracket == \">\":\n            if not stack:\n                return False\n            stack.pop()\n    return not stack",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/57",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    increasing = decreasing = True\n    for i in range(len(l) - 1):\n        if l[i] > l[i + 1]:\n            increasing = False\n        if l[i] < l[i + 1]:\n            decreasing = False\n    return increasing or decreasing",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/58",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return sorted(list(set(l1) & set(l2)))",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/59",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    i = 2\n    while i * i <= n:\n        if n % i:\n            i += 1\n        else:\n            n //= i\n    return n",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/60",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if not isinstance(n, int) or n < 1:\n        raise ValueError(\"Input must be a positive integer\")\n    return n * (n + 1) // 2",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/61",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    stack = []\n    for bracket in brackets:\n        if bracket == \"(\":\n            stack.append(bracket)\n        elif bracket == \")\":\n            if not stack:\n                return False\n            stack.pop()\n    return not stack",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/62",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return [i * x for i, x in enumerate(xs[1:], start=1)]",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/63",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if n == 0 or n == 1:\n        return 0\n    elif n == 2:\n        return 1\n    else:\n        a, b, c = 0, 0, 1\n        for _ in range(3, n + 1):\n            a, b, c = b, c, a + b + c\n        return c",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/64",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 1,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    s = s.lower()\n    count = sum(1 for char in s[:-1] if char in 'aeiou')\n    if s and s[-1] in 'y':\n        count += 1\n    return count",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(\"abcde\") == 2, \"Test 1\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    s = s.lower()\n    count = sum(1 for char in s if char in 'aeiou')\n    if s and s[-1] in 'y' and s[-1] not in 'aeiou':\n        count += 1\n    return count",
+        "completion_changed": true,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/65",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": true,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    x_str = str(x)\n    num_digits = len(x_str)\n    shift = shift % num_digits\n    if shift == 0:\n        return x_str\n    else:\n        return x_str[-shift:] + x_str[:-shift]",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(97, 8) == \"79\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    x_str = str(x)\n    num_digits = len(x_str)\n    shift = shift % num_digits\n    if shift == 0:\n        return x_str\n    else:\n        return x_str[-shift:] + x_str[:-shift]",
+        "completion_changed": false,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(97, 8) == \"79\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    x_str = str(x)\n    num_digits = len(x_str)\n    shift = shift % num_digits\n    if shift == 0:\n        return x_str\n    else:\n        return x_str[-shift:] + x_str[:-shift]",
+        "completion_changed": false,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(97, 8) == \"79\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/66",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return sum(ord(c) for c in s if c.isupper())",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/67",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    s = s.replace(\" and \", \" \")\n    s = s.replace(\"apples\", \"\")\n    s = s.replace(\"oranges\", \"\")\n    s = s.replace(\" \", \"\")\n    apples = int(s.split()[0])\n    oranges = int(s.split()[1])\n    return n - apples - oranges",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "IndexError",
+        "error_message": "list index out of range",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    s = s.replace(\" and \", \" \")\n    s = s.replace(\"apples\", \"\")\n    s = s.replace(\"oranges\", \"\")\n    s = s.replace(\" \", \"\")\n    parts = s.split()\n    if len(parts) < 2:\n        return n\n    apples = int(parts[0])\n    oranges = int(parts[1])\n    return n - apples - oranges",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(\"5 apples and 6 oranges\",19) == 8",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    s = s.replace(\" and \", \" \")\n    s = s.replace(\"apples\", \"\")\n    s = s.replace(\"oranges\", \"\")\n    s = s.replace(\" \", \"\")\n    parts = s.split()\n    if len(parts) < 2:\n        return n\n    oranges = int(parts[1])\n    apples = int(parts[0])\n    return n - apples - oranges",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(\"5 apples and 6 oranges\",19) == 8",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/68",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    even_nodes = [(val, idx) for idx, val in enumerate(arr) if val % 2 == 0]\n    if not even_nodes:\n        return []\n    smallest_even = min(even_nodes, key=lambda x: (x[0], x[1]))\n    return [smallest_even[0], smallest_even[1]]",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/69",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    freq = {}\n    for num in lst:\n        if num in freq:\n            freq[num] += 1\n        else:\n            freq[num] = 1\n    result = -1\n    for num, count in freq.items():\n        if count >= num:\n            if result == -1 or num > result:\n                result = num\n    return result",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/70",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    result = []\n    lst_copy = lst.copy()\n    while lst_copy:\n        result.append(min(lst_copy))\n        if lst_copy:\n            lst_copy.remove(min(lst_copy))\n            if lst_copy:\n                result.append(max(lst_copy))\n                lst_copy.remove(max(lst_copy))\n    return result",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/71",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if a + b > c and a + c > b and b + c > a:\n        s = (a + b + c) / 2\n        area = (s * (s - a) * (s - b) * (s - c)) ** 0.5\n        return round(area, 2)\n    else:\n        return -1",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/72",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return q == q[::-1] and sum(q) <= w",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/73",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    left = 0\n    right = len(arr) - 1\n    count = 0\n    while left < right:\n        if arr[left] != arr[right]:\n            count += 1\n        left += 1\n        right -= 1\n    return count",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/74",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    total_chars_lst1 = sum(len(s) for s in lst1)\n    total_chars_lst2 = sum(len(s) for s in lst2)\n    return lst1 if total_chars_lst1 <= total_chars_lst2 else lst2",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/75",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    def is_prime(n):\n        if n < 2:\n            return False\n        for i in range(2, int(n**0.5) + 1):\n            if n % i == 0:\n                return False\n        return True\n\n    for i in range(2, a):\n        if is_prime(i):\n            for j in range(2, a // i + 1):\n                if is_prime(j):\n                    if a % (i * j) == 0 and is_prime(a // (i * j)):\n                        return True\n    return False",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/76",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    import math\n\n    def is_simple_power(x, n):\n        if x <= 0 or n <= 0:\n            return x == 1 and n == 1\n        log_result = math.log(x, n)\n        return math.isclose(round(log_result), log_result)",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "IndentationError",
+        "error_message": "unexpected indent",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "import math\n\ndef is_simple_power(x, n):\n    if x <= 0 or n <= 0:\n        return x == 1 and n == 1\n    log_result = math.log(x, n)\n    return math.isclose(round(log_result), log_result)",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "ZeroDivisionError",
+        "error_message": "float division by zero",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    if x <= 0 or n <= 0:\n        return x == 1 and n == 1\n    if n == 1:\n        return x == 1\n    if x == 1:\n        return True\n    if x == 0:\n        return False\n    log_result = math.log(x, n)\n    return math.isclose(round(log_result), log_result)",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "NameError",
+        "error_message": "name 'math' is not defined. Did you forget to import 'math'?",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/77",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    b = round(abs(a) ** (1. / 3))\n    return b ** 3 == abs(a) and (a >= 0 or b % 2 == 1)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/78",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    primes = {'2', '3', '5', '7', 'B', 'D'}\n    return sum(1 for digit in num if digit in primes)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/79",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    binary = bin(decimal)[2:]\n    return \"db\" + binary + \"db\"",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/80",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if len(s) < 3:\n        return False\n    for i in range(len(s) - 2):\n        if len(set(s[i:i+3])) != 3:\n            return False\n    return True",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/81",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    letter_grades = []\n    for grade in grades:\n        if grade == 4.0:\n            letter_grades.append('A+')\n        elif grade > 3.7:\n            letter_grades.append('A')\n        elif grade > 3.3:\n            letter_grades.append('A-')\n        elif grade > 3.0:\n            letter_grades.append('B+')\n        elif grade > 2.7:\n            letter_grades.append('B')\n        elif grade > 2.3:\n            letter_grades.append('B-')\n        elif grade > 2.0:\n            letter_grades.append('C+')\n        elif grade > 1.7:\n            letter_grades.append('C')\n        elif grade > 1.3:\n            letter_grades.append('C-')\n        elif grade > 1.0:\n            letter_grades.append('D+')\n        elif grade > 0.7:\n            letter_grades.append('D')\n        elif grade > 0.0:\n            letter_grades.append('D-')\n        else:\n            letter_grades.append('E')\n    return letter_grades",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/82",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    def is_prime(n):\n        if n <= 1:\n            return False\n        if n == 2:\n            return True\n        if n % 2 == 0:\n            return False\n        max_divisor = int(n**0.5) + 1\n        for d in range(3, max_divisor, 2):\n            if n % d == 0:\n                return False\n        return True\n\n    return is_prime(len(string))",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/83",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 1,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    total_count = 9 * (10 ** (n - 1))\n    starts_with_one = (10 ** (n - 1))\n    ends_with_one = (10 ** (n - 1)) - (10 ** (n - 2)) if n > 1 else 0\n    starts_and_ends_with_one = (10 ** (n - 2)) if n > 1 else 1\n    return starts_with_one + ends_with_one - starts_and_ends_with_one",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(1) == 1",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    total_count = 9 * (10 ** (n - 1))\n    starts_with_one = (10 ** (n - 1))\n    ends_with_one = (10 ** (n - 1)) - (10 ** (n - 2)) if n > 1 else 1\n    starts_and_ends_with_one = (10 ** (n - 2)) if n > 1 else 1\n    return starts_with_one + ends_with_one - starts_and_ends_with_one",
+        "completion_changed": true,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/84",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    binary = bin(N)[2:]\n    digit_sum = sum(int(digit) for digit in binary)\n    return bin(digit_sum)[2:]",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(1000) == \"1\", \"Error\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    binary = bin(N)[2:]\n    digit_sum = sum(int(digit) for digit in binary)\n    return bin(digit_sum)[2:].lstrip('0') or '0'",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(1000) == \"1\", \"Error\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    binary = bin(N)[2:]\n    digit_sum = sum(int(digit) for digit in binary)\n    return str(digit_sum)",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(1000) == \"1\", \"Error\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/85",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return sum(num for idx, num in enumerate(lst) if idx % 2 != 0 and num % 2 == 0)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/86",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    words = s.split(' ')\n    ordered_words = []\n    for word in words:\n        chars = [char for char in word if char.isalpha()]\n        non_alpha_chars = [char for char in word if not char.isalpha()]\n        ordered_chars = sorted(chars)\n        ordered_word = ''\n        char_index = 0\n        non_alpha_index = 0\n        for char in word:\n            if char.isalpha():\n                ordered_word += ordered_chars[char_index]\n                char_index += 1\n            else:\n                ordered_word += non_alpha_chars[non_alpha_index]\n                non_alpha_index += 1\n        ordered_words.append(ordered_word)\n    return ' '.join(ordered_words)",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate('Hello World!!!') == 'Hello !!!Wdlor'",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    words = s.split(' ')\n    ordered_words = []\n    for word in words:\n        chars = [char for char in word if char.isalpha()]\n        non_alpha_chars = [char for char in word if not char.isalpha()]\n        ordered_chars = sorted(chars, key=lambda x: x.lower())\n        ordered_word = ''\n        char_index = 0\n        non_alpha_index = 0\n        for char in word:\n            if char.isalpha():\n                if char.isupper():\n                    ordered_word += ordered_chars[char_index].upper()\n                else:\n                    ordered_word += ordered_chars[char_index].lower()\n                char_index += 1\n            else:\n                ordered_word += non_alpha_chars[non_alpha_index]\n                non_alpha_index += 1\n        ordered_words.append(ordered_word)\n    return ' '.join(ordered_words)",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate('Hello World!!!') == 'Hello !!!Wdlor'",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    words = s.split(' ')\n    ordered_words = []\n    for word in words:\n        chars = [char for char in word if char.isalpha()]\n        non_alpha_chars = [char for char in word if not char.isalpha()]\n        ordered_chars = sorted(chars, key=lambda x: x.lower())\n        ordered_word = ''\n        char_index = 0\n        non_alpha_index = 0\n        for char in word:\n            if char.isalpha():\n                if char.isupper():\n                    ordered_word += ordered_chars[char_index].upper()\n                else:\n                    ordered_word += ordered_chars[char_index]\n                char_index += 1\n            else:\n                ordered_word += non_alpha_chars[non_alpha_index]\n                non_alpha_index += 1\n        ordered_words.append(ordered_word)\n    return ' '.join(ordered_words)",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate('Hello World!!!') == 'Hello !!!Wdlor'",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/87",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    coordinates = []\n    for i, row in enumerate(lst):\n        for j, val in enumerate(row):\n            if val == x:\n                coordinates.append((i, j))\n    coordinates.sort(key=lambda x: (x[0], -x[1]))\n    return coordinates",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/88",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if not array:\n        return array\n    if (array[0] + array[-1]) % 2 == 0:\n        return sorted(array, reverse=True)\n    else:\n        return sorted(array)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/89",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    result = \"\"\n    for char in s:\n        if char.isalpha():\n            ascii_offset = 65 if char.isupper() else 97\n            result += chr((ord(char) - ascii_offset + 4) % 26 + ascii_offset)\n        else:\n            result += char\n    return result",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/90",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if len(lst) < 2:\n        return None\n    sorted_lst = sorted(set(lst))\n    if len(sorted_lst) < 2:\n        return None\n    return sorted_lst[1]",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/91",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    sentences = S.replace('?', '.').replace('!', '.').split('.')\n    return sum(1 for sentence in sentences if sentence.strip() and sentence.strip().startswith('I'))",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(\"Is the sky blue?\") == 0, \"Test 2\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    sentences = S.replace('?', '.').replace('!', '.').split('.')\n    return sum(1 for sentence in sentences if sentence.strip() and sentence.strip().lower().startswith('i'))",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(\"Is the sky blue?\") == 0, \"Test 2\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    sentences = S.replace('?', '.').replace('!', '.').split('.')\n    return sum(1 for sentence in sentences if sentence.strip() and sentence.strip().lower().startswith('i') and sentence.strip().lower() != 'i')",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(\"Is the sky blue?\") == 0, \"Test 2\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/92",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if not all(isinstance(i, int) for i in [x, y, z]):\n        return False\n    return x == y + z or y == x + z or z == x + y",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/93",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    vowels = 'aeiouAEIOU'\n    encoded_message = ''\n    for char in message:\n        if char in vowels:\n            if char.islower():\n                encoded_char = chr((ord(char) - ord('a') + 2) % 26 + ord('a'))\n            else:\n                encoded_char = chr((ord(char) - ord('A') + 2) % 26 + ord('A'))\n            encoded_message += encoded_char\n        else:\n            encoded_message += char.swapcase()\n    return encoded_message",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate('TEST') == 'tgst', \"This prints if this assert fails 1 (good for debugging!)\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    vowels = 'aeiouAEIOU'\n    encoded_message = ''\n    for char in message:\n        if char in vowels:\n            encoded_message += char\n        else:\n            encoded_message += char.swapcase()\n    return encoded_message",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate('TEST') == 'tgst', \"This prints if this assert fails 1 (good for debugging!)\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    vowels = 'aeiouAEIOU'\n    encoded_message = ''\n    for char in message:\n        if char in vowels:\n            encoded_message += char\n        else:\n            encoded_message += chr((ord(char.lower()) - 97 + 2) % 26 + 97) if char.islower() else chr((ord(char.lower()) - 97 + 2) % 26 + 97).upper()\n    return encoded_message",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate('TEST') == 'tgst', \"This prints if this assert fails 1 (good for debugging!)\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/94",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    def is_prime(n):\n        if n < 2:\n            return False\n        for i in range(2, int(n**0.5) + 1):\n            if n % i == 0:\n                return False\n        return True\n\n    primes = [num for num in lst if is_prime(num)]\n    if not primes:\n        return 0\n\n    max_prime = max(primes)\n    return sum(int(digit) for digit in str(max_prime))",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/95",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if not dict:\n        return False\n    all_lower = all(isinstance(key, str) and key.islower() for key in dict.keys())\n    all_upper = all(isinstance(key, str) and key.isupper() for key in dict.keys())\n    return all_lower or all_upper",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/96",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    def is_prime(num):\n        if num < 2:\n            return False\n        for i in range(2, int(num**0.5) + 1):\n            if num % i == 0:\n                return False\n        return True\n\n    primes = []\n    for i in range(2, n):\n        if is_prime(i):\n            primes.append(i)\n    return primes",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/97",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return (abs(a) % 10) * (abs(b) % 10)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/98",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    count = 0\n    vowels = 'AEIOU'\n    for i in range(len(s)):\n        if i % 2 == 0 and s[i] in vowels:\n            count += 1\n    return count",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/99",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    num = float(value)\n    decimal = num - int(num)\n    if decimal == 0.5:\n        if num > 0:\n            return int(num) + 1\n        else:\n            return int(num) - 1\n    else:\n        return round(num)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/100",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    pile = [n]\n    for _ in range(n - 1):\n        if pile[-1] % 2 == 0:\n            pile.append(pile[-1] + 2)\n        else:\n            pile.append(pile[-1] + 2)\n    return pile",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/101",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    import re\n    return re.findall(r'\\w+', s)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/102",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if x > y:\n        return -1\n    if x % 2 == 0:\n        start = x\n    else:\n        start = x + 1\n    for i in range(start, y + 1, 2):\n        if i % 2 == 0:\n            biggest_even = i\n    try:\n        return biggest_even\n    except UnboundLocalError:\n        return -1",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/103",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if n > m:\n        return -1\n    total = sum(range(n, m + 1))\n    avg = round(total / (m - n + 1))\n    return bin(avg)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/104",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    def has_even_digit(n):\n        return any(int(digit) % 2 == 0 for digit in str(n))\n\n    return sorted([num for num in x if not has_even_digit(num)])",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/105",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    names = [\"One\", \"Two\", \"Three\", \"Four\", \"Five\", \"Six\", \"Seven\", \"Eight\", \"Nine\"]\n    filtered_arr = sorted([x for x in arr if 1 <= x <= 9])\n    reversed_arr = filtered_arr[::-1]\n    return [names[x - 1] for x in reversed_arr]",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/106",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": true,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    def factorial(x):\n        result = 1\n        for i in range(1, x + 1):\n            result *= i\n        return result\n\n    def sum_to_i(x):\n        return x * (x + 1) // 2\n\n    return [factorial(i) if i % 2 == 0 else sum_to_i(i) for i in range(1, n + 1)]",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "IndentationError",
+        "error_message": "unexpected indent",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    def factorial(x):\n        result = 1\n        for i in range(1, x + 1):\n            result *= i\n        return result\n\n    def sum_to_i(x):\n        return x * (x + 1) // 2\n\n    return [factorial(i) if i % 2 == 0 else sum_to_i(i) for i in range(1, n + 1)]",
+        "completion_changed": false,
+        "passed": false,
+        "error_type": "IndentationError",
+        "error_message": "unexpected indent",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    def factorial(x):\n        result = 1\n        for i in range(1, x + 1):\n            result *= i\n        return result\n\n    def sum_to_i(x):\n        return x * (x + 1) // 2\n\n    return [factorial(i) if i % 2 == 0 else sum_to_i(i) for i in range(1, n + 1)]",
+        "completion_changed": false,
+        "passed": false,
+        "error_type": "IndentationError",
+        "error_message": "unexpected indent",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/107",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    even_count = 0\n    odd_count = 0\n    for i in range(1, n + 1):\n        if str(i) == str(i)[::-1]:\n            if i % 2 == 0:\n                even_count += 1\n            else:\n                odd_count += 1\n    return (even_count, odd_count)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/108",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    def sum_of_digits(n):\n        return sum(int(d) for d in str(n).replace('-', ''))\n\n    return sum(1 for num in arr if sum_of_digits(num) > 0)",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate([-1, -2, 0]) == 0",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    return sum(int(d) for d in str(n).replace('-', ''))\n\nreturn sum(1 for num in arr if sum_of_digits(num) > 0 and num != 0)",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "SyntaxError",
+        "error_message": "'return' outside function",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    return sum(int(d) for d in str(n).replace('-', ''))",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "NameError",
+        "error_message": "name 'n' is not defined",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/109",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if not arr:\n        return True\n    for i in range(len(arr)):\n        if arr[i:] + arr[:i] == sorted(arr):\n            return True\n    return False",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/110",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    odd_count = sum(1 for num in lst1 if num % 2 != 0)\n    even_count = sum(1 for num in lst2 if num % 2 == 0)\n    return \"YES\" if even_count >= odd_count else \"NO\"",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/111",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    test = test.split()\n    if not test:\n        return {}\n    count_dict = {}\n    for letter in test:\n        if letter in count_dict:\n            count_dict[letter] += 1\n        else:\n            count_dict[letter] = 1\n    max_count = max(count_dict.values())\n    return {key: value for key, value in count_dict.items() if value == max_count}",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/112",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    result = ''.join([char for char in s if char not in c])\n    is_palindrome = result == result[::-1]\n    return (result, is_palindrome)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/113",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    result = []\n    for s in lst:\n        odd_digits = sum(1 for digit in s if int(digit) % 2 != 0)\n        result.append(\"the number of odd elements {}n the str{}ng {} of the {}nput.\".format(odd_digits, odd_digits, odd_digits, odd_digits))\n    return result",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/114",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    min_sum = float('inf')\n    for i in range(len(nums)):\n        current_sum = 0\n        for j in range(i, len(nums)):\n            current_sum += nums[j]\n            min_sum = min(min_sum, current_sum)\n    return min_sum",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/115",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    total_water = sum(sum(row) for row in grid)\n    return math.ceil(total_water / capacity)",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate([[1,1,1,1], [1,1,1,1]], 9) == 2, \"Error\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    total_water = sum(sum(row) for row in grid)\n    return math.ceil(total_water / capacity)",
+        "completion_changed": false,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate([[1,1,1,1], [1,1,1,1]], 9) == 2, \"Error\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    total_water = sum(sum(row) for row in grid)\n    return math.ceil(total_water / capacity)\n    # return -(-total_water // capacity)\n    return (total_water + capacity - 1) // capacity",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate([[1,1,1,1], [1,1,1,1]], 9) == 2, \"Error\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/116",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return sorted(arr, key=lambda x: (bin(x).count('1') if x >= 0 else bin(abs(x)).count('1'), abs(x)))",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate([-2,-3,-4,-5,-6]) == [-4, -2, -6, -5, -3]",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    return sorted(arr, key=lambda x: (bin(abs(x)).count('1'), abs(x)))",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate([-2,-3,-4,-5,-6]) == [-4, -2, -6, -5, -3]",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    return sorted(arr, key=lambda x: (bin(abs(x)).count('1'), -abs(x)))",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate([1,5,2,3,4]) == [1, 2, 4, 3, 5]",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/117",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    vowels = 'aeiouAEIOU'\n    words = s.split()\n    result = []\n    for word in words:\n        consonants = sum(1 for char in word if char not in vowels)\n        if consonants == n:\n            result.append(word)\n    return result",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/118",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    vowels = 'aeiouAEIOU'\n    closest_vowel = ''\n    for i in range(len(word) - 1, 0, -1):\n        if word[i] in vowels and word[i-1] not in vowels and word[i+1] not in vowels and i+1 < len(word):\n            closest_vowel = word[i]\n            break\n    return closest_vowel",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "IndexError",
+        "error_message": "string index out of range",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    vowels = 'aeiouAEIOU'\n    closest_vowel = ''\n    for i in range(len(word) - 1, -1, -1):\n        if word[i] in vowels and (i == 0 or word[i-1] not in vowels) and (i == len(word) - 1 or word[i+1] not in vowels):\n            closest_vowel = word[i]\n            break\n    return closest_vowel",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(\"ali\") == \"\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    vowels = 'aeiouAEIOU'\n    closest_vowel = ''\n    for i in range(len(word) - 1, -1, -1):\n        if word[i] in vowels and (i == 0 or word[i-1] not in vowels) and (i == len(word) - 1 or word[i+1] not in vowels):\n            closest_vowel = word[i]\n            break\n    if not closest_vowel:\n        return \"\"\n    return closest_vowel",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(\"ali\") == \"\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/119",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    def is_balanced(s):\n        count = 0\n        for c in s:\n            if c == '(':\n                count += 1\n            else:\n                count -= 1\n            if count < 0:\n                return False\n        return count == 0\n\n    s1, s2 = lst\n    return 'Yes' if is_balanced(s1 + s2) or is_balanced(s2 + s1) else 'No'",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/120",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return sorted(sorted(arr, reverse=True)[:k])",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/121",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 1,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return sum(num for i, num in enumerate(lst) if i % 2 == 1 and num % 2 == 1)",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate([5, 8, 7, 1])    == 12",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    return sum(num for i, num in enumerate(lst) if i % 2 == 0 and num % 2 == 1)",
+        "completion_changed": true,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/122",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return sum(i for i in arr[:k] if len(str(abs(i))) <= 2)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/123",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    sequence = [n]\n    while n != 1:\n        if n % 2 == 0:\n            n = n // 2\n        else:\n            n = 3 * n + 1\n        sequence.append(n)\n    return sorted([num for num in sequence if num % 2 != 0])",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/124",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    try:\n        month, day, year = map(int, date.split('-'))\n        if not (1 <= month <= 12 and 1 <= day <= 31):\n            return False\n        if month in [4, 6, 9, 11] and day > 30:\n            return False\n        if month == 2 and day > 29:\n            return False\n        return True\n    except ValueError:\n        return False",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/125",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if ' ' in txt:\n        return txt.split()\n    elif ',' in txt:\n        return txt.split(',')\n    else:\n        return sum(1 for i, c in enumerate(txt) if c.islower() and i % 2 != 0)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/126",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if len(lst) != len(set(lst)) and len([x for x in set(lst) if lst.count(x) > 2]):\n        return False\n    return lst == sorted(lst)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/127",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    def is_prime(n):\n        if n < 2:\n            return False\n        for i in range(2, int(n**0.5) + 1):\n            if n % i == 0:\n                return False\n        return True\n\n    start = max(interval1[0], interval2[0])\n    end = min(interval1[1], interval2[1])\n\n    if start <= end:\n        length = end - start + 1\n        return \"YES\" if is_prime(length) else \"NO\"\n    else:\n        return \"NO\"",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate((-1, 1), (0, 4)) == \"NO\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    def is_prime(n):\n        if n < 2:\n            return False\n        for i in range(2, int(n**0.5) + 1):\n            if n % i == 0:\n                return False\n        return True\n\n    start = max(interval1[0], interval2[0])\n    end = min(interval1[1], interval2[1])\n\n    if start <= end:\n        length = end - start + 1\n        return \"YES\" if is_prime(length) else \"NO\"\n    else:\n        return \"NO\"",
+        "completion_changed": false,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate((-1, 1), (0, 4)) == \"NO\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    def is_prime(n):\n        if n < 2:\n            return False\n        for i in range(2, int(n**0.5) + 1):\n            if n % i == 0:\n                return False\n        return True\n\n    start = max(interval1[0], interval2[0])\n    end = min(interval1[1], interval2[1])\n\n    if start <= end and is_prime(end - start + 1):\n        return \"YES\"\n    else:\n        return \"NO\"",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate((-1, 1), (0, 4)) == \"NO\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/128",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if not arr:\n        return None\n    sign = 1\n    magnitude_sum = 0\n    for num in arr:\n        if num < 0:\n            sign *= -1\n        elif num == 0:\n            sign = 0\n        magnitude_sum += abs(num)\n    return sign * magnitude_sum",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/129",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    from collections import deque\n    from itertools import product\n\n    def minPath(grid, k):\n        n = len(grid)\n        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]\n        queue = deque([(x, y) for x in range(n) for y in range(n)])\n        visited = {(x, y, tuple([grid[x][y]])) for x in range(n) for y in range(n)}\n        result = None\n\n        for _ in range(k):\n            new_queue = deque()\n            new_visited = set()\n\n            while queue:\n                x, y = queue.popleft()\n                path = (grid[x][y],) if _ == 0 else tuple(list(visited)[list(visited).index((x, y, visited))][2])\n\n                for dx, dy in directions:\n                    nx, ny = x + dx, y + dy\n\n                    if 0 <= nx < n and 0 <= ny < n:\n                        new_path = path + (grid[nx][ny],)\n                        new_state = (nx, ny, new_path)\n\n                        if new_state not in new_visited:\n                            new_queue.append((nx, ny))\n                            new_visited.add(new_state)\n\n            queue = new_queue\n            visited = new_visited\n\n        result = min(visited, key=lambda x: x[2])\n\n        return list(result[2])",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "IndentationError",
+        "error_message": "unexpected indent",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "from collections import deque\nfrom itertools import product\n\ndef minPath(grid, k):\n    n = len(grid)\n    directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]\n    queue = deque([(x, y) for x in range(n) for y in range(n)])\n    visited = {(x, y, (grid[x][y],)) for x in range(n) for y in range(n)}\n    result = None\n\n    for _ in range(k):\n        new_queue = deque()\n        new_visited = set()\n\n        while queue:\n            x, y = queue.popleft()\n            for state in visited:\n                if state[0] == x and state[1] == y:\n                    path = state[2]\n                    break\n\n            for dx, dy in directions:\n                nx, ny = x + dx, y + dy\n\n                if 0 <= nx < n and 0 <= ny < n:\n                    new_path = path + (grid[nx][ny],)\n                    new_state = (nx, ny, new_path)\n\n                    if new_state not in new_visited:\n                        new_queue.append((nx, ny))\n                        new_visited.add(new_state)\n\n        queue = new_queue\n        visited = new_visited\n\n    result = min(visited, key=lambda x: x[2])\n\n    return list(result[2])",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate([[1, 2, 3], [4, 5, 6], [7, 8, 9]], 3) == [1, 2, 1]",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    n = len(grid)\n    directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]\n    queue = deque([(0, 0, (grid[0][0],))])\n    visited = set([(0, 0, (grid[0][0],))])\n    result = None\n\n    for _ in range(k - 1):\n        new_queue = deque()\n        new_visited = set()\n\n        while queue:\n            x, y, path = queue.popleft()\n\n            for dx, dy in directions:\n                nx, ny = x + dx, y + dy\n\n                if 0 <= nx < n and 0 <= ny < n:\n                    new_path = path + (grid[nx][ny],)\n                    new_state = (nx, ny, new_path)\n\n                    if new_state not in new_visited:\n                        new_queue.append((nx, ny, new_path))\n                        new_visited.add(new_state)\n\n        queue = new_queue\n        visited = new_visited\n\n    result = min(visited, key=lambda x: x[2])\n\n    return list(result[2])",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "NameError",
+        "error_message": "name 'deque' is not defined",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/130",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    def calculate_tribonacci(k, memo):\n        if k in memo:\n            return memo[k]\n        if k == 1:\n            return 3\n        if k % 2 == 0:\n            result = 1 + k / 2\n        else:\n            result = calculate_tribonacci(k - 1, memo) + calculate_tribonacci(k - 2, memo) + calculate_tribonacci(k + 1, memo)\n        memo[k] = result\n        return result\n\n    memo = {0: 1}\n    return [calculate_tribonacci(i, memo) for i in range(n + 1)]",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/131",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    product = 1\n    for digit in str(n):\n        if int(digit) % 2 != 0:\n            product *= int(digit)\n        else:\n            if product == 1:\n                product = 0\n    return product",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(120) ==1",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    product = 1\n    for digit in str(n):\n        if int(digit) % 2 != 0:\n            product *= int(digit)\n        else:\n            if product != 1:\n                product = 0\n                break\n    return product",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(54) == 5",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    product = 1\n    for digit in str(n):\n        if int(digit) % 2 != 0:\n            product *= int(digit)\n        else:\n            break\n    return product",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(98765) == 315",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/132",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    stack = []\n    for char in string:\n        if char == '[':\n            stack.append(char)\n        elif char == ']':\n            if len(stack) > 1:\n                return True\n            if not stack:\n                return False\n            stack.pop()\n    return False",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate('[[]') == False",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    stack = []\n    for char in string:\n        if char == '[':\n            stack.append(char)\n        elif char == ']':\n            if not stack:\n                return False\n            stack.pop()\n    return not stack",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate('[][]') == False",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    stack = []\n    count = 0\n    for char in string:\n        if char == '[':\n            count += 1\n        elif char == ']':\n            count -= 1\n            if count < 0:\n                return False\n    return count == 0",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate('[][]') == False",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/133",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    import math\n    return sum([math.ceil(i)**2 for i in lst])",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/134",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if not txt:\n        return False\n    words = txt.split()\n    last_word = words[-1]\n    return len(last_word) == 1 and last_word.isalpha()",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(\"eeeee e \") == False",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    if not txt:\n        return False\n    words = txt.split()\n    if not words:\n        return False\n    last_word = words[-1]\n    return len(last_word) == 1 and last_word.isalpha()",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(\"eeeee e \") == False",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    if not txt:\n        return False\n    words = txt.split()\n    if not words or words[-1] == '':\n        return False\n    last_word = words[-1]\n    return len(last_word) == 1 and last_word.isalpha()",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(\"eeeee e \") == False",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/135",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    for i in range(len(arr) - 1, 0, -1):\n        if arr[i] < arr[i - 1]:\n            return i\n    return -1",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/136",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    negatives = [x for x in lst if x < 0]\n    positives = [x for x in lst if x > 0]\n    largest_negative = max(negatives) if negatives else None\n    smallest_positive = min(positives) if positives else None\n    return (largest_negative, smallest_positive)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/137",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    a_str = str(a).replace(',', '.')\n    b_str = str(b).replace(',', '.')\n    \n    try:\n        a_float = float(a_str)\n        b_float = float(b_str)\n    except ValueError:\n        raise ValueError(\"Invalid input: inputs must be integers, floats, or strings representing real numbers\")\n    \n    if a_float > b_float:\n        if ',' in str(a):\n            return str(a).replace('.', ',')\n        else:\n            return type(a)(a_float)\n    elif a_float < b_float:\n        if ',' in str(b):\n            return str(b).replace('.', ',')\n        else:\n            return type(b)(b_float)\n    else:\n        return None",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(\"5,1\", \"6\") == \"6\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    a_str = str(a).replace(',', '.')\n    b_str = str(b).replace(',', '.')\n\n    try:\n        a_float = float(a_str)\n        b_float = float(b_str)\n    except ValueError:\n        raise ValueError(\"Invalid input: inputs must be integers, floats, or strings representing real numbers\")\n\n    if a_float > b_float:\n        if ',' in a_str:\n            return str(a).replace('.', ',')\n        else:\n            return type(a)(a_float)\n    elif a_float < b_float:\n        if ',' in b_str:\n            return str(b).replace('.', ',')\n        else:\n            return type(b)(b_float)\n    else:\n        return None",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(1, \"2,3\") == \"2,3\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    a_str = str(a).replace(',', '.')\n    b_str = str(b).replace(',', '.')\n\n    try:\n        a_float = float(a_str)\n        b_float = float(b_str)\n    except ValueError:\n        raise ValueError(\"Invalid input: inputs must be integers, floats, or strings representing real numbers\")\n\n    if a_float > b_float:\n        return str(a).replace('.', ',') if ',' in str(a) else type(a)(a_float)\n    elif a_float < b_float:\n        return str(b).replace('.', ',') if ',' in str(b) else type(b)(b_float)\n    else:\n        return None",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(\"5,1\", \"6\") == \"6\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/138",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    for a in range(2, n, 2):\n        for b in range(a, n, 2):\n            for c in range(b, n, 2):\n                for d in range(c, n, 2):\n                    if a + b + c + d == n:\n                        return True\n    return False",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/139",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    def factorial(x):\n        if x == 0 or x == 1:\n            return 1\n        else:\n            return x * factorial(x-1)\n\n    result = 1\n    for i in range(1, n+1):\n        result *= factorial(i)\n    return result",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/140",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    while '  ' in text:\n        text = text.replace('  ', '-')\n    text = text.replace(' ', '_')\n    return text",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(\"Yellow Yellow  Dirty  Fellow\") == \"Yellow_Yellow__Dirty__Fellow\", \"This prints if this assert fails 3 (good for debugging!)\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    while '  ' in text:\n        text = text.replace('  ', ' ')\n    text = text.replace(' ', '_')\n    return text",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(\"Yellow Yellow  Dirty  Fellow\") == \"Yellow_Yellow__Dirty__Fellow\", \"This prints if this assert fails 3 (good for debugging!)\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    while '  ' in text:\n        text = text.replace('  ', '_')\n    return text.replace(' ', '_')",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(\"Yellow Yellow  Dirty  Fellow\") == \"Yellow_Yellow__Dirty__Fellow\", \"This prints if this assert fails 3 (good for debugging!)\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/141",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    dot_count = file_name.count('.')\n    if dot_count != 1:\n        return 'No'\n    name, extension = file_name.split('.')\n    if not name or not name[0].isalpha():\n        return 'No'\n    digit_count = sum(c.isdigit() for c in file_name)\n    if digit_count > 3:\n        return 'No'\n    if extension not in ['txt', 'exe', 'dll']:\n        return 'No'\n    return 'Yes'",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/142",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    result = []\n    for i, num in enumerate(lst):\n        if i % 3 == 0:\n            result.append(num ** 2)\n        elif i % 4 == 0:\n            result.append(num ** 3)\n        else:\n            result.append(num)\n    return sum(result)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/143",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": true,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if n <= 1:\n        return False\n    if n <= 3:\n        return True\n    if n % 2 == 0 or n % 3 == 0:\n        return False\n    i = 5\n    while i * i <= n:\n        if n % i == 0 or n % (i + 2) == 0:\n            return False\n        i += 6\n    return True",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "NameError",
+        "error_message": "name 'n' is not defined",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    if n <= 1:\n        return False\n    if n <= 3:\n        return True\n    if n % 2 == 0 or n % 3 == 0:\n        return False\n    i = 5\n    while i * i <= n:\n        if n % i == 0 or n % (i + 2) == 0:\n            return False\n        i += 6\n    return True",
+        "completion_changed": false,
+        "passed": false,
+        "error_type": "NameError",
+        "error_message": "name 'n' is not defined",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    if n <= 1:\n        return False\n    if n <= 3:\n        return True\n    if n % 2 == 0 or n % 3 == 0:\n        return False\n    i = 5\n    while i * i <= n:\n        if n % i == 0 or n % (i + 2) == 0:\n            return False\n        i += 6\n    return True",
+        "completion_changed": false,
+        "passed": false,
+        "error_type": "NameError",
+        "error_message": "name 'n' is not defined",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/144",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    x_num, x_den = map(int, x.split('/'))\n    n_num, n_den = map(int, n.split('/'))\n    result_num = x_num * n_num\n    result_den = x_den * n_den\n    def gcd(a, b):\n        while b:\n            a, b = b, a % b\n        return a\n    common_divisor = gcd(result_num, result_den)\n    return result_den // common_divisor == 1",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/145",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    def sum_of_digits(n):\n        return sum(int(digit) for digit in str(abs(n)))\n\n    return sorted(enumerate(nums), key=lambda x: (sum_of_digits(x[1]), x[0]))\n\n    sorted_list = sorted(enumerate(nums), key=lambda x: (sum_of_digits(x[1]), x[0]))\n    return [x[1] for x in sorted_list]",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate([1, 11, -1, -11, -12]) == [-1, -11, 1, -12, 11]",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    return sum(int(digit) for digit in str(abs(n)))\n\nsorted_list = sorted(enumerate(nums), key=lambda x: (sum_of_digits(x[1]), x[0]))\nreturn [x[1] for x in sorted_list]",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "SyntaxError",
+        "error_message": "'return' outside function",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    return sum(int(digit) for digit in str(abs(n)))",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "NameError",
+        "error_message": "name 'n' is not defined",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/146",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    count = 0\n    for num in nums:\n        if num > 10:\n            str_num = str(abs(num))\n            if len(str_num) > 0 and str_num[0] in '13579' and str_num[-1] in '13579':\n                count += 1\n    return count",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/147",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    a = [i * i - i + 1 for i in range(1, n + 1)]\n    count = 0\n    for i in range(n):\n        for j in range(i + 1, n):\n            for k in range(j + 1, n):\n                if (a[i] + a[j] + a[k]) % 3 == 0:\n                    count += 1\n    return count",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/148",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    planets = [\"Mercury\", \"Venus\", \"Earth\", \"Mars\", \"Jupiter\", \"Saturn\", \"Uranus\", \"Neptune\"]\n    if planet1 not in planets or planet2 not in planets:\n        return ()\n    idx1 = planets.index(planet1)\n    idx2 = planets.index(planet2)\n    if idx1 > idx2:\n        idx1, idx2 = idx2, idx1\n    return tuple(planets[idx1+1:idx2])",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/149",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    result = [s for s in lst if len(s) % 2 == 0]\n    return sorted(result, key=lambda x: (len(x), x))",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/150",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    def is_prime(num):\n        if num < 2:\n            return False\n        for i in range(2, int(num**0.5) + 1):\n            if num % i == 0:\n                return False\n        return True\n\n    if is_prime(n):\n        return x\n    else:\n        return y",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/151",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return sum([x**2 for x in lst if isinstance(x, int) and x >= 0 and x % 2 != 0])",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/152",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    return [abs(a - b) for a, b in zip(game, guess)]",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/153",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    def calculate_strength(extension):\n        return sum(1 for c in extension if c.isupper()) - sum(1 for c in extension if c.islower())\n\n    strongest_extension = max(extensions, key=calculate_strength)\n    return f\"{class_name}.{strongest_extension}\"",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/154",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    b_rotations = [b[i:] + b[:i] for i in range(len(b))]\n    for rotation in b_rotations:\n        if rotation in a:\n            return True\n    return False",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/155",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    even_count = 0\n    odd_count = 0\n    for digit in str(abs(num)):\n        if int(digit) % 2 == 0:\n            even_count += 1\n        else:\n            odd_count += 1\n    return even_count, odd_count",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/156",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    roman_numerals = {\n        1000: 'm', 900: 'cm', 500: 'd', 400: 'cd',\n        100: 'c', 90: 'xc', 50: 'l', 40: 'xl',\n        10: 'x', 9: 'ix', 5: 'v', 4: 'iv', 1: 'i'\n    }\n    result = ''\n    for value, numeral in roman_numerals.items():\n        while number >= value:\n            result += numeral\n            number -= value\n    return result",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/157",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    sides = sorted([a, b, c])\n    return sides[0]**2 + sides[1]**2 == sides[2]**2",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/158",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    max_unique = 0\n    result = \"\"\n    for word in words:\n        unique_chars = len(set(word))\n        if unique_chars > max_unique:\n            max_unique = unique_chars\n            result = word\n        elif unique_chars == max_unique:\n            if word < result:\n                result = word\n    return result",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/159",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    total_eaten = number + min(need, remaining)\n    carrots_left = max(0, remaining - need)\n    return [total_eaten, carrots_left]",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/160",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": true,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    result = operand[0]\n    for i in range(len(operator)):\n        if operator[i] == '+':\n            result += operand[i + 1]\n        elif operator[i] == '-':\n            result -= operand[i + 1]\n        elif operator[i] == '*':\n            result *= operand[i + 1]\n        elif operator[i] == '//':\n            result //= operand[i + 1]\n        elif operator[i] == '**':\n            result **= operand[i + 1]\n    return result",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(['+', '*', '-'], [2, 3, 4, 5]) == 9",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    result = operand[0]\n    for i in range(len(operator)):\n        if operator[i] == '+':\n            result += operand[i + 1]\n        elif operator[i] == '-':\n            result -= operand[i + 1]\n        elif operator[i] == '*':\n            result *= operand[i + 1]\n        elif operator[i] == '//':\n            result //= operand[i + 1]\n        elif operator[i] == '**':\n            result **= operand[i + 1]\n    return result",
+        "completion_changed": false,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(['+', '*', '-'], [2, 3, 4, 5]) == 9",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    result = operand[0]\n    for i in range(len(operator)):\n        if operator[i] == '+':\n            result += operand[i + 1]\n        elif operator[i] == '-':\n            result -= operand[i + 1]\n        elif operator[i] == '*':\n            result *= operand[i + 1]\n        elif operator[i] == '//':\n            result //= operand[i + 1]\n        elif operator[i] == '**':\n            result **= operand[i + 1]\n    return result",
+        "completion_changed": false,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(['+', '*', '-'], [2, 3, 4, 5]) == 9",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/161",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if not any(c.isalpha() for c in s):\n        return s[::-1]\n    return ''.join(c.upper() if c.islower() else c.lower() if c.isupper() else c for c in s)",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/162",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": true,
+    "solved_at_round": 0,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    import hashlib\n    if not text:\n        return None\n    return hashlib.md5(text.encode()).hexdigest()",
+        "completion_changed": null,
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "safety": {
+          "issue_count": 1,
+          "max_severity": "HIGH",
+          "findings": [
+            "B324"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "task_id": "HumanEval/163",
+    "dataset": "humaneval",
+    "repair_strategy": "minimal",
+    "solved": false,
+    "solved_at_round": null,
+    "stalled": false,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    if a > b:\n        a, b = b, a\n    return [i for i in range(a, b+1) if i % 2 == 0]",
+        "completion_changed": null,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(2, 10) == [2, 4, 6, 8], \"Test 1\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 1,
+        "completion": "    if a > b:\n        a, b = b, a\n    return [i for i in range(a, b+1) if i % 2 == 0 and i >= 2]",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(2, 10) == [2, 4, 6, 8], \"Test 1\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      },
+      {
+        "round": 2,
+        "completion": "    if a > b:\n        a, b = b, a\n    return [i for i in range(a, b+1) if i % 2 == 0 and i >= 2 and i != 0 and i != 1]",
+        "completion_changed": true,
+        "passed": false,
+        "error_type": "AssertionError",
+        "error_message": "assert candidate(2, 10) == [2, 4, 6, 8], \"Test 1\"",
+        "timed_out": false,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  }
+]
