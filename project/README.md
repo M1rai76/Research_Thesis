@@ -128,24 +128,34 @@ CoT repair outperforms Minimal repair on correctness by more than 2x on both ben
 ---
 
 ## Project Structure
+
+```text
 project/
-scripts/
-generate_samples.py           — seed generation + repair mode (--repair flag)
-self_repair.py                — N-round repair loop orchestrator (single task)
-code_executor.py              — sandboxed execution + error extraction
-repair_prompt.py              — minimal and CoT repair prompt builders
-safety_check.py               — Bandit static analysis wrapper
-verify_safety.py              — safety sweep across a full JSONL file
-verify_executor.py            — HumanEval baseline execution sweep
-verify_executor_mbpp.py       — MBPP baseline execution sweep
-samples/
-<model>t02<strategy>.jsonl
-mbpp_<model>t02<strategy>.jsonl
-<model>t02<strategy>repair-<repair_strategy>round<N>.jsonl
-<model>t02<strategy>repair_run_log.json
-results/
-repair_trajectories<model>t02<strategy><dataset><repair_strategy>.json
-README.md
+├── scripts/
+│   ├── generate_samples.py         — seed generation + repair mode (--repair flag)
+│   ├── self_repair.py              — N-round repair loop orchestrator (single task)
+│   ├── code_executor.py            — sandboxed execution + error extraction
+│   ├── repair_prompt.py            — minimal and CoT repair prompt builders
+│   ├── safety_check.py             — Bandit static analysis wrapper
+│   ├── verify_safety.py            — safety sweep across a full JSONL file
+│   ├── verify_executor.py          — HumanEval baseline execution sweep
+│   ├── verify_executor_mbpp.py     — MBPP baseline execution sweep
+│   └── (dev/analysis only, not part of the pipeline above:
+│        generate_gemini_samples.py, test_gemini_setup.py, analyze_failures.py,
+│        llm_prompt_refine.py, run_repair_batch.py, test_single_repair.py,
+│        test_cot_marker_compliance.py)
+├── samples/
+│   ├── <model>_t02_<strategy>.jsonl
+│   ├── mbpp_<model>_t02_<strategy>.jsonl
+│   ├── <model>_t02_<strategy>_repair-<repair_strategy>_round<N>.jsonl
+│   └── <model>_t02_<strategy>_repair_run_log.json
+├── results/
+│   ├── repair_trajectories_<model>_t02_<strategy>_<dataset>_<repair_strategy>.json
+│   ├── fitness_oracle.py           — pass@1 / robustness / safety aggregation
+│   ├── results.py                  — results table generation
+│   └── scatter_plot.py             — result visualization
+└── README.md
+```
 
 ---
 
