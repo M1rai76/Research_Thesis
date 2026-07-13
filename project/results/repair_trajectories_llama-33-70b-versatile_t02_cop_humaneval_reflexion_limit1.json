@@ -1,0 +1,31 @@
+[
+  {
+    "task_id": "HumanEval/0",
+    "dataset": "humaneval",
+    "repair_strategy": "reflexion",
+    "self_test_code": "assert has_close_elements([], 0.5) == False\nassert has_close_elements([1.0], 0.5) == False\nassert has_close_elements([1.0, 2.0], 0.5) == False\nassert has_close_elements([1.0, 1.4], 0.5) == True\nassert has_close_elements([1.0, 2.0, 3.0, 4.0], 0.5) == False\nassert has_close_elements([1.0, 2.0, 2.4, 4.0], 0.5) == True",
+    "solved": true,
+    "solved_at_round": 0,
+    "stopped_early_self_test_pass": false,
+    "reflection_history": [],
+    "api_calls": 1,
+    "rounds": [
+      {
+        "round": 0,
+        "completion": "    numbers.sort()\n    for i in range(len(numbers) - 1):\n        if numbers[i + 1] - numbers[i] <= threshold:\n            return True\n    return False",
+        "passed": true,
+        "error_type": null,
+        "error_message": null,
+        "timed_out": false,
+        "self_test_passed": true,
+        "self_test_error_type": null,
+        "self_test_error_message": null,
+        "safety": {
+          "issue_count": 0,
+          "max_severity": null,
+          "findings": []
+        }
+      }
+    ]
+  }
+]
