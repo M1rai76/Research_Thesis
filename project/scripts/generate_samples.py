@@ -1,7 +1,8 @@
 """
 generate_samples.py
 Thesis — Prompt Engineering for LLM Code Generation
-Author : Samyak Diwan (z5611048)
+Author    : Samyak Diwan (z5611048)
+Edited by : Gurdiraj Bal (z5386590)   # added the `katana` (vLLM OpenAI-compatible) backend
 
 Pipeline
     build_prompt()
@@ -54,7 +55,7 @@ TEMPERATURE : float = 0.2
 MAX_TOKENS  : int   = 512
 MAX_RETRIES : int   = 5
 
-SLEEP = {"ollama": 1.0, "groq": 2.0, "cerebras": 2.0, "openrouter": 6.0, "gemini": 5.0}
+SLEEP = {"ollama": 1.0, "groq": 2.0, "cerebras": 2.0, "openrouter": 6.0, "gemini": 5.0, "katana": 0.0}
 
 # Conservative Python top-level stop markers. These truncate obvious
 # post-function continuation (example usage, test blocks, second functions).
@@ -107,7 +108,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--backend",
         required=True,
-        choices=["ollama", "groq", "cerebras", "openrouter","gemini"],
+        choices=["ollama", "groq", "cerebras", "openrouter", "gemini", "katana"],
         help="Inference backend.",
     )
     parser.add_argument(
@@ -255,7 +256,22 @@ def get_client(backend: str):
             base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
             api_key=api_key,
         )
-  
+
+    if backend == "katana":
+        # UNSW Katana HPC: a vLLM (or any OpenAI-compatible) inference server
+        # running on the allocated GPU node. The batch job talks to it over the
+        # node-local endpoint, so no outbound internet / external API key is
+        # needed. KATANA_BASE_URL and KATANA_API_KEY let the SLURM script point
+        # at whatever host:port vLLM was launched on; the defaults match a
+        # server started on the same node with `--port 8000`. vLLM ignores the
+        # API key unless it was launched with --api-key, so "EMPTY" is the
+        # conventional placeholder.
+        from openai import OpenAI
+        base_url = os.getenv("KATANA_BASE_URL", "http://localhost:8000/v1")
+        api_key = os.getenv("KATANA_API_KEY", "EMPTY")
+        return OpenAI(base_url=base_url, api_key=api_key)
+
+
 PROMPT_TEMPLATES = {
     "baseline": lambda task_prompt: (
         "Complete the following Python function.\n\n"

@@ -20,12 +20,22 @@ trajectory sits side by side with `_cot`/`_minimal` and the existing
 Docker EvalPlus command pattern, analyze_failures.py, and safety_oracle.py
 all work unchanged.
 
-Scope: HumanEval+ only (MBPP+ is an explicitly tracked follow-up, not
-covered by this script).
+Scope: both HumanEval+ and MBPP+ (select via --dataset). The
+Reflexion-specific modules were already dataset-generic; only this driver
+needed the dataset wired through, the matching Round-0 seed selected, and
+the MBPP `solution` vs HumanEval `completion` seed key handled.
 
 Usage
-    python run_reflexion_batch.py --model llama-3.3-70b-versatile \
+    # HumanEval+ (Groq, as originally run)
+    python run_reflexion_batch.py --dataset humaneval --model llama-3.3-70b-versatile \
         --backend groq --max_repair_rounds 2 --reflexion_memory_size 1 \
+        --resume-missing
+
+    # MBPP+ on UNSW Katana (vLLM OpenAI-compatible server on the GPU node).
+    # Serve Llama-3.3-70B-Instruct with --served-model-name llama-3.3-70b-versatile
+    # so the model slug (and thus output filenames) match the existing runs.
+    python run_reflexion_batch.py --dataset mbpp --model llama-3.3-70b-versatile \
+        --backend katana --max_repair_rounds 2 --reflexion_memory_size 1 \
         --resume-missing
 """
 
@@ -70,9 +80,18 @@ from reflexion_repair import run_reflexion_repair  # noqa: E402
 # used for path purposes (see module docstring).
 PROMPT_STRATEGY_LABEL = "cop"
 REPAIR_STRATEGY_LABEL = "reflexion"
-DEFAULT_ROUND0_SOURCE = os.path.join(
-    BASE_DIR, "samples", "llama-33-70b-versatile_t02_cgo.jsonl"
-)
+
+# Per-dataset Round-0 seed, matching what the existing cot/minimal repair runs
+# reused (see their _repair_run_log.json round0_source_jsonl fields): the `cgo`
+# generation for each dataset. HumanEval keeps the historical unprefixed name.
+DEFAULT_ROUND0_SOURCE = {
+    "humaneval": os.path.join(BASE_DIR, "samples", "llama-33-70b-versatile_t02_cgo.jsonl"),
+    "mbpp": os.path.join(BASE_DIR, "samples", "mbpp_llama-33-70b-versatile_t02_cgo.jsonl"),
+}
+
+
+def default_round0_source(dataset: str) -> str:
+    return DEFAULT_ROUND0_SOURCE[dataset]
 
 
 def summarize_confusion(results: list) -> dict:
@@ -117,7 +136,13 @@ def print_confusion(confusion: dict) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run the Reflexion baseline over HumanEval+."
+        description="Run the Reflexion baseline over HumanEval+ or MBPP+."
+    )
+    parser.add_argument(
+        "--dataset",
+        default="humaneval",
+        choices=["humaneval", "mbpp"],
+        help="Benchmark dataset. Default: humaneval.",
     )
     parser.add_argument(
         "--model",
@@ -127,8 +152,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--backend",
         default="groq",
-        choices=["ollama", "groq", "cerebras", "openrouter", "gemini"],
-        help="Inference backend. Default: groq.",
+        choices=["ollama", "groq", "cerebras", "openrouter", "gemini", "katana"],
+        help="Inference backend. Default: groq. Use 'katana' for a vLLM "
+             "OpenAI-compatible server on a UNSW Katana GPU node.",
     )
     parser.add_argument(
         "--max_repair_rounds",
@@ -144,8 +170,9 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--round0_source_jsonl",
-        default=DEFAULT_ROUND0_SOURCE,
-        help="Existing samples JSONL to reuse for Round 0 completions.",
+        default=None,
+        help="Existing samples JSONL to reuse for Round 0 completions. "
+             "Defaults to the matching cgo seed for the chosen --dataset.",
     )
     parser.add_argument(
         "--resume-missing",
@@ -167,7 +194,11 @@ def main() -> None:
     args = parse_args()
     load_env_file(ENV_PATH)
 
-    dataset = "humaneval"
+    dataset = args.dataset
+    round0_source_jsonl = args.round0_source_jsonl or default_round0_source(dataset)
+    # MBPP seeds store Round-0 code under "solution"; HumanEval under "completion"
+    # (see generate_samples.py get_output_path / write_samples_jsonl, decisions.md D5).
+    sample_key = "solution" if dataset == "mbpp" else "completion"
 
     base_output_path = apply_limit_to_path(
         get_output_path(args.model, PROMPT_STRATEGY_LABEL, dataset),
@@ -199,12 +230,12 @@ def main() -> None:
     print(f"Max rds  : {args.max_repair_rounds}")
     print(f"Memory Ω : {args.reflexion_memory_size}")
     print(f"Limit    : {args.limit}")
-    print(f"R0 source: {args.round0_source_jsonl}")
+    print(f"R0 source: {round0_source_jsonl}")
     print(f"Traj     : {trajectory_path}")
     print()
 
-    if not os.path.exists(args.round0_source_jsonl):
-        raise FileNotFoundError(f"Round 0 source JSONL not found: {args.round0_source_jsonl}")
+    if not os.path.exists(round0_source_jsonl):
+        raise FileNotFoundError(f"Round 0 source JSONL not found: {round0_source_jsonl}")
 
     client = get_client(args.backend)
     problems = get_problems(dataset)
@@ -218,7 +249,7 @@ def main() -> None:
     existing_trajectories = (
         load_existing_trajectories(trajectory_path) if args.resume_missing else {}
     )
-    round0_source_samples = load_existing_samples(args.round0_source_jsonl)
+    round0_source_samples = load_existing_samples(round0_source_jsonl)
 
     trajectories_by_id = dict(existing_trajectories)
     skipped = []
@@ -238,7 +269,7 @@ def main() -> None:
             continue
 
         source_sample = round0_source_samples.get(task_id)
-        if source_sample is None or "completion" not in source_sample:
+        if source_sample is None or sample_key not in source_sample:
             print(f"[{index:>3}/{total}] {task_id} ... SKIPPED (missing Round 0 source)")
             skipped.append(task_id)
             continue
@@ -247,7 +278,7 @@ def main() -> None:
 
         result = run_reflexion_repair(
             task_id=task_id,
-            initial_completion=source_sample["completion"],
+            initial_completion=source_sample[sample_key],
             dataset=dataset,
             client=client,
             model=args.model,
@@ -256,6 +287,21 @@ def main() -> None:
             reflexion_memory_size=args.reflexion_memory_size,
         )
         total_api_calls += result.get("api_calls", 0)
+
+        # An API failure (e.g. Groq daily-quota exhaustion) means this task's
+        # self-tests/reflections are degraded. Do NOT persist it — otherwise
+        # --resume-missing would skip it and silently keep the corrupt data,
+        # and every remaining task would churn through the same exhausted quota
+        # saving garbage. Abort cleanly here; the already-completed tasks are
+        # written below, and a later --resume-missing re-does this one.
+        if result.get("api_failed"):
+            print(
+                f"[{index:>3}/{total}] {task_id} ... ABORT: API failure "
+                f"(likely {args.backend} quota exhausted). Not saving this task. "
+                f"Re-run with --resume-missing to continue."
+            )
+            break
+
         trajectories_by_id[task_id] = result
 
         if result.get("solved"):
@@ -308,7 +354,7 @@ def main() -> None:
     save_repair_run_log(
         round_paths=round_paths,
         trajectory_path=trajectory_path,
-        round0_source_jsonl=args.round0_source_jsonl,
+        round0_source_jsonl=round0_source_jsonl,
         model=args.model,
         backend=args.backend,
         dataset=dataset,

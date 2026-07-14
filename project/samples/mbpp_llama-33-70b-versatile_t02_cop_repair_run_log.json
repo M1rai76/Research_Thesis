@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-02",
+  "date": "2026-07-14",
   "backend": "groq",
   "dataset": "mbpp",
   "model": "llama-3.3-70b-versatile",
@@ -8,20 +8,20 @@
   "max_tokens": 512,
   "max_retries": 5,
   "repair": true,
-  "repair_strategy": "cot",
+  "repair_strategy": "reflexion",
   "max_repair_rounds": 2,
   "limit": null,
   "round_output_files": {
-    "round0": "C:\\Users\\Samayak\\COMP4952\\project\\samples\\mbpp_llama-33-70b-versatile_t02_cop.jsonl",
-    "round1": "C:\\Users\\Samayak\\COMP4952\\project\\samples\\mbpp_llama-33-70b-versatile_t02_cop_repair-cot_round1.jsonl",
-    "round2": "C:\\Users\\Samayak\\COMP4952\\project\\samples\\mbpp_llama-33-70b-versatile_t02_cop_repair-cot_round2.jsonl"
+    "round0": "/home/raj/thesis_codegen/COMP4952/project/samples/mbpp_llama-33-70b-versatile_t02_cop.jsonl",
+    "round1": "/home/raj/thesis_codegen/COMP4952/project/samples/mbpp_llama-33-70b-versatile_t02_cop_repair-reflexion_round1.jsonl",
+    "round2": "/home/raj/thesis_codegen/COMP4952/project/samples/mbpp_llama-33-70b-versatile_t02_cop_repair-reflexion_round2.jsonl"
   },
-  "trajectory_file": "C:\\Users\\Samayak\\COMP4952\\project\\results\\repair_trajectories_llama-33-70b-versatile_t02_cop_mbpp_cot.json",
-  "round0_source_jsonl": "samples/mbpp_llama-33-70b-versatile_t02_cgo.jsonl",
-  "total_api_calls": 0,
+  "trajectory_file": "/home/raj/thesis_codegen/COMP4952/project/results/repair_trajectories_llama-33-70b-versatile_t02_cop_mbpp_reflexion.json",
+  "round0_source_jsonl": "/home/raj/thesis_codegen/COMP4952/project/samples/mbpp_llama-33-70b-versatile_t02_cgo.jsonl",
+  "total_api_calls": 209,
   "round0_generation_api_calls": 0,
-  "round0_reused_count": 0,
-  "repair_api_calls": 0,
+  "round0_reused_count": 378,
+  "repair_api_calls": 209,
   "tasks_completed": 378,
   "tasks_skipped": 0,
   "skipped_ids": [],
@@ -29,16 +29,16 @@
     "total_tasks": 378,
     "round_pass_counts": {
       "round0": 324,
-      "round1": 339,
-      "round2": 345
+      "round1": 336,
+      "round2": 340
     },
     "round_pass_rates": {
       "round0": 85.7,
-      "round1": 89.7,
-      "round2": 91.3
+      "round1": 88.9,
+      "round2": 89.9
     },
-    "total_improvement_pp": 5.6,
-    "stalled_count": 6,
+    "total_improvement_pp": 4.2,
+    "stalled_count": 0,
     "round0_error_counts": {
       "AssertionError": 49,
       "NameError": 1,
@@ -46,10 +46,13 @@
       "ValueError": 1,
       "Timeout": 1
     },
-    "cot_extraction_method_counts": {
-      "marker": 93,
-      "fence": 0,
-      "raw_fallback": 0
+    "cot_extraction_method_counts": {},
+    "self_test_confusion": {
+      "total_rounds": 741,
+      "TP": 224,
+      "FN": 366,
+      "FP": 13,
+      "TN": 138
     }
   }
 }

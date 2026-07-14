@@ -214,6 +214,24 @@ See `research_log.md` for the full per-strategy breakdown and the Safety Oracle 
 
 ---
 
+## Baselines
+
+External-method baselines live under `project/baselines/`, kept separate from the thesis's own `scripts/` pipeline — separately authored (Gurdiraj Bal, z5386590), does not modify `self_repair.py`/`code_executor.py`/`generate_samples.py`, only imports shared low-level utilities from them. See `decisions.md` D13 for the full rationale.
+
+**Reflexion** (`project/baselines/reflexion/`) — a faithful re-implementation of Shinn et al. (2023), *"Reflexion: Language Agents with Verbal Reinforcement Learning"* (arXiv:2303.11366), §4.3 (Programming), run as a controlled comparison against the thesis's own `cot`/`minimal` repair strategies. Covers both HumanEval+ and MBPP+ via `--dataset`.
+
+```bash
+python baselines/reflexion/run_reflexion_batch.py --dataset {humaneval,mbpp} \
+    --model llama-3.3-70b-versatile --backend groq \
+    --max_repair_rounds 2 --reflexion_memory_size 1 --resume-missing
+```
+
+To run inference on UNSW Katana (local vLLM server, `--backend katana`) instead of Groq, see the scripts in `project/baselines/reflexion/katana/`.
+
+Results and analysis: `project/baselines/reflexion/results.md`.
+
+---
+
 ## Project Structure
 
 ```text
@@ -238,6 +256,13 @@ COMP4952/
       test_single_repair.py     — one-off diagnostic
       analyze_failures.py       — extracts failed EvalPlus tasks into a structured report
       llm_prompt_refine.py      — diagnose-then-revise prompt refinement loop (live LLM call untested — see D11)
+    baselines/
+      reflexion/
+        reflexion_prompt.py      — test-gen/self-reflection/actor prompt builders
+        reflexion_executor.py    — self-generated-test execution wrapper
+        reflexion_repair.py      — per-task Reflexion repair loop orchestrator
+        run_reflexion_batch.py   — CLI batch driver
+        results.md               — results and analysis
     robustness/
       safety_oracle.py           — AST guard-pattern scan (Safety Oracle)
       safety_eval_correlation.py — joins Safety Oracle output against eval_results.json

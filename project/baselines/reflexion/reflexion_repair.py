@@ -104,9 +104,18 @@ def run_reflexion_repair(
 
     api_calls = 0
 
+    # api_failed distinguishes "generate_raw_completion exhausted its retries and
+    # returned None" (e.g. Groq daily-quota exhaustion) from a legitimate model
+    # response that simply produced no usable output. The batch driver uses it to
+    # abort-and-not-persist so the task is retried on --resume-missing, rather
+    # than churning through the rest of the run saving degraded trajectories.
+    api_failed = False
+
     test_gen_prompt = build_test_generation_prompt(task_prompt, entry_point, dataset)
     test_gen_response = generate_raw_completion(client, model, test_gen_prompt)
     api_calls += 1
+    if test_gen_response is None:
+        api_failed = True
     self_test_code = (
         parse_and_filter_tests(test_gen_response, entry_point)
         if test_gen_response is not None
@@ -180,6 +189,7 @@ def run_reflexion_repair(
                 "stopped_early_self_test_pass": stopped_early_self_test_pass,
                 "reflection_history": reflection_history,
                 "api_calls": api_calls,
+                "api_failed": api_failed,
                 "rounds": rounds,
             }
 
@@ -201,6 +211,7 @@ def run_reflexion_repair(
         api_calls += 1
         if reflection_text is None:
             print(f"  Round {round_num + 1}: SKIPPED (self-reflection API error)")
+            api_failed = True
             break
         reflection_text = reflection_text.strip()
         reflection_history.append(reflection_text)
@@ -219,6 +230,7 @@ def run_reflexion_repair(
         api_calls += 1
         if raw_response is None:
             print(f"  Round {round_num + 1}: SKIPPED (actor API error)")
+            api_failed = True
             break
 
         new_completion = (
@@ -242,5 +254,6 @@ def run_reflexion_repair(
         "stopped_early_self_test_pass": False,
         "reflection_history": reflection_history,
         "api_calls": api_calls,
+        "api_failed": api_failed,
         "rounds": rounds,
     }

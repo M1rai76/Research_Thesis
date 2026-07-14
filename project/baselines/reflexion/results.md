@@ -2,61 +2,81 @@
 
 Author: Gurdiraj Bal (z5386590)
 
-Faithful re-implementation of Shinn et al. (2023), *"Reflexion: Language Agents with Verbal Reinforcement Learning"* (arXiv:2303.11366), §4.3 (Programming), run as a controlled comparison against the thesis's own `cot`/`minimal` repair strategies. See `decisions.md` D13 for the full design rationale and `research_log.md` 2026-07-09 (third and fourth entries) for the session-by-session build and run log.
+Faithful re-implementation of Shinn et al. (2023), *"Reflexion: Language Agents with Verbal Reinforcement Learning"* (arXiv:2303.11366), §4.3 (Programming), run as a controlled comparison against the thesis's own `cot`/`minimal` repair strategies. See `decisions.md` D13 for the full design rationale and D15 for the MBPP+ extension; `research_log.md` 2026-07-09 (HumanEval+) and 2026-07-14 (MBPP+) for the session-by-session build/run logs.
 
-Scope: HumanEval+ only, 164 tasks, `max_repair_rounds=2`, same shared Round-0 seed (`samples/llama-33-70b-versatile_t02_cgo.jsonl`) and `max_repair_rounds` as the existing `cot`/`minimal` runs. Single run at `t02` (temperature 0.2) — not repeated to quantify pass@1 variance under re-sampling (see Limitations).
+**Scope:** both **HumanEval+ (164 tasks)** and **MBPP+ (378 tasks)**, `max_repair_rounds=2`, each repairing its own shared `cgo` Round-0 seed (`[mbpp_]llama-33-70b-versatile_t02_cgo.jsonl`) — the same seed and round budget as the existing `cot`/`minimal` runs. Both datasets run on **Groq `llama-3.3-70b-versatile`**, i.e. the identical inference setup to `cot`/`minimal` (no inference-stack confound). Single run per dataset at `t02` (temperature 0.2) — not repeated to bound pass@1 variance (see Limitations).
 
 ## Headline finding — lead with the mechanism, not the point estimate
 
-**The strongest, most trustworthy evidence from this run is the self-test-vs-ground-truth confusion matrix**, aggregated across all 253 repair rounds attempted — a large enough sample to stand on its own regardless of how any individual task happened to resolve:
+**The strongest, most trustworthy evidence is the self-test-vs-ground-truth confusion matrix**, aggregated across every repair round attempted — a large enough sample on each dataset to stand on its own regardless of how any individual task happened to resolve:
 
-| | Count | Rate |
-|---|---|---|
-| TP (both pass) | 60 | 23.7% |
-| FN (self-test fails, ground truth passes) | 132 | **52.2%** |
-| FP (self-test passes, ground truth fails) | 2 | 0.8% |
-| TN (both fail) | 59 | 23.3% |
+| Dataset (rounds) | TP (both pass) | FN (self-test fails, truth passes) | FP (self-test passes, truth fails) | TN (both fail) |
+|---|---|---|---|---|
+| HumanEval+ (253) | 23.7% | **52.2%** | 0.8% | 23.3% |
+| MBPP+ (741) | 30.2% | **49.4%** | 1.8% | 18.6% |
 
-Over half of all repair attempts were the agent "fixing" code that was already correct, based on its own unreliable self-generated tests. FP stayed rare (2 tasks total), matching the pattern the paper itself reports — false positives are typically much less common than false negatives. A 52% FN rate is in a plausible range given Shinn et al.'s own Table 2 (40% for HumanEval / 59% for MBPP, both on GPT-4) — this reads as a legitimate finding about self-generated-test reliability specific to Llama-3.3-70B, plausibly connected to the paper's own Appendix A framing of reliable self-correction as an emergent capability of stronger/larger models (their own ablation shows a weak model, starchat-beta, getting zero benefit from Reflexion at all). **This mechanism, not the exact pass@1 delta below, is the primary evidence for this baseline's write-up.**
+On **both** datasets, roughly **half of all repair attempts were the agent "fixing" code that was already correct**, driven by its own unreliable self-generated tests. False positives stayed rare on both (0.8% / 1.8%), matching the pattern the paper itself reports. The ~50% FN rate is in the range of Shinn et al.'s own Table 2 (40% HumanEval / 59% MBPP, both on GPT-4) — this reads as a legitimate, model-specific finding about self-generated-test reliability on Llama-3.3-70B, plausibly connected to the paper's Appendix A framing of reliable self-correction as an emergent capability of stronger/larger models (their ablation shows a weak model, starchat-beta, getting zero benefit from Reflexion at all). **This mechanism — not the exact pass@1 deltas below — is the primary evidence for this baseline, and it reproduces almost identically across two independent benchmarks (n=253 and n=741).**
 
 ### Worked example: `HumanEval/4`
 
-From an earlier 5-task smoke test, before the full run — a clean illustration of the FN-driven regression pattern that played out at scale in the full 164-task run:
+From an earlier 5-task smoke test — a clean illustration of the FN-driven pattern that played out at scale on both datasets:
 
 - **Round 0**: both ground-truth and self-test fail (`IndentationError`). Reflection correctly diagnoses the indentation issue.
 - **Round 1**: the fix actually works (ground-truth `PASS`), but the self-generated test suite has a bug of its own and reports `FAIL` (`UnknownError`) — a false negative. Since the loop only trusts the self-test signal (never sees ground truth, matching the paper's design), it believes it's still broken and continues.
 - **Round 2**: the reflection invents a plausible-but-wrong diagnosis ("didn't handle empty list") based on the bad signal, "fixes" a solution that was already correct, and breaks it (`NameError`, ground-truth flips back to `FAIL`).
 
-## Corroborating evidence — pass@1 (single-run point estimate, treat as directional)
+The MBPP+ smoke test showed the same shape (e.g. `Mbpp/6`: ground-truth `PASS` every round, self-test `FAIL` every round — a sustained false negative).
 
-All Plus pass@1 values computed as `base_status==pass AND plus_status==pass` directly from each run's `_eval_results.json` — verified to match Docker's own printed EvalPlus summary exactly on both fresh round1/round2 evaluations (see D14), and confirmed applied identically (same function, same condition, no exceptions) to the `cot`/`minimal` rows below as well as `reflexion`, not just reflexion — see Verification.
+## Corroborating evidence — pass@1 (single-run point estimates, treat as directional)
 
-| Run | Base pass@1 | Plus pass@1 | Robustness Gap | Robustness Ratio |
-|---|---|---|---|---|
-| R0 (shared seed) | 0.805 | 0.738 | 0.067 | 0.917 |
-| cot R2 | 0.915 | 0.829 | 0.085 | 0.907 |
-| minimal R2 | 0.854 | 0.774 | 0.079 | 0.907 |
-| reflexion R1 | 0.823 | 0.744 | 0.079 | 0.904 |
-| **reflexion R2** | **0.799** | **0.713** | 0.085 | 0.893 |
+All Plus pass@1 values computed as `base_status==pass AND plus_status==pass` directly from each run's `_eval_results.json` (decisions.md **D14**), applied identically — same function, same condition, no exceptions — to the `cot`/`minimal` rows as well as `reflexion` on both datasets, so every comparison is apples-to-apples.
 
-**Reflexion is the only one of the three repair strategies whose Round-2 point estimate lands below its own Round-0 starting point.** R1 improves on R0 (+1.8pp base, +0.6pp plus), but R2 erases that gain and then some (−0.6pp base, −2.5pp plus relative to R0), while `cot` (+11.0pp base) and `minimal` (+4.9pp base) both net-improve over the identical two rounds.
+### HumanEval+ (164 tasks)
 
-**Caveat — this is a single 164-task run at t=0.2, not a repeated-sampling estimate.** A handful of flipped tasks (a few percentage points either way) would meaningfully move the exact R1→R2 delta, and Groq's daily quota was hit twice during this run (see Verification), so a second independent run to bound the variance was not attempted given the cost already incurred. The regression *direction* is corroborated by the FN-rate mechanism above (a large, robust sample) and the worked example, which is why the finding is reported with confidence — but the precise pass@1 numbers in this table should be read as one realization, not a tight point estimate. Re-running would be the natural next step if this baseline needs a tighter number for publication rather than a directional finding.
+| Run | Base pass@1 | Plus pass@1 | Gap | Ratio | vs R0 (Plus) |
+|---|---|---|---|---|---|
+| R0 (shared seed) | 0.805 | 0.738 | 0.067 | 0.917 | — |
+| cot R2 | 0.915 | 0.829 | 0.085 | 0.907 | +9.1pp |
+| minimal R2 | 0.854 | 0.774 | 0.079 | 0.907 | +3.6pp |
+| reflexion R1 | 0.823 | 0.744 | 0.079 | 0.904 | +0.6pp |
+| **reflexion R2** | **0.799** | **0.713** | 0.085 | 0.893 | **−2.5pp** |
 
-Note: an internal, in-script REPAIR SUMMARY computed during the run (against the narrower canonical HumanEval test used by `code_executor.run_executor` during the loop, not the full EvalPlus base-test definition) reported R0 80.5% → R2 85.4% (+4.9pp) — this number is superseded by the Docker-verified table above and should not be used for comparison; it's noted here only because it was reported provisionally mid-session before the Docker evaluation ran.
+On HumanEval+, **Reflexion is the only one of the three repair strategies whose Round-2 result lands *below* its own Round-0 starting point.** R1 nudges up (+0.6pp Plus), but R2 erases that and more (−2.5pp Plus vs R0), while `cot` and `minimal` both net-improve over the identical two rounds.
+
+### MBPP+ (378 tasks)
+
+| Run | Base pass@1 | Plus pass@1 | Gap | Ratio | vs R0 (Plus) |
+|---|---|---|---|---|---|
+| R0 (shared seed) | 0.865 | 0.725 | 0.140 | 0.838 | — |
+| cot R2 | 0.921 | 0.770 | 0.151 | 0.836 | +4.5pp |
+| minimal R2 | 0.897 | 0.746 | 0.151 | 0.832 | +2.1pp |
+| reflexion R1 | 0.852 | 0.696 | 0.156 | 0.817 | −2.9pp |
+| **reflexion R2** | **0.865** | **0.722** | 0.143 | 0.835 | **−0.3pp (flat)** |
+
+On MBPP+, Reflexion **dips at R1 (−2.9pp Plus) and recovers only to ~R0 by R2 (−0.3pp, flat within noise)**, while `cot` (+4.5pp Plus) and `minimal` (+2.1pp Plus) both climb clearly. So Reflexion is again the sole strategy that fails to net-improve — here it breaks even rather than regressing.
+
+## Cross-dataset synthesis
+
+The robust, both-datasets claim is: **Reflexion is uniquely unable to benefit from iterative repair — while `cot` and `minimal` both raise Plus pass@1 over their Round-0 seed, Reflexion does not — and the cause is the same on both benchmarks: ~50% of its self-generated-test verdicts are false negatives, so roughly half of all repair rounds are spent "fixing" code that was already correct.**
+
+One honest nuance to carry into the write-up, so it isn't overclaimed: the *endpoint* differs in degree between datasets. On **HumanEval+**, Reflexion R2 lands **clearly below** its R0 (−2.5pp Plus) — an outright regression. On **MBPP+**, R2 comes back to **flat** vs R0 (−0.3pp) after an R1 dip — no net benefit, but not a net regression. The strict "Reflexion regresses below its own R0" statement is therefore **HumanEval-specific**; the claim that holds on both is the "uniquely fails to benefit, driven by ~50% self-test FNs" framing above. The mechanism (the confusion matrix) is the invariant; the exact pass@1 endpoint is the dataset-dependent, single-run-sensitive part.
+
+**Caveat — single run at t=0.2 per dataset, not a repeated-sampling estimate.** A handful of flipped tasks would move the exact R1→R2 deltas, so the pass@1 numbers are directional, not variance-bounded. The FN-rate mechanism (n=253 and n=741, the far larger samples) is the primary evidence and is what the deltas corroborate — not the other way around. Note also the superseded in-script REPAIR SUMMARY (narrow canonical-test check, not full EvalPlus): it reported R0→R2 of 80.5%→85.4% (HumanEval) and 85.7%→89.9% (MBPP), both **misleading and superseded** by the Docker-verified tables above.
 
 ## Verification performed before treating this as final
 
-- **Formula consistency across strategies**: re-ran the `base_status==pass AND plus_status==pass` scoring function against `cot` R2, `minimal` R2, and both `reflexion` rounds' `_eval_results.json` files directly (not against any previously-reported/older numbers) — same function, same condition, applied without exception to all five rows in the table above. The R2 comparisons are apples-to-apples.
-- **`reflection_history` persistence**: confirmed present as a field on all 164 saved trajectories; populated with real, task-specific, first-person, code-free critique text on the 49 tasks that triggered at least one repair round (89 reflection strings total). This is the artifact to draw on later for comparing what Reflexion's unguided self-reflections focus on against what this thesis's own grounded-refinement method targets.
-- **Resume/decoding-state independence**: confirmed `generate_raw_completion()` never passes a `seed` parameter to the API (only `model`, `messages`, `temperature`, `max_tokens`) — no run in this codebase has ever had decoding determinism, so resuming introduces no new inconsistency beyond what already exists in any single uninterrupted run. Also confirmed each task's `memory`/`reflection_history`/`current_completion` state is a fresh local variable scoped to that task's own `run_reflexion_repair()` call, never shared across tasks or persisted in-process — the only state that survives a resume is the trajectory JSON on disk, which is the intended checkpoint mechanism, not hidden decoding state.
+- **Formula consistency across strategies and datasets**: the `base_status==pass AND plus_status==pass` scorer was applied without exception to every row of both tables (`cot`/`minimal`/`reflexion`, R0–R2), read directly from each `_eval_results.json`, not from previously-reported numbers. The HumanEval R1/R2 evals were verified to match Docker's own printed summary exactly (D14); the MBPP R1/R2 evals were produced by the same `ganler/evalplus:latest` image this session.
+- **Data-integrity guard (MBPP run)**: an `api_failed` flag was added so a quota-exhaustion (`generate_raw_completion` returning `None`) aborts the batch *without persisting* the degraded task, rather than churning through the remaining tasks saving empty-self-test trajectories that `--resume-missing` would then skip. Verified post-run: **0 `api_failed` flags** across all 378 saved trajectories, despite the run spanning multiple quota windows.
+- **`reflection_history` persistence**: present on all trajectories on both datasets — 89 reflection strings across 49 repair-triggering tasks (HumanEval), 363 across 202 (MBPP). Real, task-specific, first-person, code-free critique text; the artifact to draw on for later qualitative comparison against the thesis's own grounded-refinement method.
+- **Resume/decoding-state independence**: `generate_raw_completion()` never passes a `seed` (only `model`/`messages`/`temperature`/`max_tokens`), so no run in this codebase has ever had decoding determinism — resuming across quota windows introduces no inconsistency beyond what any single uninterrupted run already has. Each task's loop state is a fresh local variable, never shared across tasks or persisted in-process; the only cross-resume state is the on-disk trajectory checkpoint.
 
 ## Cost
 
-404 total LLM API calls across all 164 tasks (1 test-generation call + up to 2×(self-reflection + actor) per task) — roughly 23% more than `cot`'s ~328 calls for the same 164 tasks, for a net-worse Round-2 outcome. Hit Groq's daily token quota twice during the run (at 107/164 and 132/164 tasks); resumed cleanly both times via `--resume-missing` with zero wasted spend or duplicate work.
+- **HumanEval+**: 404 LLM API calls across 164 tasks (1 test-gen + up to 2×(reflect+actor) per task). Hit Groq's daily token quota twice (at 107/164 and 132/164); resumed cleanly via `--resume-missing`.
+- **MBPP+**: 1,104 LLM API calls across 378 tasks (202 tasks triggered ≥1 repair round). Reflexion's two-call-per-repair-round design (separate reflect + actor) is structurally ~2× the per-round call cost of `cot`/`minimal`'s single fix call — for a net-worse (HumanEval) or net-flat (MBPP) outcome. Hit the Groq token cap repeatedly; completed over several `--resume-missing` windows (78 → 150 → 227 → 305 → 378) plus a mid-run tier upgrade, guard-clean at every boundary with zero duplicate spend.
 
 ## Known limitations of this baseline
 
-- HumanEval+ only — MBPP+ is not covered (tracked as a follow-up before this baseline is comparable across datasets to `cot`/`minimal`).
-- Single run at `t02` — the pass@1 point estimates above are directional, not variance-bounded (see caveat above).
-- The confusion matrix here is self-test vs. the *visible/canonical* test suite (what the repair loop itself had access to), not vs. the full EvalPlus Plus test suite — a stricter version of this diagnostic against Plus results is a possible follow-up.
+- **Single run per dataset at `t02`** — the pass@1 point estimates are directional, not variance-bounded (see caveat above). A second run would tighten the endpoint deltas (the FN mechanism needs no re-run).
+- The confusion matrix is self-test vs. the *visible/canonical* test suite (what the repair loop had access to), not vs. the full EvalPlus Plus test suite — a stricter version of this diagnostic against Plus results is a possible follow-up.
+- Both runs use Groq-served `llama-3.3-70b-versatile`; the Katana/vLLM bf16 route (D15) was scaffolded but not needed here, since running on Groq keeps the setup identical to the `cot`/`minimal` runs (a strength for comparability, not a limitation).
