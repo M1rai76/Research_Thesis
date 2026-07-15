@@ -2,7 +2,9 @@
 generate_samples.py
 Thesis — Prompt Engineering for LLM Code Generation
 Author    : Samyak Diwan (z5611048)
-Edited by : Gurdiraj Bal (z5386590)   # added the `katana` (vLLM OpenAI-compatible) backend
+Edited by : Gurdiraj Bal (z5386590)   # added the `katana` (vLLM OpenAI-compatible) backend;
+                                      # added optional system_prompt/temperature/max_tokens
+                                      # overrides to generate_raw_completion for the Prochemy baseline
 
 Pipeline
     build_prompt()
@@ -521,6 +523,9 @@ def generate_raw_completion(
     client,
     model: str,
     prompt: str,
+    system_prompt: Optional[str] = None,
+    temperature: Optional[float] = None,
+    max_tokens: Optional[int] = None,
 ) -> Optional[str]:
     """
     Call the model API and return the raw text output.
@@ -529,24 +534,37 @@ def generate_raw_completion(
     limit errors (HTTP 429 / RESOURCE_EXHAUSTED).
 
     Returns None if all retries fail so the caller can skip the task.
+
+    Optional overrides (all default to the module-level behaviour when None,
+    so existing callers are unaffected). Added for the Prochemy baseline,
+    which needs the optimised prompt in the *system* role with the task in
+    the user role, and temperature 1.0 for its prompt-mutation step:
+        system_prompt : replaces the default "expert Python programmer" system message.
+        temperature   : overrides TEMPERATURE (0.2).
+        max_tokens    : overrides MAX_TOKENS (512).
     """
+    system_content = (
+        system_prompt
+        if system_prompt is not None
+        else (
+            "You are an expert Python programmer. "
+            "Output only raw Python code — "
+            "no explanations, no markdown, no example usage."
+        )
+    )
+    temp = TEMPERATURE if temperature is None else temperature
+    max_tok = MAX_TOKENS if max_tokens is None else max_tokens
+
     for attempt in range(MAX_RETRIES):
         try:
             response = client.chat.completions.create(
                 model=model,
                 messages=[
-                    {
-                        "role": "system",
-                        "content": (
-                            "You are an expert Python programmer. "
-                            "Output only raw Python code — "
-                            "no explanations, no markdown, no example usage."
-                        ),
-                    },
+                    {"role": "system", "content": system_content},
                     {"role": "user", "content": prompt},
                 ],
-                temperature=TEMPERATURE,
-                max_tokens=MAX_TOKENS,
+                temperature=temp,
+                max_tokens=max_tok,
             )
             return response.choices[0].message.content or ""
 
