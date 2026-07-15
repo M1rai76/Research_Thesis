@@ -2,7 +2,7 @@
 
 Author: Gurdiraj Bal (z5386590)
 
-Faithful re-implementation of Shinn et al. (2023), *"Reflexion: Language Agents with Verbal Reinforcement Learning"* (arXiv:2303.11366), §4.3 (Programming), run as a controlled comparison against the thesis's own `cot`/`minimal` repair strategies. See `decisions.md` D13 for the full design rationale and D15 for the MBPP+ extension; `research_log.md` 2026-07-09 (HumanEval+) and 2026-07-14 (MBPP+) for the session-by-session build/run logs.
+Faithful re-implementation of Shinn et al. (2023), *"Reflexion: Language Agents with Verbal Reinforcement Learning"* (arXiv:2303.11366), §4.3 (Programming), run as a controlled comparison against the thesis's own `cot`/`minimal` repair strategies.
 
 **Scope:** both **HumanEval+ (164 tasks)** and **MBPP+ (378 tasks)**, `max_repair_rounds=2`, each repairing its own shared `cgo` Round-0 seed (`[mbpp_]llama-33-70b-versatile_t02_cgo.jsonl`) — the same seed and round budget as the existing `cot`/`minimal` runs. Both datasets run on **Groq `llama-3.3-70b-versatile`**, i.e. the identical inference setup to `cot`/`minimal` (no inference-stack confound). Single run per dataset at `t02` (temperature 0.2) — not repeated to bound pass@1 variance (see Limitations).
 
@@ -29,7 +29,7 @@ The MBPP+ smoke test showed the same shape (e.g. `Mbpp/6`: ground-truth `PASS` e
 
 ## Corroborating evidence — pass@1 (single-run point estimates, treat as directional)
 
-All Plus pass@1 values computed as `base_status==pass AND plus_status==pass` directly from each run's `_eval_results.json` (decisions.md **D14**), applied identically — same function, same condition, no exceptions — to the `cot`/`minimal` rows as well as `reflexion` on both datasets, so every comparison is apples-to-apples.
+All Plus pass@1 values computed as `base_status==pass AND plus_status==pass` directly from each run's `_eval_results.json`, applied identically — same function, same condition, no exceptions — to the `cot`/`minimal` rows as well as `reflexion` on both datasets, so every comparison is apples-to-apples.
 
 ### HumanEval+ (164 tasks)
 
@@ -65,7 +65,7 @@ One honest nuance to carry into the write-up, so it isn't overclaimed: the *endp
 
 ## Verification performed before treating this as final
 
-- **Formula consistency across strategies and datasets**: the `base_status==pass AND plus_status==pass` scorer was applied without exception to every row of both tables (`cot`/`minimal`/`reflexion`, R0–R2), read directly from each `_eval_results.json`, not from previously-reported numbers. The HumanEval R1/R2 evals were verified to match Docker's own printed summary exactly (D14); the MBPP R1/R2 evals were produced by the same `ganler/evalplus:latest` image this session.
+- **Formula consistency across strategies and datasets**: the `base_status==pass AND plus_status==pass` scorer was applied without exception to every row of both tables (`cot`/`minimal`/`reflexion`, R0–R2), read directly from each `_eval_results.json`, not from previously-reported numbers. The HumanEval R1/R2 evals were verified to match Docker's own printed summary exactly; the MBPP R1/R2 evals were produced by the same `ganler/evalplus:latest` image this session.
 - **Data-integrity guard (MBPP run)**: an `api_failed` flag was added so a quota-exhaustion (`generate_raw_completion` returning `None`) aborts the batch *without persisting* the degraded task, rather than churning through the remaining tasks saving empty-self-test trajectories that `--resume-missing` would then skip. Verified post-run: **0 `api_failed` flags** across all 378 saved trajectories, despite the run spanning multiple quota windows.
 - **`reflection_history` persistence**: present on all trajectories on both datasets — 89 reflection strings across 49 repair-triggering tasks (HumanEval), 363 across 202 (MBPP). Real, task-specific, first-person, code-free critique text; the artifact to draw on for later qualitative comparison against the thesis's own grounded-refinement method.
 - **Resume/decoding-state independence**: `generate_raw_completion()` never passes a `seed` (only `model`/`messages`/`temperature`/`max_tokens`), so no run in this codebase has ever had decoding determinism — resuming across quota windows introduces no inconsistency beyond what any single uninterrupted run already has. Each task's loop state is a fresh local variable, never shared across tasks or persisted in-process; the only cross-resume state is the on-disk trajectory checkpoint.
@@ -79,4 +79,4 @@ One honest nuance to carry into the write-up, so it isn't overclaimed: the *endp
 
 - **Single run per dataset at `t02`** — the pass@1 point estimates are directional, not variance-bounded (see caveat above). A second run would tighten the endpoint deltas (the FN mechanism needs no re-run).
 - The confusion matrix is self-test vs. the *visible/canonical* test suite (what the repair loop had access to), not vs. the full EvalPlus Plus test suite — a stricter version of this diagnostic against Plus results is a possible follow-up.
-- Both runs use Groq-served `llama-3.3-70b-versatile`; the Katana/vLLM bf16 route (D15) was scaffolded but not needed here, since running on Groq keeps the setup identical to the `cot`/`minimal` runs (a strength for comparability, not a limitation).
+- Both runs use Groq-served `llama-3.3-70b-versatile`; the Katana/vLLM bf16 route was scaffolded but not needed here, since running on Groq keeps the setup identical to the `cot`/`minimal` runs (a strength for comparability, not a limitation).
