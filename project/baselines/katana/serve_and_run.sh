@@ -1,27 +1,29 @@
 #!/usr/bin/env bash
 # serve_and_run.sh
-# Baseline - Reflexion (Shinn et al., 2023)
+# Shared Katana infrastructure for the external baselines (Reflexion, Prochemy, ...)
 # Author : Gurdiraj Bal (z5386590)
 #
-# Scheduler-agnostic inner script for running the MBPP+ Reflexion baseline on a
-# UNSW Katana GPU node. Does the three things a job needs to do, in order:
+# Scheduler-agnostic inner script for running any baseline batch on a UNSW Katana
+# GPU node. Does the three things a job needs, in order:
 #   1. Launch a vLLM OpenAI-compatible server for Llama-3.3-70B-Instruct on the
 #      allocated node, served under the name `llama-3.3-70b-versatile` so the
 #      model slug (and therefore every output filename) matches the existing
-#      Groq cot/minimal runs exactly - keeping the MBPP comparison apples-to-apples.
+#      Groq runs exactly - keeping comparisons apples-to-apples.
 #   2. Block until the server answers /v1/models.
-#   3. Run run_reflexion_batch.py against that server over localhost.
+#   3. Run the baseline command passed as arguments ("$@"), from $RUN_DIR.
 # Always tears the server down on exit (success, failure, or signal).
 #
-# This script is deliberately scheduler-agnostic: call it from either a PBS
-# (`qsub`) or SLURM (`sbatch`) wrapper - see run_reflexion_mbpp.job in this
-# folder. Everything Katana-site-specific (weights path, GPU count, HF token,
-# venv/module setup) is read from environment variables with sensible defaults,
-# so the wrapper only has to export the handful that differ on your allocation.
+# Baseline-agnostic: everything specific to a baseline (which batch script to run,
+# from which directory, with which flags) is supplied by the caller:
+#     RUN_DIR=/path/to/baseline/dir \
+#       bash serve_and_run.sh python run_prochemy.py --dataset humaneval ...
+# The per-baseline PBS/SLURM wrappers (run_*.pbs in this folder) set RUN_DIR and
+# pass the command. Everything Katana-site-specific (weights path, GPU count,
+# venv/module setup) is read from environment variables with sensible defaults.
 
 set -euo pipefail
 
-# --- Site-configurable (override via the job wrapper's env) -------------------
+# --- Serving config (override via the job wrapper's env) ----------------------
 # Path to the model weights. On Katana, pre-stage the gated Llama-3.3-70B-Instruct
 # weights to scratch and point here (compute nodes typically have no outbound
 # internet). A HF repo id also works if the node can reach the Hub.
@@ -29,16 +31,14 @@ MODEL_PATH="${MODEL_PATH:-meta-llama/Llama-3.3-70B-Instruct}"
 # Must stay llama-3.3-70b-versatile so output filenames match the existing runs.
 SERVED_NAME="${SERVED_NAME:-llama-3.3-70b-versatile}"
 TENSOR_PARALLEL="${TENSOR_PARALLEL:-2}"   # = number of GPUs in the allocation
-MAX_MODEL_LEN="${MAX_MODEL_LEN:-8192}"    # prompts are small; 512 output tokens
+MAX_MODEL_LEN="${MAX_MODEL_LEN:-8192}"    # prompts + optimised system prompts stay well under this
 VLLM_PORT="${VLLM_PORT:-8000}"
-DATASET="${DATASET:-mbpp}"
-MAX_REPAIR_ROUNDS="${MAX_REPAIR_ROUNDS:-2}"
-REFLEXION_MEMORY_SIZE="${REFLEXION_MEMORY_SIZE:-1}"
 
-# Repo layout: this script lives in project/baselines/reflexion/katana/
+# What to run once the server is up. RUN_DIR is where the batch script lives;
+# the command itself is this script's positional arguments ("$@").
+RUN_DIR="${RUN_DIR:?set RUN_DIR to the baseline directory (e.g. .../baselines/prochemy)}"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REFLEXION_DIR="$(dirname "$SCRIPT_DIR")"
-PROJECT_DIR="$(dirname "$(dirname "$REFLEXION_DIR")")"   # .../project
 
 # The batch talks to the local vLLM server via the shared `katana` backend
 # (see generate_samples.get_client). These are what get_client reads.
@@ -46,24 +46,20 @@ export KATANA_BASE_URL="${KATANA_BASE_URL:-http://localhost:${VLLM_PORT}/v1}"
 export KATANA_API_KEY="${KATANA_API_KEY:-EMPTY}"
 
 # --- Activate the project environment ----------------------------------------
-# Adjust to your Katana setup: `module load` lines and/or venv activation.
-# Example (uncomment / edit for your allocation):
-#   module load python/3.11 cuda/12.4
+# The PBS/SLURM wrapper does the `module load` lines; here we just activate the
+# vLLM venv (built by setup_katana_env.sh) if VENV_PATH is set.
 if [[ -n "${VENV_PATH:-}" ]]; then
     # shellcheck disable=SC1091
     source "${VENV_PATH}/bin/activate"
-elif [[ -f "${PROJECT_DIR}/.venv/bin/activate" ]]; then
-    # shellcheck disable=SC1091
-    source "${PROJECT_DIR}/.venv/bin/activate"
 fi
 
-echo "=== Reflexion MBPP+ on Katana ==="
+echo "=== Katana baseline run ==="
 echo "Model weights : ${MODEL_PATH}"
 echo "Served as     : ${SERVED_NAME}"
 echo "Tensor //     : ${TENSOR_PARALLEL}"
 echo "Endpoint      : ${KATANA_BASE_URL}"
-echo "Dataset       : ${DATASET}"
-echo "Project dir   : ${PROJECT_DIR}"
+echo "Run dir       : ${RUN_DIR}"
+echo "Command       : $*"
 echo
 
 # --- 1. Launch vLLM in the background ----------------------------------------
@@ -101,16 +97,9 @@ if ! curl -sf "${KATANA_BASE_URL}/models" >/dev/null 2>&1; then
     exit 1
 fi
 
-# --- 3. Run the Reflexion batch ----------------------------------------------
-echo "[batch] running run_reflexion_batch.py ..."
-cd "${REFLEXION_DIR}"
-python run_reflexion_batch.py \
-    --dataset "${DATASET}" \
-    --model "${SERVED_NAME}" \
-    --backend katana \
-    --max_repair_rounds "${MAX_REPAIR_ROUNDS}" \
-    --reflexion_memory_size "${REFLEXION_MEMORY_SIZE}" \
-    --resume-missing
+# --- 3. Run the baseline command ---------------------------------------------
+echo "[batch] running: $*"
+cd "${RUN_DIR}"
+"$@"
 
-echo "[batch] done. Trajectories + round JSONLs written under project/{results,samples}/."
-echo "Next: run the Docker EvalPlus step on the round1/round2 JSONLs (see katana/README.md)."
+echo "[batch] done. Outputs written under project/{results,samples}/."

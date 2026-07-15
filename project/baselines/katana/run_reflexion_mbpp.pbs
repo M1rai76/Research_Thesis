@@ -17,6 +17,9 @@
 #   2. Weights pre-staged to $MODEL_PATH below (gated repo; needs HF access).
 #   3. vLLM venv built at $VENV_PATH (see setup_katana_env.sh).
 #   4. Repo present at $PROJECT_DIR below.
+#
+# Serving + wait + teardown is handled by the shared serve_and_run.sh in this
+# folder; this wrapper only sets the env and passes the Reflexion batch command.
 
 #PBS -N reflexion_mbpp
 # 2x H200 (141GB each) gives comfortable headroom for a 70B at TP=2.
@@ -35,7 +38,7 @@ module load cuda/12.5.0
 
 # --- Paths (edit the zID root if different) ----------------------------------
 SCRATCH="/srv/scratch/${USER}"
-export VENV_PATH="${SCRATCH}/reflexion_venv"
+export VENV_PATH="${SCRATCH}/vllm_venv"        # shared vLLM venv (setup_katana_env.sh)
 export MODEL_PATH="${SCRATCH}/models/Llama-3.3-70B-Instruct"
 export PROJECT_DIR="${PROJECT_DIR:-$HOME/thesis_codegen/COMP4952/project}"
 
@@ -47,8 +50,14 @@ export HF_HOME="${SCRATCH}/hf_cache"
 export SERVED_NAME="llama-3.3-70b-versatile"   # keep: drives output filenames
 export TENSOR_PARALLEL=2                        # = ngpus above
 export MAX_MODEL_LEN=8192
-export DATASET=mbpp
-export MAX_REPAIR_ROUNDS=2
-export REFLEXION_MEMORY_SIZE=1
 
-bash "${PROJECT_DIR}/baselines/reflexion/katana/serve_and_run.sh"
+# --- Run: shared serve_and_run.sh serves vLLM, then runs the Reflexion batch --
+export RUN_DIR="${PROJECT_DIR}/baselines/reflexion"
+bash "${PROJECT_DIR}/baselines/katana/serve_and_run.sh" \
+    python run_reflexion_batch.py \
+        --dataset mbpp \
+        --model "${SERVED_NAME}" \
+        --backend katana \
+        --max_repair_rounds 2 \
+        --reflexion_memory_size 1 \
+        --resume-missing
