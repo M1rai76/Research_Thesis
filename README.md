@@ -159,13 +159,13 @@ Run from the `project/` directory, after the Docker EvalPlus evaluation step abo
 ```bash
 python -m robustness.safety_oracle --dataset {humaneval,mbpp} --samples samples/<output_file>.jsonl
 ```
-Writes `<output_file>_safety_oracle.json`. Detects four AST-pattern guard categories (None checks, empty/zero checks, range/boundary checks, `isinstance` checks), adapted from Li et al. (2025, arXiv:2503.20197) §2.3 — see `decisions.md` D8 for what was excluded and why.
+Writes `<output_file>_safety_oracle.json`. Detects four AST-pattern guard categories (None checks, empty/zero checks, range/boundary checks, `isinstance` checks), adapted from Li et al. (2025, arXiv:2503.20197) §2.3.
 
 **2. Test whether guard presence predicts Plus-test survival**
 ```bash
 python -m robustness.safety_eval_correlation --safety-oracle samples/<output_file>_safety_oracle.json --results samples/<output_file>_eval_results.json
 ```
-Joins the two files and compares Plus pass rate between guarded/unguarded code, **conditioned on the task already passing Base** (D9), reporting a two-proportion z-test per category (D10). Pooled across all 13 Llama 3.3 70B strategy runs (2,767 base-passing tasks, see `research_log.md` 2026-06-18): guard presence does **not** predict Plus survival — four of five categories are non-significant, and `has_type_check` is significantly *negative* (p=0.0035).
+Joins the two files and compares Plus pass rate between guarded/unguarded code, **conditioned on the task already passing Base**, reporting a two-proportion z-test per category. Pooled across all 13 Llama 3.3 70B strategy runs (2,767 base-passing tasks): guard presence does **not** predict Plus survival — four of five categories are non-significant, and `has_type_check` is significantly *negative* (p=0.0035).
 
 This module (`robustness/safety_oracle.py`, `robustness/safety_eval_correlation.py`) is distinct from the `scripts/safety_check.py` / `scripts/verify_safety.py` Bandit sweep in Step 4 above — one measures defensive coding patterns (guard presence), the other measures security vulnerabilities. Both are called "safety" for historical reasons; treat them as separate signals.
 
@@ -210,13 +210,11 @@ MBPP+ (Llama 3.3 70B):
 | edge_case | 0.860 | 0.696 | 0.164 |
 | baseline | 0.839 | 0.675 | 0.164 |
 
-See `research_log.md` for the full per-strategy breakdown and the Safety Oracle correlation results.
-
 ---
 
 ## Baselines
 
-External-method baselines live under `project/baselines/`, kept separate from the thesis's own `scripts/` pipeline — separately authored (Gurdiraj Bal, z5386590), does not modify `self_repair.py`/`code_executor.py`/`generate_samples.py`, only imports shared low-level utilities from them. See `decisions.md` D13 for the full rationale.
+External-method baselines live under `project/baselines/`, kept separate from the thesis's own `scripts/` pipeline — separately authored (Gurdiraj Bal, z5386590), does not modify `self_repair.py`/`code_executor.py`/`generate_samples.py`, only imports shared low-level utilities from them.
 
 **Reflexion** (`project/baselines/reflexion/`) — a faithful re-implementation of Shinn et al. (2023), *"Reflexion: Language Agents with Verbal Reinforcement Learning"* (arXiv:2303.11366), §4.3 (Programming), run as a controlled comparison against the thesis's own `cot`/`minimal` repair strategies. Covers both HumanEval+ and MBPP+ via `--dataset`.
 
@@ -250,8 +248,6 @@ Results and analysis: `project/baselines/prochemy/results.md`.
 COMP4952/
   .venv/                       — dedicated project venv (gitignored)
   requirements.txt
-  decisions.md                 — design decisions and rationale (D1-D11)
-  research_log.md              — dated session-by-session progress log
   README.md
   project/
     scripts/
@@ -267,7 +263,7 @@ COMP4952/
       test_cot_marker_compliance.py — one-off diagnostic
       test_single_repair.py     — one-off diagnostic
       analyze_failures.py       — extracts failed EvalPlus tasks into a structured report
-      llm_prompt_refine.py      — diagnose-then-revise prompt refinement loop (live LLM call untested — see D11)
+      llm_prompt_refine.py      — diagnose-then-revise prompt refinement loop (live LLM call untested)
     baselines/
       reflexion/
         reflexion_prompt.py      — test-gen/self-reflection/actor prompt builders
@@ -316,6 +312,6 @@ COMP4952/
 - All runs use temperature 0.2 and max_tokens 512 for reproducibility.
 - Raw EvalPlus evaluation is the primary metric. Sanitized evaluation is secondary.
 - Robustness Ratio = Plus pass@1 / Base pass@1. Robustness Gap = Base pass@1 minus Plus pass@1.
-- The `_run_log.json` sidecar records all run config and has fields for pass@1 scores to be filled in after evaluation (not yet automated — see `research_log.md` open items).
+- The `_run_log.json` sidecar records all run config and has fields for pass@1 scores to be filled in after evaluation (not yet automated).
 - Groq free tier limit is ~100k tokens/day. At ~640 tokens per problem, a full 164-problem seed generation run costs ~105k tokens, so the last few tasks sometimes get skipped — re-run with `--resume-missing`. Repair mode uses far fewer tokens than seed generation since only failing tasks receive repair calls.
 - MBPP+ has more tasks than HumanEval+, so API quota pressure is higher during seed generation.
