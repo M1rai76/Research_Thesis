@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# run_prochemy_humaneval_seed.pbs
+# Baseline - Prochemy / "Prompt Alchemy" (Ye et al., 2025, arXiv:2503.11085)
+# Author : Gurdiraj Bal (z5386590)
+#
+# OpenPBS job for the Prochemy *seed baseline* (S(0), unoptimised) on HumanEval+.
+# Submit with:
+#     qsub run_prochemy_humaneval_seed.pbs
+#
+# This is the confound-free comparison anchor for the P* run: it serves the same
+# bf16 Llama-3.3-70B-Instruct under `llama-3.3-70b-versatile` via vLLM and
+# generates one HumanEval+ sample per task using the *unoptimised* zero-shot seed
+# S(0) as the system prompt (run_prochemy.py --seed-baseline). No prompt search
+# runs here, so this is short: model-load + 164 single-shot generations only.
+# Output lands at ..._prochemy-zero_shot-seed.jsonl, beside the P* run's
+# ..._prochemy-zero_shot.jsonl, so P* vs S(0) is a same-stack, same-weights,
+# same-temperature (0.2) Base/Plus/Gap/Ratio comparison with no vLLM-vs-Groq or
+# different-template confound.
+#
+# PREREQUISITES: identical to run_prochemy_humaneval.pbs (shared venv + weights).
+
+#PBS -N prochemy_he_seed
+# Pinned to k201: node k099 (the other H200 node) reliably crashes TP=2 with a
+# CUDASymmetricMemory illegal-memory-access fault at engine init (jobs 8580458 +
+# 8581367 both died there). The P* run (8575975) ran cleanly on k201, so pinning
+# here keeps this S(0) anchor's serving stack byte-identical to the P* run. Cost:
+# k201 may be booked, so this can queue until >=2 of its GPUs free.
+#PBS -l select=1:ncpus=8:ngpus=2:mem=200gb:host=k201
+#PBS -l walltime=02:00:00
+#PBS -j oe
+#PBS -o prochemy_humaneval_seed.out
+
+set -euo pipefail
+cd "${PBS_O_WORKDIR:-$(dirname "$0")}"
+
+# --- Katana environment (verified module names) ------------------------------
+module load python/3.11.3
+module load cuda/12.5.0
+
+# --- Paths -------------------------------------------------------------------
+SCRATCH="/srv/scratch/${USER}"
+export VENV_PATH="${SCRATCH}/vllm_venv"        # shared vLLM venv (setup_katana_env.sh)
+export MODEL_PATH="${SCRATCH}/models/Llama-3.3-70B-Instruct"
+export PROJECT_DIR="${PROJECT_DIR:-$HOME/thesis_codegen/COMP4952/project}"
+
+# Weights are pre-staged, so keep HF fully offline on the compute node.
+export HF_HUB_OFFLINE=1
+export HF_HOME="${SCRATCH}/hf_cache"
+
+# --- Serving config ----------------------------------------------------------
+export SERVED_NAME="llama-3.3-70b-versatile"   # keep: drives output filenames
+export TENSOR_PARALLEL=2                        # = ngpus above
+export MAX_MODEL_LEN=8192
+
+INITIAL="${INITIAL:-zero_shot}"
+
+# --- Run: shared serve_and_run.sh serves vLLM, then generates from S(0) --------
+export RUN_DIR="${PROJECT_DIR}/baselines/prochemy"
+bash "${PROJECT_DIR}/baselines/katana/serve_and_run.sh" \
+    python run_prochemy.py \
+        --dataset humaneval \
+        --initial "${INITIAL}" \
+        --model "${SERVED_NAME}" \
+        --backend katana \
+        --seed-baseline \
+        --resume-missing

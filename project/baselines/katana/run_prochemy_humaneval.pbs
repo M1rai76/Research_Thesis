@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# run_prochemy_humaneval.pbs
+# Baseline - Prochemy / "Prompt Alchemy" (Ye et al., 2025, arXiv:2503.11085)
+# Author : Gurdiraj Bal (z5386590)
+#
+# OpenPBS job for the HumanEval+ Prochemy baseline on UNSW Katana (verified PBS
+# 23.06, GPU nodes: H200/A100/H100/L40S/V100). Submit with:
+#     qsub run_prochemy_humaneval.pbs
+#
+# Serves Llama-3.3-70B-Instruct in bf16 via vLLM under the name
+# `llama-3.3-70b-versatile` (same weights/served-name as the Groq runs), then
+# runs the full Prochemy pipeline against it: optimise a prompt P* on the 20-task
+# training set, then generate one HumanEval+ sample per task with P* frozen.
+#
+# Why Katana (not Groq) for Prochemy: the search is token-heavy (10 candidates x
+# 20 training tasks per iteration, each with a long evolving system prompt) -
+# ~1M+ tokens, far above Groq's free-tier 100k/day cap. A local vLLM server has
+# no token cap, so the full faithful search (k_max=10, n_variants=10) runs freely.
+# Comparability caveat: vLLM is a different inference stack than Groq serving the
+# same weights (note it when placing Prochemy next to the Groq-served strategies).
+#
+# PREREQUISITES (shared with the other baselines):
+#   1. Scratch quota >= ~160GB (bf16 weights ~140GB + venv ~12GB). Now 256GB.
+#   2. Weights pre-staged to $MODEL_PATH (gated repo; needs HF access + token).
+#   3. Shared vLLM venv built at $VENV_PATH (setup_katana_env.sh).
+#   4. Repo present at $PROJECT_DIR below.
+
+#PBS -N prochemy_humaneval
+# 2x H200 (141GB each) gives comfortable headroom for a 70B at TP=2.
+# Fallback if H200 is queued: ngpus=4:gpu_model=A100 (4x80GB) with TENSOR_PARALLEL=4.
+#PBS -l select=1:ncpus=8:ngpus=2:mem=200gb:gpu_model=H200
+#PBS -l walltime=12:00:00
+#PBS -j oe
+#PBS -o prochemy_humaneval.out
+
+set -euo pipefail
+cd "${PBS_O_WORKDIR:-$(dirname "$0")}"
+
+# --- Katana environment (verified module names) ------------------------------
+module load python/3.11.3
+module load cuda/12.5.0
+
+# --- Paths (edit the zID root if different) ----------------------------------
+SCRATCH="/srv/scratch/${USER}"
+export VENV_PATH="${SCRATCH}/vllm_venv"        # shared vLLM venv (setup_katana_env.sh)
+export MODEL_PATH="${SCRATCH}/models/Llama-3.3-70B-Instruct"
+export PROJECT_DIR="${PROJECT_DIR:-$HOME/thesis_codegen/COMP4952/project}"
+
+# Weights are pre-staged, so keep HF fully offline on the compute node.
+export HF_HUB_OFFLINE=1
+export HF_HOME="${SCRATCH}/hf_cache"
+
+# --- Serving config ----------------------------------------------------------
+export SERVED_NAME="llama-3.3-70b-versatile"   # keep: drives output filenames
+export TENSOR_PARALLEL=2                        # = ngpus above
+export MAX_MODEL_LEN=8192
+
+# --- Prochemy search config (paper defaults; override here for a smaller run) -
+INITIAL="${INITIAL:-zero_shot}"
+K_MAX="${K_MAX:-10}"
+N_VARIANTS="${N_VARIANTS:-10}"
+PATIENCE="${PATIENCE:-3}"
+
+# --- Run: shared serve_and_run.sh serves vLLM, then runs the Prochemy pipeline -
+export RUN_DIR="${PROJECT_DIR}/baselines/prochemy"
+bash "${PROJECT_DIR}/baselines/katana/serve_and_run.sh" \
+    python run_prochemy.py \
+        --dataset humaneval \
+        --initial "${INITIAL}" \
+        --model "${SERVED_NAME}" \
+        --backend katana \
+        --k-max "${K_MAX}" \
+        --n-variants "${N_VARIANTS}" \
+        --patience "${PATIENCE}" \
+        --reoptimize \
+        --resume-missing
