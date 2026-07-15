@@ -226,9 +226,21 @@ python baselines/reflexion/run_reflexion_batch.py --dataset {humaneval,mbpp} \
     --max_repair_rounds 2 --reflexion_memory_size 1 --resume-missing
 ```
 
-To run inference on UNSW Katana (local vLLM server, `--backend katana`) instead of Groq, see the scripts in `project/baselines/reflexion/katana/`.
+To run inference on UNSW Katana (local vLLM server, `--backend katana`) instead of Groq, see the shared scripts in `project/baselines/katana/` (used by all external baselines).
 
 Results and analysis: `project/baselines/reflexion/results.md`.
+
+**Prochemy** (`project/baselines/prochemy/`) — a faithful re-implementation of Ye et al. (2025), *"Prochemy: Automating Prompt Engineering by Prompt Alchemy"* (arXiv:2503.11085), an execution-driven automatic prompt-optimisation method. Where Reflexion competes with the repair layer, Prochemy competes with the prompt-strategy / seed-generation layer: it searches for one fixed system prompt `P*` (mutate → weighted-evaluate → select over a small training set), seeded from the authors' own verbatim prompts. `P*` is graded on Base/Plus/**Gap**/**Ratio**, so it also tests whether an accuracy-optimised prompt actually closes the robustness gap — something the paper (which reports Plus pass@1 only) does not measure.
+
+```bash
+python baselines/prochemy/run_prochemy.py --dataset {humaneval,mbpp} \
+    --initial zero_shot --model llama-3.3-70b-versatile --backend katana \
+    --k-max 10 --n-variants 10 --patience 3 --reoptimize --resume-missing
+```
+
+The prompt search is token-heavy (~1M+ tokens per full run), so it runs on Katana (local vLLM, no token cap) rather than Groq; see the shared scripts in `project/baselines/katana/`. To generate from the unoptimised seed `S(0)` as a comparison anchor, add `--seed-baseline`.
+
+Results and analysis: `project/baselines/prochemy/results.md`.
 
 ---
 
@@ -263,6 +275,20 @@ COMP4952/
         reflexion_repair.py      — per-task Reflexion repair loop orchestrator
         run_reflexion_batch.py   — CLI batch driver
         results.md               — results and analysis
+      prochemy/
+        prochemy_prompt.py       — verbatim seed/mutation prompts + parsers
+        prochemy_trainset.py     — training-set load + candidate execution
+        prochemy_optimize.py     — mutate→weighted-evaluate→select search loop
+        run_prochemy.py          — CLI driver (optimise → freeze P* → generate; --seed-baseline anchor)
+        prochemy_training_set.jsonl — authors' shipped 20-task training set
+        results.md               — results and analysis
+      katana/                    — shared vLLM run infra for all baselines
+        serve_and_run.sh         — serve vLLM → wait → run baseline cmd → teardown
+        setup_katana_env.sh      — build shared venv + stage bf16 weights
+        run_reflexion_mbpp.pbs   — PBS wrapper: Reflexion MBPP+
+        run_prochemy_humaneval.pbs      — PBS wrapper: Prochemy HumanEval+
+        run_prochemy_humaneval_seed.pbs — PBS wrapper: Prochemy S(0) anchor
+        probe_katana.sh          — read-only environment audit
     robustness/
       safety_oracle.py           — AST guard-pattern scan (Safety Oracle)
       safety_eval_correlation.py — joins Safety Oracle output against eval_results.json
