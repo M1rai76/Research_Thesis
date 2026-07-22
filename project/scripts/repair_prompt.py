@@ -18,7 +18,7 @@ Functions
 
 Usage
     python repair_prompt.py --task_id HumanEval/4 --dataset humaneval \
-        --jsonl_path ../samples/llama-33-70b-versatile_t02_cgo.jsonl
+        --jsonl_path ../samples/llama-33-70b-versatile_t02_cop.jsonl
 """
 
 import argparse
