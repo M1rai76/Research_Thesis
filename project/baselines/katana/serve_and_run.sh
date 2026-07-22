@@ -9,7 +9,8 @@
 #      allocated node, served under the name `llama-3.3-70b-versatile` so the
 #      model slug (and therefore every output filename) matches the existing
 #      Groq runs exactly - keeping comparisons apples-to-apples.
-#   2. Block until the server answers /v1/models.
+#   2. Block until our SERVED_NAME is actually being served (not just until any
+#      server answers /v1/models on the port - a stale/foreign one would 404).
 #   3. Run the baseline command passed as arguments ("$@"), from $RUN_DIR.
 # Always tears the server down on exit (success, failure, or signal).
 #
@@ -32,7 +33,14 @@ MODEL_PATH="${MODEL_PATH:-meta-llama/Llama-3.3-70B-Instruct}"
 SERVED_NAME="${SERVED_NAME:-llama-3.3-70b-versatile}"
 TENSOR_PARALLEL="${TENSOR_PARALLEL:-2}"   # = number of GPUs in the allocation
 MAX_MODEL_LEN="${MAX_MODEL_LEN:-8192}"    # prompts + optimised system prompts stay well under this
-VLLM_PORT="${VLLM_PORT:-8000}"
+# Per-job port, not a fixed one: on a shared node (e.g. k201) a stale/foreign vLLM
+# left on a fixed port makes the readiness probe below false-match, and the batch
+# then 404s against it (observed 2026-07-17, jobs 8592184/8592185). Derive the port
+# from the PBS job id so serial/concurrent jobs never collide on it; $$ for local runs.
+if [[ -z "${VLLM_PORT:-}" ]]; then
+    _jobnum="${PBS_JOBID:-}"; _jobnum="${_jobnum%%.*}"; _jobnum="${_jobnum//[!0-9]/}"
+    VLLM_PORT=$(( 8000 + ( ${_jobnum:-$$} % 2000 ) ))
+fi
 
 # What to run once the server is up. RUN_DIR is where the batch script lives;
 # the command itself is this script's positional arguments ("$@").
@@ -62,14 +70,27 @@ echo "Run dir       : ${RUN_DIR}"
 echo "Command       : $*"
 echo
 
+# --- 0. Pre-flight: the port must be free ------------------------------------
+# If something already answers here, it's a stale/foreign server; using it would
+# let the readiness probe below false-match and the batch would 404. Fail loudly.
+if curl -sf "${KATANA_BASE_URL}/models" >/dev/null 2>&1; then
+    echo "[serve] ERROR: ${KATANA_BASE_URL}/models already answered - port ${VLLM_PORT}" >&2
+    echo "[serve] is in use by a stale/foreign server. Refusing to start to avoid a" >&2
+    echo "[serve] false-ready match. Pick another VLLM_PORT or clear the stale server." >&2
+    exit 1
+fi
+
 # --- 1. Launch vLLM in the background ----------------------------------------
-echo "[serve] starting vLLM ..."
+# Per-job log (unique port in the name) so serialized jobs don't overwrite each
+# other's server log - the 0-byte overwrite that made 8592184/8592185 hard to diagnose.
+VLLM_LOG="${SCRIPT_DIR}/vllm_server.${VLLM_PORT}.log"
+echo "[serve] starting vLLM on port ${VLLM_PORT} (log: ${VLLM_LOG}) ..."
 vllm serve "${MODEL_PATH}" \
     --served-model-name "${SERVED_NAME}" \
     --tensor-parallel-size "${TENSOR_PARALLEL}" \
     --max-model-len "${MAX_MODEL_LEN}" \
     --port "${VLLM_PORT}" \
-    > "${SCRIPT_DIR}/vllm_server.log" 2>&1 &
+    > "${VLLM_LOG}" 2>&1 &
 VLLM_PID=$!
 
 cleanup() {
@@ -80,20 +101,27 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 # --- 2. Wait until the server is ready ----------------------------------------
-echo "[serve] waiting for ${KATANA_BASE_URL}/models ..."
+# Require our SERVED_NAME to actually appear in /v1/models, not just that the
+# endpoint answers, so we can never false-match a foreign server on the port.
+echo "[serve] waiting for '${SERVED_NAME}' on ${KATANA_BASE_URL}/models ..."
+ready=0
 for i in $(seq 1 120); do   # up to ~20 min; 70B load from scratch can be slow
-    if curl -sf "${KATANA_BASE_URL}/models" >/dev/null 2>&1; then
+    # Capture then match in pure bash (no pipe) so pipefail + grep's early-close
+    # can't SIGPIPE curl into a false non-zero on an actual match.
+    _models="$(curl -sf "${KATANA_BASE_URL}/models" 2>/dev/null || true)"
+    if [[ "${_models}" == *"\"${SERVED_NAME}\""* ]]; then
         echo "[serve] ready after ~$((i * 10))s"
+        ready=1
         break
     fi
     if ! kill -0 "${VLLM_PID}" 2>/dev/null; then
-        echo "[serve] vLLM died during startup - see vllm_server.log" >&2
+        echo "[serve] vLLM died during startup - see ${VLLM_LOG}" >&2
         exit 1
     fi
     sleep 10
 done
-if ! curl -sf "${KATANA_BASE_URL}/models" >/dev/null 2>&1; then
-    echo "[serve] server never became ready - see vllm_server.log" >&2
+if [[ "${ready}" -ne 1 ]]; then
+    echo "[serve] '${SERVED_NAME}' never became ready - see ${VLLM_LOG}" >&2
     exit 1
 fi
 
