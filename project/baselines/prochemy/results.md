@@ -6,9 +6,9 @@ Faithful re-implementation of Ye et al. (2025), *"Prochemy: Automating Prompt En
 
 Key design choices for this reproduction: it is seeded from the **authors' own verbatim prompts** (not this project's templates), so it reproduces the published method rather than a hybrid; all code generation runs at temperature 0.2 with the prompt-mutation step at 1.0 (so any comparison to the paper's reported gains is **directional**, not a numeric reproduction — the model and temperature both differ from theirs); and the search runs on **Katana / vLLM** rather than Groq, because a full search is ~1M+ tokens, far above Groq's free-tier daily cap.
 
-**Scope:** **HumanEval+ (164 tasks)**, seeded from the authors' verbatim zero-shot `S(0)`, optimised on their shipped 20-task training set (`k_max=10`, `n_variants=10`, `patience=3`), then `P*` frozen and used to generate one sample per test task. Run on **Katana / vLLM** serving **bf16 `meta-llama/Llama-3.3-70B-Instruct`** under the served-name `llama-3.3-70b-versatile` (same weights as the Groq strategy runs; a *different inference stack* — see caveat). All code generation at temperature 0.2; single run, not repeated to bound variance.
+**Scope:** **HumanEval+ (164 tasks)**, seeded from the authors' verbatim zero-shot `S(0)`, optimised on their shipped 20-task training set (`k_max=10`, `n_variants=10`, `patience=3`), then `P*` frozen and used to generate one sample per test task. Run on **Katana / vLLM** serving **bf16 `meta-llama/Llama-3.3-70B-Instruct`** under the served-name `llama-3.3-70b-versatile`. The headline comparison is `P*` against `S(0)` generated on the *same* stack (confound-free); a 3-run stability check was also completed (below). MBPP+ Prochemy not yet run.
 
-> **Status (interim).** The `P*` run and its grading below are **final**. The like-for-like **`P*` vs `S(0)` internal comparison — the headline number — is PENDING**: it requires generating the unoptimised `S(0)` seed on the *same* Katana/vLLM stack (`run_prochemy.py --seed-baseline`), which is queued on Katana. Until it lands, the only comparison available is against the existing **Groq-served** strategy runs, which is **doubly confounded** (different inference stack *and* different seed prompt) and is reported below as provisional only. MBPP+ Prochemy is not yet run.
+> **Headline finding.** On the confound-free, same-stack comparison, Prochemy's optimised `P*` **does not beat its own unoptimised seed `S(0)`** — it lands *below* `S(0)` on both Base and Plus. A 3-run stability check showed the search is **deterministic**: all three independent searches converged to the byte-identical `P*`, so the regression is **reproducible, not an unlucky single draw**. Accuracy-oriented prompt optimisation did not buy accuracy *or* robustness in this setup.
 
 ## What `P*` converged to
 
@@ -16,60 +16,49 @@ The search departed from the authors' terse zero-shot seed —
 
 > *"You are a code generation assistant. Your task is to generate Python code based on the given task description and complete the work described in the task."*
 
-— and converged (prompt id 87) on a structured 7-step instruction that explicitly asks for **error handling, input validation, and edge-case testing** (steps 5–6), plus module selection, readability, and documentation. This matters for the robustness lens below: the accuracy-optimised prompt *itself* now instructs the model to guard against exactly the boundary/invalid inputs that EvalPlus's Plus tests probe — so "does that instruction actually close the robustness gap?" is a live, non-trivial question, and one the paper (which reports Plus pass@1 only as a higher-rigor accuracy number, never as degradation-under-stress) structurally cannot answer.
+— and converged (prompt id 87) on a structured, multi-step instruction that explicitly asks for **error handling, input validation, and edge-case testing**, plus module selection, readability, and documentation. This matters for the robustness lens: the accuracy-optimised prompt *itself* now instructs the model to guard against exactly the boundary/invalid inputs that EvalPlus's Plus tests probe — so "does that instruction actually close the robustness gap?" is a live, non-trivial question, and one the paper (which reports Plus pass@1 only as a higher-rigor accuracy number, never as degradation-under-stress) structurally cannot answer. The answer here is **no**.
 
-## Results — `P*` on HumanEval+ (final)
+## The confound-free comparison — `P*` vs `S(0)` (same stack)
 
-Plus pass@1 computed by counting a task as passing only when **both** its base and plus statuses are `pass`, read directly from `_eval_results.json`, and verified to match native evalplus's printed summary (Base 0.774, Plus 0.726).
+`S(0)` (unoptimised seed) and `P*` (optimised) were both generated on the **same Katana/vLLM stack, same bf16 weights, same temperature 0.2**, differing in exactly one variable — the system prompt. So this delta is attributable to Prochemy's optimisation alone. Plus pass@1 counts a task as passing only when **both** its base and plus statuses are `pass` (recomputed from `_eval_results.json`, verified against native evalplus's printed summary).
 
-| Run | Base pass@1 | Plus pass@1 | Gap (Base−Plus) | Ratio (Plus/Base) |
+| Run | Base | Plus | Gap (Base−Plus) | Ratio (Plus/Base) |
 |---|---|---|---|---|
-| **Prochemy `P*`** (164 tasks) | **0.774** | **0.726** | **0.048** | **0.937** |
+| **`S(0)` seed** (unoptimised) | 0.805 | 0.768 | 0.037 | 0.955 |
+| **`P*`** (optimised) | 0.774 | 0.726 | 0.048 | 0.937 |
+| **Δ (`P*` − `S(0)`)** | **−3.1pp** | **−4.2pp** | **+0.011 (worse)** | **−0.018 (worse)** |
 
-## Provisional placement vs the existing strategy runs (confounded — read with care)
+**`P*` regressed on every axis** — lower Base, lower Plus, a *wider* robustness Gap, and a worse Ratio. Prompt optimisation here did not merely fail to close the robustness gap; it made both accuracy and robustness worse than the prompt it started from.
 
-⚠️ **Every row except `P*` is Groq-served and uses this project's own prompt templates; `P*` is Katana/vLLM-served from the authors' seed lineage. Differences below therefore conflate three things — the prompt, the seed lineage, and the inference stack — and cannot be attributed to Prochemy alone until the same-stack `S(0)` anchor is run.**
+## Stability check — the search is deterministic
 
-| Run (source) | Base | Plus | Gap | Ratio |
+To test whether that `P*` was an unlucky draw from a noisy temperature-0.2 search, two further **independent** full searches were run (fresh `--reoptimize`, identical settings). Result: **all three searches converged to the byte-identical `P*` prompt** (same text, same selected id 87, same training accuracy 0.55), and the two stability re-runs were byte-for-byte identical to each other (same `P*`, same test-set samples). Re-evaluating that same `P*` gave Plus **0.756** (vs the original run's 0.726) — a small test-set decoding difference across serving instances, but **still below `S(0)`'s 0.768**.
+
+| `P*` evaluation | Base | Plus | Gap | vs `S(0)` Plus |
 |---|---|---|---|---|
-| zero_shot (Groq) | 0.677 | 0.628 | 0.049 | 0.928 |
-| baseline (Groq) | 0.726 | 0.671 | 0.055 | 0.924 |
-| cot (Groq) | 0.677 | 0.634 | 0.043 | 0.937 |
-| cgo / R0 seed (Groq) | 0.805 | 0.738 | 0.067 | 0.917 |
-| **Prochemy `P*`** (Katana/vLLM) | **0.774** | **0.726** | **0.048** | **0.937** |
+| original search | 0.774 | 0.726 | 0.048 | −4.2pp |
+| stability searches ×2 (byte-identical) | 0.793 | 0.756 | 0.037 | −1.2pp |
 
-**Provisional observation (to be confirmed against the clean `S(0)` anchor).** Against the Groq `zero_shot` template, `P*` is ~+9.7pp Base / ~+9.8pp Plus — but Base and Plus rise **in near-lockstep**, so the **Gap is essentially unchanged** (0.049 → 0.048) and the Ratio barely moves (0.928 → 0.937). On this (confounded) view, Prochemy's accuracy-optimised prompt buys accuracy **without closing the robustness gap** — the degradation-under-stress is carried along, not reduced. This is exactly the thesis-relevant question this baseline was built to probe; the pending `S(0)`-on-Katana run is what will let it be stated cleanly rather than provisionally.
+So the regression is **reproducible, not a single-draw artefact**: the search deterministically produces this `P*`, and it underperforms `S(0)` on every evaluation. One honest nuance — the *original* run's `P*` also **widened** the Gap (0.048 vs 0.037), but the stability re-runs did **not** (0.037, level with `S(0)`); so *"widens the robustness gap"* is sensitive to test-set decoding, whereas *"does not beat `S(0)`"* is robust across all three evaluations.
 
 ## Optimisation trajectory
 
-The search ran the **full `k_max=10`** iterations (early-stop `patience=3` never triggered — the top weighted score kept moving), ≈5h40m of generation on 2×H200.
-
-| Iteration | Selected prompt id | Training acc (unweighted) | Top weighted score |
-|---|---|---|---|
-| 0 (seed `S(0)`) | 0 | 0.55 | 121.0 |
-| 1–6 | 10 | 0.65 | 337.9 → 398.0 (non-monotonic) |
-| 7 | 61 | 0.60 | 319.0 |
-| 8 | 77 | 0.60 | 261.5 |
-| 9 (`P*`) | **87** | 0.55 | 249.8 |
-
-Two honest notes for the write-up:
-- **The temp-0.2 search is noisy**: the weighted score is non-monotonic across iterations and the final `P*` (id 87) has the *same* unweighted training accuracy as the seed (0.55) and lower than the mid-search peak (id 10, 0.65). `P*` is the last iteration's selection — faithful to Prochemy's hill-climb design (each round's winner seeds the next), not the global-best-weighted candidate. `P*` should therefore be read as *a* sample of Prochemy's output, not *the* Prochemy prompt, which is what motivates the stability check below.
-- Despite the flat training-accuracy endpoint, `P*` generalised well to the **test** set (Base 0.774 / Plus 0.726), i.e. training-set fitness at `n=20` is a weak proxy for test performance here — unsurprising at this training-set size.
+The search ran the **full `k_max=10`** iterations (early-stop `patience=3` never triggered — the top weighted score kept moving), ≈6h of generation on 2×H200. Notably, the final `P*` (id 87) has the **same** unweighted training accuracy as the seed (0.55) and *lower* than the mid-search peak (id 10 @ 0.65): the hill-climb's last-iteration winner is not the globally-best-scoring candidate. All three independent searches reproduced this same endpoint — so this is a stable property of the search on this setup, not noise.
 
 ## Verification performed
 
-- **Plus pass@1 recomputed** locally from `_eval_results.json` as `base_status==pass AND plus_status==pass` — 119/164 = 0.726, matching native evalplus's own printed `humaneval+` line exactly; Base 127/164 = 0.774.
-- **`P*` provenance**: the committed `_best_prompt.json` records `p_star_prompt_id=87`, `n_iterations=10`, seeded from `zero_shot`, model `llama-3.3-70b-versatile` — consistent with the trajectory in `_optimization.json`.
-- **Faithful-seed check**: the `S(0)` used is the authors' verbatim `origin_prompt.jsonl` text, not this project's `zero_shot` template.
+- **Plus pass@1 recomputed** locally from each `_eval_results.json` as `base_status==pass AND plus_status==pass`, matching native evalplus's printed `humaneval+` line: `S(0)` 126/164 = 0.768 (Base 132/164 = 0.805); `P*` 119/164 = 0.726 (Base 127/164 = 0.774).
+- **Confound-free anchor**: `S(0)` and `P*` differ in exactly one variable (the system prompt) on an identical Katana/vLLM/bf16/temp-0.2 stack (`run_prochemy.py --seed-baseline` vs the `P*` run).
+- **Determinism / stability**: the two stability searches' `P*` and test-set JSONLs are byte-identical (md5-matched) to each other; all three searches' `P*` prompt text is identical.
+- **Faithful-seed check**: the `S(0)` used is the authors' verbatim seed text, not this project's own templates.
 
 ## Cost
 
-- One full `P*` search + test-set generation: ≈6h walltime on 2×H200 (bf16, TP=2), the search dominating (~5h40m). Run freely on Katana with no token cap — the same search aborted immediately on Groq (one iteration ≈230k tokens vs the 100k/day free-tier cap), which is why it was moved to Katana.
+- Each full `P*` search + test-set generation: ≈6h walltime on 2×H200 (bf16, TP=2), the search dominating. Three searches total (original + 2 stability). Run freely on Katana with no token cap — the same search aborted immediately on Groq (one iteration ≈230k tokens vs the 100k/day free-tier cap), which is why it was moved to Katana.
 
-## Known limitations / pending
+## Known limitations
 
-- **Headline `P*` vs `S(0)` comparison is not yet clean** — pending the same-stack `S(0)` seed run (queued on Katana). The Groq placement above is provisional and confounded.
-- **Comparability caveat**: vLLM is a different inference stack than the Groq-served strategy runs; exact token outputs can differ on the same weights. The `P*`-vs-`S(0)` internal delta (both Katana/vLLM) will be confound-free; only the cross-method placement carries this caveat.
-- **Single run at t=0.2** — the search is non-deterministic; a re-run could converge to a different `P*`. A 2–3× stability check (using the batch driver's run-index option) to bound how much `P*` and its scores move is owed.
-- **MBPP+ Prochemy not yet run** (HumanEval+ first, by request).
-- Directional-only vs the paper's reported gains (model *and* temperature both differ from Ye et al.) — no numeric reproduction is claimed.
+- **Directional-only vs the paper's reported gains** — model *and* temperature both differ from Ye et al. (2025); no numeric reproduction is claimed. What *is* claimed is the within-setup `P*`-vs-`S(0)` delta, which is confound-free.
+- **The stability check measures reproducibility, not search-seed sensitivity.** All three runs used search-`seed` 0, and the pipeline proved deterministic on a fixed vLLM instance (the two re-runs are byte-identical). So the check establishes that `P*` is *reproducible* and reproducibly below `S(0)` — it does not sample how `P*` might move under genuinely different random searches. A stricter variance study would force decoding non-determinism (e.g. per-call seeds); given the deterministic reproducibility and the consistent sub-`S(0)` performance, this was judged unnecessary for the "does not beat `S(0)`" conclusion.
+- **Cross-method placement carries a vLLM-vs-Groq caveat**: comparing `P*`/`S(0)` (Katana/vLLM) against the Groq-served strategy runs would conflate the inference stack, so only the same-stack `P*`-vs-`S(0)` delta above is treated as confound-free.
+- **MBPP+ Prochemy not yet run** (HumanEval+ first).

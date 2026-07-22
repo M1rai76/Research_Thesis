@@ -1,0 +1,20 @@
+{
+  "date": "2026-07-22",
+  "backend": "katana",
+  "dataset": "humaneval",
+  "model": "llama-3.3-70b-versatile",
+  "prompt_strategy": "prochemy-zero_shot_run3",
+  "temperature": 0.2,
+  "max_tokens": 512,
+  "max_retries": 5,
+  "output_file": "/home/z5386590/thesis_codegen/COMP4952/project/samples/llama-33-70b-versatile_t02_prochemy-zero_shot_run3.jsonl",
+  "tasks_completed": 164,
+  "tasks_skipped": 0,
+  "skipped_ids": [],
+  "pass_at_1_base_raw": null,
+  "pass_at_1_plus_raw": null,
+  "pass_at_1_base_sanitized": null,
+  "pass_at_1_plus_sanitized": null,
+  "robustness_gap_raw": null,
+  "robustness_gap_sanitized": null
+}
