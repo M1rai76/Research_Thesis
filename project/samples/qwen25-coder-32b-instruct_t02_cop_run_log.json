@@ -1,0 +1,20 @@
+{
+  "date": "2026-07-21",
+  "backend": "katana",
+  "dataset": "humaneval",
+  "model": "qwen2.5-coder-32b-instruct",
+  "prompt_strategy": "cop",
+  "temperature": 0.2,
+  "max_tokens": 512,
+  "max_retries": 5,
+  "output_file": "/home/z5386590/thesis_codegen/COMP4952/project/samples/qwen25-coder-32b-instruct_t02_cop.jsonl",
+  "tasks_completed": 164,
+  "tasks_skipped": 0,
+  "skipped_ids": [],
+  "pass_at_1_base_raw": null,
+  "pass_at_1_plus_raw": null,
+  "pass_at_1_base_sanitized": null,
+  "pass_at_1_plus_sanitized": null,
+  "robustness_gap_raw": null,
+  "robustness_gap_sanitized": null
+}
