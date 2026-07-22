@@ -240,6 +240,18 @@ The prompt search is token-heavy (~1M+ tokens per full run), so it runs on Katan
 
 Results and analysis: `project/baselines/prochemy/results.md`.
 
+Finding: on the confound-free same-stack comparison, the optimised `P*` **reproducibly fails to beat its own unoptimised seed `S(0)`** — below on both Base and Plus, and the search is deterministic (three independent searches converged to the identical `P*`). Accuracy-oriented prompt optimisation bought neither accuracy nor robustness in this setup.
+
+---
+
+## Multi-model generality (Qwen2.5-Coder-32B)
+
+The thesis's own pipeline (goal-oriented `cop` seed → `cot`/`minimal` self-repair) — not an external baseline — run on a second model, **Qwen2.5-Coder-32B-Instruct**, on both HumanEval+ and MBPP+, to test whether the findings hold beyond the primary Llama-3.3-70B. Reported as within-model deltas (never subtracting across models, since the two differ in size and specialisation).
+
+Result: self-repair reliably lifts Base and Plus on both models and both datasets, but the **robustness Gap never closes** — it widens in 7 of the 8 model×dataset×strategy cells and is flat in the 1 remaining. So *"accuracy-oriented repair buys accuracy, not robustness"* holds across a general-purpose 70B and a code-specialised 32B. Served at TP=1 on a single H200 via the shared `project/baselines/katana/` infra (`run_qwen_smoke.pbs` → `run_qwen_repair.pbs` / `run_qwen_mbpp.pbs`).
+
+Results and analysis: `project/baselines/katana/qwen_results.md`.
+
 ---
 
 ## Project Structure
@@ -284,6 +296,11 @@ COMP4952/
         run_reflexion_mbpp.pbs   — PBS wrapper: Reflexion MBPP+
         run_prochemy_humaneval.pbs      — PBS wrapper: Prochemy HumanEval+
         run_prochemy_humaneval_seed.pbs — PBS wrapper: Prochemy S(0) anchor
+        run_prochemy_humaneval_stability.pbs — PBS wrapper: Prochemy P* stability re-runs
+        run_qwen_smoke.pbs       — PBS wrapper: Qwen post-processing smoke test (gate)
+        run_qwen_repair.pbs      — PBS wrapper: Qwen HumanEval+ seed + cot/minimal repair
+        run_qwen_mbpp.pbs        — PBS wrapper: Qwen MBPP+ seed + cot/minimal repair
+        qwen_results.md          — multi-model generality results (Qwen2.5-Coder-32B)
         probe_katana.sh          — read-only environment audit
     robustness/
       safety_oracle.py           — AST guard-pattern scan (Safety Oracle)
