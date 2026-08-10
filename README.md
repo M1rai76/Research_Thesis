@@ -244,6 +244,22 @@ Finding: on the confound-free same-stack comparison, the optimised `P*` **reprod
 
 ---
 
+## Feedback-content ablation (what makes self-repair work?)
+
+An ablation isolating the *mechanism* of the self-repair loop: is the improvement bought by the **content of the failure feedback**, or merely by **getting another attempt**?
+
+Five arms form an information ladder — from a concrete failing case (`grounded+`), through exception+assertion (`full`), exception class (`error-type`) and one bit (`binary`), down to **nothing at all** (`blind`, which re-runs the Round 0 prompt as a pure resampling control). Only the feedback string varies; model, seed, substrate, round budget, temperature and the ground-truth stopping oracle are all held fixed.
+
+**Finding.** Telling the model nothing performs as well as the richest feedback, and *better* than vague feedback. On HumanEval+ (3 runs per arm) the ladder is U-shaped: `grounded+` and `blind` tie at the top (0.870 Base) while `binary` is worst (0.841), with disjoint ranges separating the extremes from the middle. On MBPP+ the same structure holds — a top cluster of `grounded+`/`full`/`blind` some 2–3pp above `error-type`/`binary`. The likely mechanism is **anchoring**: being told "this failed" ties the model to its own broken program, so it patches rather than reconsiders; the feedback arms rewrite the code in 78–85% of rounds against `blind`'s 47%, and end up no better.
+
+**And on robustness:** across all ten arm×dataset cells, **no arm gained accuracy while closing the robustness Gap** — accuracy gains arrive bundled with a wider Gap.
+
+Run with `--feedback_mode` (and `--run_tag` for repeat runs); collate with `project/scripts/ablation_report.py`.
+
+Results and analysis: `project/results/feedback_ablation_results.md`.
+
+---
+
 ## Multi-model generality (Qwen2.5-Coder-32B, DeepSeek-Coder-V2-Lite)
 
 The thesis's own pipeline (goal-oriented `cop` seed → `cot`/`minimal` self-repair) — not an external baseline — run on two further models to test whether the findings hold beyond the primary Llama-3.3-70B:
@@ -251,11 +267,11 @@ The thesis's own pipeline (goal-oriented `cop` seed → `cot`/`minimal` self-rep
 | Model | Architecture | Datasets |
 |---|---|---|
 | **Qwen2.5-Coder-32B-Instruct** | dense, code-specialised | HumanEval+, MBPP+ |
-| **DeepSeek-Coder-V2-Lite-Instruct** | **sparse MoE** (16B total / ~2.4B active), code-specialised | HumanEval+ |
+| **DeepSeek-Coder-V2-Lite-Instruct** | **sparse MoE** (16B total / ~2.4B active), code-specialised | HumanEval+, MBPP+ |
 
 Reported as **within-model deltas** — absolute pass@1 is never subtracted across models, since they differ in size, specialisation and architecture.
 
-Result: self-repair reliably lifts Base and Plus on every model and dataset, but the **robustness Gap never closes** — it widens in **9 of the 10** model×dataset×strategy cells and is flat in the 1 remaining. So *"accuracy-oriented repair buys accuracy, not robustness"* holds across a general-purpose dense 70B, a code-specialised dense 32B, and a code-specialised sparse MoE. `cot` beats `minimal` in all three models.
+Result: self-repair reliably lifts Base and Plus on every model and dataset, but the **robustness Gap never closes** — it widens in **11 of the 12** model×dataset×strategy cells and is flat in the 1 remaining. So *"accuracy-oriented repair buys accuracy, not robustness"* holds across a general-purpose dense 70B, a code-specialised dense 32B, and a code-specialised sparse MoE. `cot` beats `minimal` in all three models.
 
 Delta magnitude tracks **headroom**, not model quality: Qwen's near-ceiling seed compressed its `cot` delta to +2.4pp, while V2-Lite (starting lower) moved +4.3pp — which is precisely why cross-model subtraction is avoided.
 

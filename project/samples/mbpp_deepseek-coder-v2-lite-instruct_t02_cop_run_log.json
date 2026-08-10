@@ -1,0 +1,20 @@
+{
+  "date": "2026-08-10",
+  "backend": "katana",
+  "dataset": "mbpp",
+  "model": "deepseek-coder-v2-lite-instruct",
+  "prompt_strategy": "cop",
+  "temperature": 0.2,
+  "max_tokens": 512,
+  "max_retries": 5,
+  "output_file": "/home/z5386590/thesis_codegen/COMP4952/project/samples/mbpp_deepseek-coder-v2-lite-instruct_t02_cop.jsonl",
+  "tasks_completed": 378,
+  "tasks_skipped": 0,
+  "skipped_ids": [],
+  "pass_at_1_base_raw": null,
+  "pass_at_1_plus_raw": null,
+  "pass_at_1_base_sanitized": null,
+  "pass_at_1_plus_sanitized": null,
+  "robustness_gap_raw": null,
+  "robustness_gap_sanitized": null
+}

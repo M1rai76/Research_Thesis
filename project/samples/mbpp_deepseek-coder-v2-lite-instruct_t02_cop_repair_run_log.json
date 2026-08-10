@@ -1,0 +1,51 @@
+{
+  "date": "2026-08-10",
+  "backend": "katana",
+  "dataset": "mbpp",
+  "model": "deepseek-coder-v2-lite-instruct",
+  "prompt_strategy": "cop",
+  "temperature": 0.2,
+  "max_tokens": 512,
+  "max_retries": 5,
+  "repair": true,
+  "repair_strategy": "minimal",
+  "max_repair_rounds": 2,
+  "limit": null,
+  "round_output_files": {
+    "round0": "/home/z5386590/thesis_codegen/COMP4952/project/samples/mbpp_deepseek-coder-v2-lite-instruct_t02_cop.jsonl",
+    "round1": "/home/z5386590/thesis_codegen/COMP4952/project/samples/mbpp_deepseek-coder-v2-lite-instruct_t02_cop_repair-minimal_round1.jsonl",
+    "round2": "/home/z5386590/thesis_codegen/COMP4952/project/samples/mbpp_deepseek-coder-v2-lite-instruct_t02_cop_repair-minimal_round2.jsonl"
+  },
+  "trajectory_file": "/home/z5386590/thesis_codegen/COMP4952/project/results/repair_trajectories_deepseek-coder-v2-lite-instruct_t02_cop_mbpp_minimal.json",
+  "round0_source_jsonl": "/home/z5386590/thesis_codegen/COMP4952/project/samples/mbpp_deepseek-coder-v2-lite-instruct_t02_cop.jsonl",
+  "total_api_calls": 133,
+  "round0_generation_api_calls": 0,
+  "round0_reused_count": 378,
+  "repair_api_calls": 133,
+  "tasks_completed": 378,
+  "tasks_skipped": 0,
+  "skipped_ids": [],
+  "summary": {
+    "total_tasks": 378,
+    "round_pass_counts": {
+      "round0": 308,
+      "round1": 315,
+      "round2": 316
+    },
+    "round_pass_rates": {
+      "round0": 81.5,
+      "round1": 83.3,
+      "round2": 83.6
+    },
+    "total_improvement_pp": 2.1,
+    "stalled_count": 49,
+    "round0_error_counts": {
+      "AssertionError": 56,
+      "NameError": 8,
+      "TypeError": 3,
+      "ValueError": 2,
+      "AttributeError": 1
+    },
+    "cot_extraction_method_counts": {}
+  }
+}
