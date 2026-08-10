@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+# run_prochemy_mbpp.pbs
+# Baseline - Prochemy / "Prompt Alchemy" (Ye et al., 2025, arXiv:2503.11085)
+# Author : Gurdiraj Bal (z5386590)
+#
+# OpenPBS job for the MBPP+ Prochemy baseline on UNSW Katana - the cross-dataset
+# companion to run_prochemy_humaneval.pbs. Submit with:
+#     qsub run_prochemy_mbpp.pbs
+#
+# Serves Llama-3.3-70B-Instruct in bf16 via vLLM under `llama-3.3-70b-versatile`
+# (same weights/served-name as the Groq + HE+ Prochemy runs), then runs the full
+# Prochemy pipeline on MBPP+: optimise P* on the 20-task training set, then
+# generate one MBPP+ sample per task (378) with P* frozen. run_prochemy.py already
+# supports --dataset mbpp (cross-dataset trainset curation; `solution` seed-key).
+#
+# Grade P* against the same-stack S(0) seed from run_prochemy_mbpp_seed.pbs
+# (confound-free, only the system prompt differs - D22). Pair this with that seed
+# job; serialize them on k201 with a PBS dependency (see below).
+#
+# PIN k201: node k099 reliably crashes TP=2 vLLM at engine init (CUDASymmetricMemory
+# illegal-mem fault, D22); k201 runs the identical config cleanly. Pinning also keeps
+# this search's serving stack byte-identical to the k201-pinned S(0) seed anchor.
+# Cost: k201 may be booked, so this can queue until >=2 of its GPUs free.
+#
+# PREREQUISITES: shared vLLM venv at $VENV_PATH + Llama weights at $MODEL_PATH.
+
+#PBS -N prochemy_mbpp
+#PBS -l select=1:ncpus=8:ngpus=2:mem=200gb:host=k201
+#PBS -l walltime=12:00:00
+#PBS -j oe
+#PBS -o prochemy_mbpp.out
+
+set -euo pipefail
+cd "${PBS_O_WORKDIR:-$(dirname "$0")}"
+
+# --- Katana environment (verified module names) ------------------------------
+module load python/3.11.3
+module load cuda/12.5.0
+
+# --- Paths -------------------------------------------------------------------
+SCRATCH="/srv/scratch/${USER}"
+export VENV_PATH="${SCRATCH}/vllm_venv"        # shared vLLM venv (setup_katana_env.sh)
+export MODEL_PATH="${SCRATCH}/models/Llama-3.3-70B-Instruct"
+export PROJECT_DIR="${PROJECT_DIR:-$HOME/thesis_codegen/COMP4952/project}"
+
+# Weights are pre-staged, so keep HF fully offline on the compute node.
+export HF_HUB_OFFLINE=1
+export HF_HOME="${SCRATCH}/hf_cache"
+
+# --- Serving config ----------------------------------------------------------
+export SERVED_NAME="llama-3.3-70b-versatile"   # keep: drives output filenames
+export TENSOR_PARALLEL=2                        # = ngpus above
+export MAX_MODEL_LEN=8192
+
+# --- Prochemy search config (paper defaults; override here for a smaller run) -
+INITIAL="${INITIAL:-zero_shot}"
+K_MAX="${K_MAX:-10}"
+N_VARIANTS="${N_VARIANTS:-10}"
+PATIENCE="${PATIENCE:-3}"
+
+# --- Run: shared serve_and_run.sh serves vLLM, then runs the Prochemy pipeline -
+export RUN_DIR="${PROJECT_DIR}/baselines/prochemy"
+bash "${PROJECT_DIR}/baselines/katana/serve_and_run.sh" \
+    python run_prochemy.py \
+        --dataset mbpp \
+        --initial "${INITIAL}" \
+        --model "${SERVED_NAME}" \
+        --backend katana \
+        --k-max "${K_MAX}" \
+        --n-variants "${N_VARIANTS}" \
+        --patience "${PATIENCE}" \
+        --reoptimize \
+        --resume-missing

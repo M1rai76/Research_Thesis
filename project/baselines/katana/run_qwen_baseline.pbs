@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# run_qwen_baseline.pbs
+# Multi-model generality (D17/D23): Qwen2.5-Coder-32B-Instruct `baseline` seed on
+# BOTH datasets (HumanEval+ and MBPP+).
+# Author : Gurdiraj Bal (z5386590)
+#
+# WHY THIS RUN: the Qwen generality work used `cop` as its R0 seed only, so there
+# is no Qwen `baseline` arm to compute the cop-vs-baseline Gap delta against. On
+# Llama, `cop` closes the robustness Gap vs `baseline` on MBPP+ (Plus +5.6pp vs
+# Base +2.6pp) - an existence proof that prompting can move the Gap favourably.
+# This run supplies the missing Qwen baseline so that existence proof can be
+# tested for generality across models (within-model delta only, per D17).
+#
+# Serves Qwen at TP=1 on a single H200 (a 32B bf16 model ~64GB fits one >=80GB
+# GPU), then generates the FULL `baseline` set for humaneval then mbpp in one
+# serve. TP=1 single-GPU serving can't hit the k099 TP=2 symm-mem crash (D22) and
+# runs on ANY H200, so it overlaps the k201-pinned Prochemy jobs at zero contention.
+#     qsub run_qwen_baseline.pbs
+#
+# PREREQUISITE: Qwen weights staged at $MODEL_PATH (ungated, ~62GB - re-download
+# with setup_katana_env.sh if absent). Shared vLLM venv at $VENV_PATH.
+
+#PBS -N qwen_baseline
+#PBS -l select=1:ncpus=8:ngpus=1:mem=120gb:gpu_model=H200
+#PBS -l walltime=02:00:00
+#PBS -j oe
+#PBS -o qwen_baseline.out
+
+set -euo pipefail
+cd "${PBS_O_WORKDIR:-$(dirname "$0")}"
+
+# --- Katana environment (verified module names) ------------------------------
+module load python/3.11.3
+module load cuda/12.5.0
+
+# --- Paths -------------------------------------------------------------------
+SCRATCH="/srv/scratch/${USER}"
+export VENV_PATH="${SCRATCH}/vllm_venv"          # shared vLLM venv (has evalplus + openai)
+export MODEL_PATH="${SCRATCH}/models/Qwen2.5-Coder-32B-Instruct"
+export PROJECT_DIR="${PROJECT_DIR:-$HOME/thesis_codegen/COMP4952/project}"
+
+# Weights are pre-staged, so keep HF fully offline on the compute node.
+export HF_HUB_OFFLINE=1
+export HF_HOME="${SCRATCH}/hf_cache"
+
+# --- Serving config: single-GPU, TP=1 -----------------------------------------
+# SERVED_NAME drives model_to_slug -> qwen25-coder-32b-instruct (namespaced from Llama).
+export SERVED_NAME="qwen2.5-coder-32b-instruct"
+export TENSOR_PARALLEL=1                          # = ngpus above
+export MAX_MODEL_LEN=8192
+
+# --- Run: one serve, full `baseline` on humaneval then mbpp -------------------
+# serve_and_run.sh runs "$@" from RUN_DIR; a bash -c compound generates both
+# datasets against the single warm server. --resume-missing so a walltime retry
+# skips completed tasks. No --limit (it is silently ignored in this path anyway,
+# and we want the FULL 164 + 378).
+export RUN_DIR="${PROJECT_DIR}/scripts"
+bash "${PROJECT_DIR}/baselines/katana/serve_and_run.sh" \
+    bash -c '
+        python generate_samples.py --model "${SERVED_NAME}" --backend katana \
+            --dataset humaneval --prompt baseline --resume-missing &&
+        python generate_samples.py --model "${SERVED_NAME}" --backend katana \
+            --dataset mbpp --prompt baseline --resume-missing
+    '

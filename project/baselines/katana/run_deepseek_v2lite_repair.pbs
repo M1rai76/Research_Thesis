@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# run_deepseek_v2lite.pbs
+# Multi-model generality (D17/D23): DeepSeek-Coder-V2-Lite-Instruct seed run on HumanEval+.
+# Author : Gurdiraj Bal (z5386590)
+#
+# Replaces the abandoned deepseek-coder-33b-instruct attempt. That model's
+# tokenizer is incompatible with the shared venv's transformers 5.x: it declares
+# LlamaTokenizerFast, the fast build fails, and it falls back to a slow
+# LlamaTokenizer with no tokenizer.model to work from - producing a decoder that
+# destroys all whitespace ("def add(a, b)" -> "defadd(a,b)"). The 164 generated
+# samples came back as raw byte-level BPE. Verified NOT a post_process, chat
+# template, or download problem, and not fixable with a vLLM tokenizer flag
+# (fast and slow both fail at the transformers level). See research_log 2026-07-29.
+#
+# V2-Lite (2024) round-trips cleanly on the same venv (TokenizersBackend, exact
+# match) and vLLM parses its config natively as DeepseekV2ForCausalLM.
+#     qsub run_deepseek_v2lite.pbs
+#
+# DO NOT add --trust-remote-code: the repo ships configuration_deepseek.py, whose
+# rope handling raises AttributeError on transformers 5.x. vLLM's native DeepseekV2
+# support reads config.json directly and works - that is exactly why this runs.
+#
+# TP=1: a 16B MoE in bf16 (~31GB) fits one H200 comfortably, so no tensor-parallel
+# and therefore no exposure to the k099 TP=2 symm-mem crash (D22) - runs on any H200.
+#
+# NOTE ON --limit: accepted by argparse but non-functional in the merged generation
+# path, so this generates all 164 tasks. Deliberate - a complete, reusable seed.
+
+#PBS -N dsv2lite_repair
+#PBS -l select=1:ncpus=8:ngpus=1:mem=120gb:gpu_model=H200
+#PBS -l walltime=03:00:00
+#PBS -j oe
+#PBS -o dsv2lite_repair.out
+
+set -euo pipefail
+cd "${PBS_O_WORKDIR:-$(dirname "$0")}"
+
+# --- Katana environment (verified module names) ------------------------------
+module load python/3.11.3
+module load cuda/12.5.0
+
+# --- Paths -------------------------------------------------------------------
+SCRATCH="/srv/scratch/${USER}"
+export VENV_PATH="${SCRATCH}/vllm_venv"
+export MODEL_PATH="${SCRATCH}/models/DeepSeek-Coder-V2-Lite-Instruct"
+export PROJECT_DIR="${PROJECT_DIR:-$HOME/thesis_codegen/COMP4952/project}"
+
+# Weights pre-staged, so keep HF fully offline on the compute node.
+export HF_HUB_OFFLINE=1
+export HF_HOME="${SCRATCH}/hf_cache"
+
+# --- Serving config: single-GPU, TP=1 ----------------------------------------
+# SERVED_NAME drives model_to_slug -> deepseek-coder-v2-lite-instruct, namespaced
+# from the Llama and Qwen outputs.
+export SERVED_NAME="deepseek-coder-v2-lite-instruct"
+export TENSOR_PARALLEL=1
+export MAX_MODEL_LEN=8192          # the model advertises 163840; 8192 is ample
+                                   # for these prompts and keeps the KV cache small
+
+# --- Run: reuse the already-generated cop seed, then cot + minimal repair ----
+# One serve, both strategies (same pattern as run_qwen_repair.pbs). The seed was
+# produced by run_deepseek_v2lite.pbs and graded (Base 0.750 / Plus 0.713), so
+# --round0_source_jsonl reuses it rather than regenerating.
+export RUN_DIR="${PROJECT_DIR}/scripts"
+SEED="${PROJECT_DIR}/samples/deepseek-coder-v2-lite-instruct_t02_cop.jsonl"
+COMMON="${VENV_PATH}/bin/python generate_samples.py --model ${SERVED_NAME} --backend katana --dataset humaneval --prompt cop --repair --max_repair_rounds 2 --round0_source_jsonl ${SEED}"
+bash "${PROJECT_DIR}/baselines/katana/serve_and_run.sh" \
+    bash -c "${COMMON} --repair_strategy cot && ${COMMON} --repair_strategy minimal"

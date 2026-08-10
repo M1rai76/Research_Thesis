@@ -105,7 +105,11 @@ trap cleanup EXIT INT TERM
 # endpoint answers, so we can never false-match a foreign server on the port.
 echo "[serve] waiting for '${SERVED_NAME}' on ${KATANA_BASE_URL}/models ..."
 ready=0
-for i in $(seq 1 120); do   # up to ~20 min; 70B load from scratch can be slow
+for i in $(seq 1 240); do   # up to ~40 min: a COLD torch.compile (no cache) on a
+                            # busy shared node can push even a 32B TP=1 cold start
+                            # to ~20 min (observed 2026-07-23, Qwen job 8719620 was
+                            # ready at ~19 min but the old 20-min budget just missed
+                            # it). The loop still exits early if vLLM dies (below).
     # Capture then match in pure bash (no pipe) so pipefail + grep's early-close
     # can't SIGPIPE curl into a false non-zero on an actual match.
     _models="$(curl -sf "${KATANA_BASE_URL}/models" 2>/dev/null || true)"
