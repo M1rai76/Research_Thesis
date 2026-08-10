@@ -1,0 +1,52 @@
+{
+  "date": "2026-08-10",
+  "backend": "groq",
+  "dataset": "mbpp",
+  "model": "llama-3.3-70b-versatile",
+  "prompt_strategy": "cop",
+  "temperature": 0.2,
+  "max_tokens": 512,
+  "max_retries": 5,
+  "repair": true,
+  "repair_strategy": "minimal",
+  "feedback_mode": "grounded+",
+  "max_repair_rounds": 2,
+  "limit": null,
+  "round_output_files": {
+    "round0": "/home/raj/thesis_codegen/COMP4952/project/samples/mbpp_llama-33-70b-versatile_t02_cop_fb-grounded+.jsonl",
+    "round1": "/home/raj/thesis_codegen/COMP4952/project/samples/mbpp_llama-33-70b-versatile_t02_cop_fb-grounded+_repair-minimal_round1.jsonl",
+    "round2": "/home/raj/thesis_codegen/COMP4952/project/samples/mbpp_llama-33-70b-versatile_t02_cop_fb-grounded+_repair-minimal_round2.jsonl"
+  },
+  "trajectory_file": "/home/raj/thesis_codegen/COMP4952/project/results/repair_trajectories_llama-33-70b-versatile_t02_cop_mbpp_minimal_fb-grounded+.json",
+  "round0_source_jsonl": "../samples/mbpp_llama-33-70b-versatile_t02_cgo.jsonl",
+  "total_api_calls": 0,
+  "round0_generation_api_calls": 0,
+  "round0_reused_count": 0,
+  "repair_api_calls": 0,
+  "tasks_completed": 378,
+  "tasks_skipped": 0,
+  "skipped_ids": [],
+  "summary": {
+    "total_tasks": 378,
+    "round_pass_counts": {
+      "round0": 324,
+      "round1": 339,
+      "round2": 340
+    },
+    "round_pass_rates": {
+      "round0": 85.7,
+      "round1": 89.7,
+      "round2": 89.9
+    },
+    "total_improvement_pp": 4.2,
+    "stalled_count": 1,
+    "round0_error_counts": {
+      "AssertionError": 49,
+      "NameError": 1,
+      "TypeError": 2,
+      "ValueError": 1,
+      "Timeout": 1
+    },
+    "cot_extraction_method_counts": {}
+  }
+}
