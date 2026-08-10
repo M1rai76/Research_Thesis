@@ -6,9 +6,9 @@ Faithful re-implementation of Ye et al. (2025), *"Prochemy: Automating Prompt En
 
 Key design choices for this reproduction: it is seeded from the **authors' own verbatim prompts** (not this project's templates), so it reproduces the published method rather than a hybrid; all code generation runs at temperature 0.2 with the prompt-mutation step at 1.0 (so any comparison to the paper's reported gains is **directional**, not a numeric reproduction — the model and temperature both differ from theirs); and the search runs on **Katana / vLLM** rather than Groq, because a full search is ~1M+ tokens, far above Groq's free-tier daily cap.
 
-**Scope:** **HumanEval+ (164 tasks)**, seeded from the authors' verbatim zero-shot `S(0)`, optimised on their shipped 20-task training set (`k_max=10`, `n_variants=10`, `patience=3`), then `P*` frozen and used to generate one sample per test task. Run on **Katana / vLLM** serving **bf16 `meta-llama/Llama-3.3-70B-Instruct`** under the served-name `llama-3.3-70b-versatile`. The headline comparison is `P*` against `S(0)` generated on the *same* stack (confound-free); a 3-run stability check was also completed (below). MBPP+ Prochemy not yet run.
+**Scope:** **HumanEval+ (164 tasks)** and **MBPP+ (378 tasks)**, seeded from the authors' verbatim zero-shot `S(0)`, optimised on their shipped 20-task training set (`k_max=10`, `n_variants=10`, `patience=3`), then `P*` frozen and used to generate one sample per test task. Run on **Katana / vLLM** serving **bf16 `meta-llama/Llama-3.3-70B-Instruct`** under the served-name `llama-3.3-70b-versatile`. The headline comparison is `P*` against `S(0)` generated on the *same* stack (confound-free); a 3-run stability check was also completed (below).
 
-> **Headline finding.** On the confound-free, same-stack comparison, Prochemy's optimised `P*` **does not beat its own unoptimised seed `S(0)`** — it lands *below* `S(0)` on both Base and Plus. A 3-run stability check showed the search is **deterministic**: all three independent searches converged to the byte-identical `P*`, so the regression is **reproducible, not an unlucky single draw**. Accuracy-oriented prompt optimisation did not buy accuracy *or* robustness in this setup.
+> **Headline finding.** On the confound-free, same-stack comparison, Prochemy's optimised `P*` **never meaningfully improves on its own unoptimised seed `S(0)`** — it lands *below* `S(0)` on HumanEval+ and is flat within noise on MBPP+. A 3-run stability check showed the search is **deterministic**: all three independent searches converged to the byte-identical `P*`, so this is **reproducible, not an unlucky single draw**. And on **neither dataset does `P*` close the robustness Gap.** Accuracy-oriented prompt optimisation did not buy accuracy *or* robustness in this setup.
 
 ## What `P*` converged to
 
@@ -41,6 +41,22 @@ To test whether that `P*` was an unlucky draw from a noisy temperature-0.2 searc
 
 So the regression is **reproducible, not a single-draw artefact**: the search deterministically produces this `P*`, and it underperforms `S(0)` on every evaluation. One honest nuance — the *original* run's `P*` also **widened** the Gap (0.048 vs 0.037), but the stability re-runs did **not** (0.037, level with `S(0)`); so *"widens the robustness gap"* is sensitive to test-set decoding, whereas *"does not beat `S(0)`"* is robust across all three evaluations.
 
+## Cross-dataset check — MBPP+
+
+The same method was run end-to-end on MBPP+ (378 tasks): a full search, then `P*` frozen and compared against a same-stack `S(0)` seed baseline, exactly as on HumanEval+.
+
+| Run (MBPP+) | Base | Plus | Gap | Ratio |
+|---|---|---|---|---|
+| **`S(0)` seed** (unoptimised) | 0.884 (334/378) | 0.720 (272/378) | 0.164 | 0.814 |
+| **`P*`** (optimised) | 0.892 (337/378) | 0.728 (275/378) | 0.164 | 0.816 |
+| **Δ (`P*` − `S(0)`)** | +0.8pp | +0.8pp | **0.000** | +0.002 |
+
+On MBPP+ the optimised prompt is **flat, not better**: +3 tasks on Base and +3 on Plus out of 378 is well inside single-run noise, and the robustness Gap is **identical to three decimal places** (0.164 → 0.164). So the HumanEval+ regression does not replicate as a *regression* here — but neither does optimisation produce a gain.
+
+**An important structural note on what this cross-dataset run does and does not test.** The MBPP+ search converged to the **byte-identical `P*`** as the HumanEval+ search (same selected id 87, same training accuracy 0.55, same 10 iterations). That is expected rather than suspicious: following the paper, the search is optimised on the authors' **fixed shipped 20-task training set**, which is disjoint from *both* benchmarks and does not vary with the target dataset — the dataset selects only the *test* set for the final frozen-prompt generation. The two searches therefore saw essentially the same fitness landscape (their per-iteration candidate scores match, differing only marginally through cross-instance decoding variance). The consequence: **MBPP+ is evidence about how well the single optimised `P*` generalises to a second benchmark, not evidence that an independent search would rediscover it.**
+
+**Robust cross-dataset claim (state this, not the stronger one):** Prochemy's optimised `P*` **does not improve on its own unoptimised seed** on either benchmark — worse on HumanEval+, flat on MBPP+ — and **closes the robustness Gap on neither**. The stronger-sounding *"`P*` actively regresses"* is **HumanEval+-specific** and should not be generalised.
+
 ## Optimisation trajectory
 
 The search ran the **full `k_max=10`** iterations (early-stop `patience=3` never triggered — the top weighted score kept moving), ≈6h of generation on 2×H200. Notably, the final `P*` (id 87) has the **same** unweighted training accuracy as the seed (0.55) and *lower* than the mid-search peak (id 10 @ 0.65): the hill-climb's last-iteration winner is not the globally-best-scoring candidate. All three independent searches reproduced this same endpoint — so this is a stable property of the search on this setup, not noise.
@@ -61,4 +77,4 @@ The search ran the **full `k_max=10`** iterations (early-stop `patience=3` never
 - **Directional-only vs the paper's reported gains** — model *and* temperature both differ from Ye et al. (2025); no numeric reproduction is claimed. What *is* claimed is the within-setup `P*`-vs-`S(0)` delta, which is confound-free.
 - **The stability check measures reproducibility, not search-seed sensitivity.** All three runs used search-`seed` 0, and the pipeline proved deterministic on a fixed vLLM instance (the two re-runs are byte-identical). So the check establishes that `P*` is *reproducible* and reproducibly below `S(0)` — it does not sample how `P*` might move under genuinely different random searches. A stricter variance study would force decoding non-determinism (e.g. per-call seeds); given the deterministic reproducibility and the consistent sub-`S(0)` performance, this was judged unnecessary for the "does not beat `S(0)`" conclusion.
 - **Cross-method placement carries a vLLM-vs-Groq caveat**: comparing `P*`/`S(0)` (Katana/vLLM) against the Groq-served strategy runs would conflate the inference stack, so only the same-stack `P*`-vs-`S(0)` delta above is treated as confound-free.
-- **MBPP+ Prochemy not yet run** (HumanEval+ first).
+- **The two datasets do not give two independent searches.** Because the training set is fixed and benchmark-independent (the authors' shipped 20 tasks), both searches produce the same `P*`; MBPP+ therefore adds a second *test set*, not a second *search*. Cross-dataset agreement here is evidence of prompt generality, and should not be read as two independent confirmations of the search's behaviour.
