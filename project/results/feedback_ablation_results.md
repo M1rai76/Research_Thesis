@@ -60,6 +60,17 @@ Round 0: Base 0.865 / Plus 0.725, Gap 0.140.
 
 What differs: on HumanEval+ the shape is a strict U (`grounded+` = `blind` at the top, `full` mid); on MBPP+ `full` rises into the top cluster, so the pattern is better described as **rich-or-nothing ≫ partial**. The essential claim is unchanged, but the within-cluster ordering is not stable across datasets and should not be reported as though it were.
 
+## Per-round progression
+
+![Per-round progression of the feedback ladder](figures/ablation_progression.png)
+
+Base and Plus pass@1 across repair rounds for every rung, on both benchmarks. Because all arms share one Round 0 seed, the lines start together and fan out — so the spread is attributable to feedback content alone. Regenerate with `python plot_ablation_progression.py`.
+
+Two things the round-by-round view shows that the endpoint tables do not:
+
+1. **Most of the movement happens in round 1.** On HumanEval+ every arm makes the bulk of its gain in the first repair round and flattens; on MBPP+ `error-type` and `binary` are essentially flat from round 1 onward. A third round would likely add little.
+2. **`blind` climbs on a different trajectory.** On HumanEval+ it tracks the top arms throughout; on MBPP+ it starts with the laggards at round 1 and only catches the top cluster at round 2 — pure resampling needs more attempts to arrive where grounded feedback gets in one.
+
 ## Why the mechanism appears to be anchoring
 
 Behavioural diagnostics from the HumanEval+ trajectories. All arms entered repair on the identical 32 tasks — confirming the shared seed and shared stopping oracle worked as a control.
