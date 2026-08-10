@@ -1,8 +1,8 @@
-# Multi-Model Generality — Qwen2.5-Coder-32B (Results)
+# Multi-Model Generality — Qwen2.5-Coder-32B and DeepSeek-Coder-V2-Lite (Results)
 
 Author: Gurdiraj Bal (z5386590)
 
-Runs the thesis's own pipeline — goal-oriented seed generation (the `cop` prompt strategy) followed by iterative self-repair (`cot` and `minimal`) — on a **second model**, Qwen2.5-Coder-32B-Instruct, to test whether the pipeline's improvement and, more importantly, the **robustness-gap findings** generalise beyond the primary model (Llama-3.3-70B).
+Runs the thesis's own pipeline — goal-oriented seed generation (the `cop` prompt strategy) followed by iterative self-repair (`cot` and `minimal`) — on **two further models** — Qwen2.5-Coder-32B-Instruct and DeepSeek-Coder-V2-Lite-Instruct — to test whether the pipeline's improvement and, more importantly, the **robustness-gap findings** generalise beyond the primary model (Llama-3.3-70B).
 
 This is a **generality demonstration, not a model comparison.** The unit of evidence is the **within-model delta** (repair − seed), computed separately for each model; absolute pass@1 is never subtracted across models. Qwen2.5-Coder-32B is code-specialised and smaller than the general-purpose Llama-3.3-70B, so the two are deliberately *not* placed head-to-head — the question is only whether the *sign and shape* of each pipeline effect hold within each model.
 
@@ -94,3 +94,59 @@ Across all eight cells:
 
 - **A third model** (e.g. DeepSeek-Coder) would strengthen the generality claim from N=2 toward N=3.
 - Optionally, a repeated-sampling run to bound the single-run deltas — the sign and Gap-shape are stable across models and datasets, so this would be confirmatory rather than load-bearing.
+
+---
+
+# Third model — DeepSeek-Coder-V2-Lite-Instruct (HumanEval+)
+
+Added as a third generality model. Its value is not another data point of the same kind but a **different architecture**: Llama-3.3-70B and Qwen2.5-Coder-32B are both *dense*, while V2-Lite is a **sparse Mixture-of-Experts** model (16B total parameters, ~2.4B active per token — 64 routed experts plus 2 shared, top-6 routing). Served bf16 at TP=1 on a single H200.
+
+## Results (HumanEval+, EvalPlus, Plus = base AND plus)
+
+| Run | Base | Plus | Gap | Brittleness (1 − Plus/Base) |
+|---|---|---|---|---|
+| R0 (`cop` seed) | 0.750 | 0.713 | 0.037 | 4.9% |
+| `cot` R1 | 0.780 | 0.738 | 0.043 | 5.5% |
+| `cot` R2 | 0.793 | 0.750 | 0.043 | 5.4% |
+| `minimal` R1 | 0.762 | 0.720 | 0.043 | 5.6% |
+| `minimal` R2 | 0.762 | 0.720 | 0.043 | 5.6% |
+
+## Within-model deltas — all three models side by side
+
+Deltas only; absolute pass@1 is never subtracted across models.
+
+| Model | Architecture | Strategy | ΔBase | ΔPlus | Gap R0 → R2 |
+|---|---|---|---|---|---|
+| Llama-3.3-70B | dense, general | cot | +11.0pp | +9.1pp | 0.067 → 0.086 |
+| Llama-3.3-70B | dense, general | minimal | +4.9pp | +3.6pp | 0.067 → 0.080 |
+| Qwen2.5-Coder-32B | dense, code | cot | +2.4pp | +1.9pp | 0.043 → 0.048 |
+| Qwen2.5-Coder-32B | dense, code | minimal | +1.2pp | +1.3pp | 0.043 → 0.042 |
+| DeepSeek-V2-Lite | **MoE**, code | cot | +4.3pp | +3.7pp | 0.037 → 0.043 |
+| DeepSeek-V2-Lite | **MoE**, code | minimal | +1.2pp | +0.6pp | 0.037 → 0.043 |
+
+## What the third model establishes
+
+1. **The pattern is not dense-model-specific.** Repair lifts both Base and Plus while the robustness Gap widens, on a sparse MoE just as on two dense models. Across the full repair matrix (three models × datasets × two strategies) the Gap now **widens in 9 of 10 cells** and is flat in the one remaining (Qwen / HumanEval+ / `minimal`, 0.043 → 0.042).
+2. **`cot` outperforms `minimal` in all three models** — 3/3.
+3. **Delta magnitude tracks headroom, not model quality.** Qwen's `cot` delta was compressed to +2.4pp because its seed Plus (0.829) was already near ceiling; V2-Lite, starting at 0.713, moved +3.7pp on Plus. This is exactly why within-model deltas are the unit of evidence and cross-model subtraction is avoided.
+
+## A pattern the Gap hides and brittleness reveals
+
+Measured by Gap, V2-Lite's seed (0.037) looks *more robust* than Qwen's (0.043). That is an artefact: Gap ≤ Base by construction, so V2-Lite's lower Base mechanically caps its Gap.
+
+Measured as brittleness — the share of correct-looking solutions that fail under stress, `1 − Plus/Base` — the two are **identical at 4.9%**, and the real pattern appears:
+
+| Model | Specialisation | Seed brittleness |
+|---|---|---|
+| Llama-3.3-70B | general | **8.3%** |
+| Qwen2.5-Coder-32B | code | **4.9%** |
+| DeepSeek-V2-Lite | code | **4.9%** |
+
+Both code-specialised models are roughly **half as brittle** as the general-purpose model, and repair then adds ~0.5–1.1pp of brittleness regardless of which model it is applied to.
+
+## Operational notes
+
+- **A first DeepSeek attempt was abandoned.** `deepseek-coder-33b-instruct` (2023) declares `LlamaTokenizerFast`; under the serving venv's transformers 5.x the fast tokenizer fails to build and falls back to a slow `LlamaTokenizer` with no `tokenizer.model` to work from, producing a decoder that destroys all whitespace (`"def add(a, b)"` → `"defadd(a,b)"`). Its 164 generated samples were raw byte-level BPE. Verified as neither a post-processing, chat-template, nor download problem, and not fixable by a vLLM tokenizer flag — fast and slow modes fail identically. Other models on the same venv are unaffected (Qwen round-trips exactly).
+- **Test a model's tokenizer before downloading its weights.** Fetching `tokenizer*` + `config.json` (four small files), round-tripping a whitespace-bearing string, and checking that vLLM's config loader parses the architecture takes under a minute and would have avoided a 63GB download and an overnight job.
+- **Do not pass `--trust-remote-code` for V2-Lite.** Its bundled `configuration_deepseek.py` raises `AttributeError` on transformers 5.x; vLLM's native `DeepseekV2ForCausalLM` support reads `config.json` directly and works.
+- Runtime: seed 5m48s, seed + `cot` + `minimal` repair 11m36s, both at TP=1 on one H200. The seed run landed on node k099 — which reliably crashes tensor-parallel jobs — and ran cleanly, confirming that single-GPU serving sidesteps that failure entirely.

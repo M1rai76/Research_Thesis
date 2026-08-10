@@ -244,11 +244,22 @@ Finding: on the confound-free same-stack comparison, the optimised `P*` **reprod
 
 ---
 
-## Multi-model generality (Qwen2.5-Coder-32B)
+## Multi-model generality (Qwen2.5-Coder-32B, DeepSeek-Coder-V2-Lite)
 
-The thesis's own pipeline (goal-oriented `cop` seed → `cot`/`minimal` self-repair) — not an external baseline — run on a second model, **Qwen2.5-Coder-32B-Instruct**, on both HumanEval+ and MBPP+, to test whether the findings hold beyond the primary Llama-3.3-70B. Reported as within-model deltas (never subtracting across models, since the two differ in size and specialisation).
+The thesis's own pipeline (goal-oriented `cop` seed → `cot`/`minimal` self-repair) — not an external baseline — run on two further models to test whether the findings hold beyond the primary Llama-3.3-70B:
 
-Result: self-repair reliably lifts Base and Plus on both models and both datasets, but the **robustness Gap never closes** — it widens in 7 of the 8 model×dataset×strategy cells and is flat in the 1 remaining. So *"accuracy-oriented repair buys accuracy, not robustness"* holds across a general-purpose 70B and a code-specialised 32B. Served at TP=1 on a single H200 via the shared `project/baselines/katana/` infra (`run_qwen_smoke.pbs` → `run_qwen_repair.pbs` / `run_qwen_mbpp.pbs`).
+| Model | Architecture | Datasets |
+|---|---|---|
+| **Qwen2.5-Coder-32B-Instruct** | dense, code-specialised | HumanEval+, MBPP+ |
+| **DeepSeek-Coder-V2-Lite-Instruct** | **sparse MoE** (16B total / ~2.4B active), code-specialised | HumanEval+ |
+
+Reported as **within-model deltas** — absolute pass@1 is never subtracted across models, since they differ in size, specialisation and architecture.
+
+Result: self-repair reliably lifts Base and Plus on every model and dataset, but the **robustness Gap never closes** — it widens in **9 of the 10** model×dataset×strategy cells and is flat in the 1 remaining. So *"accuracy-oriented repair buys accuracy, not robustness"* holds across a general-purpose dense 70B, a code-specialised dense 32B, and a code-specialised sparse MoE. `cot` beats `minimal` in all three models.
+
+Delta magnitude tracks **headroom**, not model quality: Qwen's near-ceiling seed compressed its `cot` delta to +2.4pp, while V2-Lite (starting lower) moved +4.3pp — which is precisely why cross-model subtraction is avoided.
+
+All served at TP=1 on a single H200 via the shared `project/baselines/katana/` infra (`run_qwen_smoke.pbs` → `run_qwen_repair.pbs` / `run_qwen_mbpp.pbs`; `run_deepseek_v2lite.pbs` → `run_deepseek_v2lite_repair.pbs`).
 
 Results and analysis: `project/baselines/katana/qwen_results.md`.
 

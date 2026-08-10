@@ -1,0 +1,52 @@
+{
+  "date": "2026-08-10",
+  "backend": "katana",
+  "dataset": "humaneval",
+  "model": "deepseek-coder-v2-lite-instruct",
+  "prompt_strategy": "cop",
+  "temperature": 0.2,
+  "max_tokens": 512,
+  "max_retries": 5,
+  "repair": true,
+  "repair_strategy": "minimal",
+  "max_repair_rounds": 2,
+  "limit": null,
+  "round_output_files": {
+    "round0": "/home/z5386590/thesis_codegen/COMP4952/project/samples/deepseek-coder-v2-lite-instruct_t02_cop.jsonl",
+    "round1": "/home/z5386590/thesis_codegen/COMP4952/project/samples/deepseek-coder-v2-lite-instruct_t02_cop_repair-minimal_round1.jsonl",
+    "round2": "/home/z5386590/thesis_codegen/COMP4952/project/samples/deepseek-coder-v2-lite-instruct_t02_cop_repair-minimal_round2.jsonl"
+  },
+  "trajectory_file": "/home/z5386590/thesis_codegen/COMP4952/project/results/repair_trajectories_deepseek-coder-v2-lite-instruct_t02_cop_humaneval_minimal.json",
+  "round0_source_jsonl": "/home/z5386590/thesis_codegen/COMP4952/project/samples/deepseek-coder-v2-lite-instruct_t02_cop.jsonl",
+  "total_api_calls": 81,
+  "round0_generation_api_calls": 0,
+  "round0_reused_count": 164,
+  "repair_api_calls": 81,
+  "tasks_completed": 164,
+  "tasks_skipped": 0,
+  "skipped_ids": [],
+  "summary": {
+    "total_tasks": 164,
+    "round_pass_counts": {
+      "round0": 122,
+      "round1": 125,
+      "round2": 125
+    },
+    "round_pass_rates": {
+      "round0": 74.4,
+      "round1": 76.2,
+      "round2": 76.2
+    },
+    "total_improvement_pp": 1.8,
+    "stalled_count": 27,
+    "round0_error_counts": {
+      "AssertionError": 26,
+      "TypeError": 2,
+      "NameError": 2,
+      "ValueError": 1,
+      "IndentationError": 9,
+      "AttributeError": 2
+    },
+    "cot_extraction_method_counts": {}
+  }
+}
