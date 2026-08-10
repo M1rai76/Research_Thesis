@@ -150,6 +150,26 @@ def parse_args() -> argparse.Namespace:
         help="Maximum repair rounds when --repair is set. Default: 2.",
     )
     parser.add_argument(
+        "--feedback_mode",
+        default="full",
+        choices=["grounded+", "full", "error-type", "binary", "blind"],
+        help=(
+            "Feedback-content ablation rung (decisions.md D24): how much of the "
+            "execution failure the repair prompt discloses. 'full' reproduces "
+            "pre-ablation behaviour. Non-full modes add an _fb-<mode> suffix to "
+            "every output path so arms cannot clobber each other. Default: full."
+        ),
+    )
+    parser.add_argument(
+        "--run_tag",
+        default=None,
+        help=(
+            "Optional suffix appended to every output artifact (e.g. 'run2'), so "
+            "repeat runs of the same configuration land side by side instead of "
+            "overwriting (decisions.md D16)."
+        ),
+    )
+    parser.add_argument(
         "--limit",
         type=int,
         default=None,
@@ -627,6 +647,31 @@ def apply_limit_to_path(path: str, limit: Optional[int]) -> str:
     return f"{root}_limit{limit}{ext}"
 
 
+def run_suffix(feedback_mode: str = "full", run_tag: Optional[str] = None) -> str:
+    """Build the artifact-name suffix that keeps run variants from colliding.
+
+    ``feedback_mode`` contributes ``_fb-<mode>`` for every rung except the
+    default ``full`` - which is omitted deliberately, so the pre-ablation
+    runs keep their historical filenames and the ablation's ``full`` arm can
+    reuse them instead of being regenerated (decisions.md D24).
+    ``run_tag`` contributes ``_<tag>`` for repeat runs (decisions.md D16).
+    """
+    suffix = ""
+    if feedback_mode and feedback_mode != "full":
+        suffix += f"_fb-{feedback_mode}"
+    if run_tag:
+        suffix += f"_{run_tag}"
+    return suffix
+
+
+def apply_run_suffix_to_path(path: str, suffix: str) -> str:
+    """Insert a run suffix before a path's extension."""
+    if not suffix:
+        return path
+    root, ext = os.path.splitext(path)
+    return f"{root}{suffix}{ext}"
+
+
 def get_repair_round_path(
     base_output_path: str,
     repair_strategy: str,
@@ -645,6 +690,7 @@ def get_repair_trajectory_path(
     dataset: str,
     repair_strategy: str,
     limit: Optional[int] = None,
+    suffix: str = "",
 ) -> str:
     """Build the full trajectory JSON path for repair analysis."""
     slug = model_to_slug(model)
@@ -652,7 +698,7 @@ def get_repair_trajectory_path(
     limit_tag = "" if limit is None else f"_limit{limit}"
     filename = (
         f"repair_trajectories_{slug}_{temp_tag}_{prompt_strategy}_"
-        f"{dataset}_{repair_strategy}{limit_tag}.json"
+        f"{dataset}_{repair_strategy}{suffix}{limit_tag}.json"
     )
     return os.path.join(BASE_DIR, "results", filename)
 
@@ -809,6 +855,7 @@ def save_repair_run_log(
     dataset: str,
     prompt_strategy: str,
     repair_strategy: str,
+    feedback_mode: str,
     max_repair_rounds: int,
     total_api_calls: int,
     round0_generation_api_calls: int,
@@ -830,6 +877,7 @@ def save_repair_run_log(
         "max_retries": MAX_RETRIES,
         "repair": True,
         "repair_strategy": repair_strategy,
+        "feedback_mode": feedback_mode,
         "max_repair_rounds": max_repair_rounds,
         "limit": limit,
         "round_output_files": {
@@ -921,9 +969,13 @@ def run_repair_generation(args: argparse.Namespace) -> None:
     """Run normal Round 0 generation followed by iterative self-repair."""
     from self_repair import run_self_repair
 
-    base_output_path = apply_limit_to_path(
-        get_output_path(args.model, args.prompt, args.dataset),
-        args.limit,
+    suffix = run_suffix(args.feedback_mode, args.run_tag)
+    base_output_path = apply_run_suffix_to_path(
+        apply_limit_to_path(
+            get_output_path(args.model, args.prompt, args.dataset),
+            args.limit,
+        ),
+        suffix,
     )
     round_paths = {
         round_num: get_repair_round_path(
@@ -939,6 +991,7 @@ def run_repair_generation(args: argparse.Namespace) -> None:
         dataset=args.dataset,
         repair_strategy=args.repair_strategy,
         limit=args.limit,
+        suffix=suffix,
     )
 
     os.makedirs(os.path.join(BASE_DIR, "samples"), exist_ok=True)
@@ -950,6 +1003,7 @@ def run_repair_generation(args: argparse.Namespace) -> None:
     print(f"Strategy : {args.prompt}")
     print(f"Temp     : {TEMPERATURE}")
     print(f"Repair   : {args.repair_strategy}")
+    print(f"Feedback : {args.feedback_mode}")
     print(f"Max rds  : {args.max_repair_rounds}")
     print(f"Limit    : {args.limit}")
     print(f"Round 0  : {round_paths[0]}")
@@ -1043,8 +1097,23 @@ def run_repair_generation(args: argparse.Namespace) -> None:
             backend=args.backend,
             max_repair_rounds=args.max_repair_rounds,
             repair_strategy=args.repair_strategy,
+            feedback_mode=args.feedback_mode,
+            prompt_strategy=args.prompt,
         )
         repair_api_calls += max(0, len(result.get("rounds", [])) - 1)
+
+        if result.get("api_failed"):
+            # Do NOT persist: an unattempted repair is not a result. Storing it
+            # would make --resume-missing skip the task on the next run (e.g.
+            # after swapping to a fresh API key), silently locking in a round
+            # JSONL that is just a copy of Round 0.
+            print(
+                f"[{index:>3}/{total}] {task_id} -> NOT SAVED (API/quota failure; "
+                "will be retried by --resume-missing)"
+            )
+            skipped.append(task_id)
+            continue
+
         trajectories_by_id[task_id] = result
 
         if result.get("solved"):
@@ -1086,6 +1155,14 @@ def run_repair_generation(args: argparse.Namespace) -> None:
 
     if skipped:
         print(f"  Skipped {len(skipped)} tasks: {skipped}")
+        print()
+        print("  " + "!" * 68)
+        print(f"  !! INCOMPLETE RUN - {len(skipped)}/{total} tasks have no trajectory.")
+        print("  !! The round JSONLs above are PARTIAL and must NOT be graded or")
+        print("  !! compared as if complete. Common cause: API/quota exhaustion.")
+        print("  !! Re-run the same command (optionally with a fresh API key) and")
+        print("  !! --resume-missing will retry exactly these tasks.")
+        print("  " + "!" * 68)
 
     summary = summarize_repair_trajectories(
         ordered_results,
@@ -1105,6 +1182,7 @@ def run_repair_generation(args: argparse.Namespace) -> None:
         dataset=args.dataset,
         prompt_strategy=args.prompt,
         repair_strategy=args.repair_strategy,
+        feedback_mode=args.feedback_mode,
         max_repair_rounds=args.max_repair_rounds,
         total_api_calls=total_api_calls,
         round0_generation_api_calls=round0_generation_api_calls,

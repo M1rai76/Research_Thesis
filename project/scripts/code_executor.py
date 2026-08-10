@@ -2,16 +2,25 @@
 code_executor.py
 Thesis - Prompt Engineering for LLM Code Generation
 Author : Samyak Diwan (z5611048)
+Edited by: Gurdiraj Bal (z5386590)
 
 Execute generated code against visible (base) test cases for the
 iterative self-repair loop. Only the original test assertions shipped
 with HumanEval / MBPP are used - the augmented EvalPlus test inputs
 are reserved for final evaluation.
 
+The optional ``capture_failing_case`` path supports the ``grounded+`` rung
+of the feedback-content ablation (decisions.md D24). A failed assertion's
+message already exposes the call and the expected value (see
+_enhance_assert_message), but not the value the code actually produced -
+so that rung re-runs the failing call once, in the same sandbox, purely
+to observe the wrong answer.
+
 Functions
     get_visible_tests()        - extract base test code from EvalPlus data
     reconstruct_full_code()    - combine prompt + completion into runnable code
     execute_in_sandbox()       - run code + tests in an isolated subprocess
+    probe_failing_case()       - re-run a failed assertion to capture "got"
     run_executor()             - public entry point tying it all together
 
 Usage
@@ -20,6 +29,7 @@ Usage
 """
 
 import argparse
+import ast
 import json
 import os
 import re
@@ -195,6 +205,112 @@ def _enhance_assert_message(
     return expr
 
 
+MAX_VALUE_LENGTH = 200
+
+
+def _split_failing_assertion(assert_expr: str) -> Optional[tuple]:
+    """Split ``assert <call> == <expected>`` into its two sides.
+
+    Returns (call_source, expected_source) or None when the assertion is
+    not a simple single ``==`` comparison (e.g. ``assert f(x)``, chained or
+    ``is``/``in`` comparisons), which the grounded+ rung simply skips.
+    """
+    try:
+        tree = ast.parse(assert_expr)
+    except SyntaxError:
+        return None
+
+    if not tree.body or not isinstance(tree.body[0], ast.Assert):
+        return None
+
+    test = tree.body[0].test
+    if (
+        not isinstance(test, ast.Compare)
+        or len(test.ops) != 1
+        or not isinstance(test.ops[0], ast.Eq)
+    ):
+        return None
+
+    return (ast.unparse(test.left), ast.unparse(test.comparators[0]))
+
+
+def probe_failing_case(
+    full_code: str,
+    assert_expr: str,
+    entry_point: str,
+    timeout_seconds: int = DEFAULT_TIMEOUT,
+) -> Optional[dict]:
+    """Re-run one failing assertion to observe the value the code produced.
+
+    The assertion message already tells the model what was called and what
+    was expected; what it never sees is the wrong answer it actually
+    returned. This runs that single call in a fresh sandboxed subprocess
+    and reports it.
+
+    Returns
+        {"call": str, "expected": str, "got": str} or None when the value
+        could not be observed (unparseable assertion, or the call raises).
+    """
+    sides = _split_failing_assertion(assert_expr)
+    if sides is None:
+        return None
+    call_src, expected_src = sides
+
+    # `candidate` is how HumanEval's check() refers to the function under
+    # test; binding it makes the same probe work for both datasets (MBPP
+    # assertions name the entry point directly, so the binding is unused).
+    probe_code = (
+        f"{full_code}\n"
+        f"candidate = {entry_point}\n"
+        "try:\n"
+        f"    _got = {call_src}\n"
+        f"    _expected = {expected_src}\n"
+        "    print('__GOT__' + repr(_got))\n"
+        "    print('__EXPECTED__' + repr(_expected))\n"
+        "except BaseException as _exc:\n"
+        "    print('__PROBE_FAILED__' + type(_exc).__name__)\n"
+    )
+
+    tmp_fd, tmp_path = tempfile.mkstemp(suffix=".py", prefix="probe_")
+    try:
+        with os.fdopen(tmp_fd, "w", encoding="utf-8") as f:
+            f.write(probe_code)
+        result = subprocess.run(
+            [sys.executable, tmp_path],
+            capture_output=True,
+            text=True,
+            timeout=timeout_seconds,
+        )
+    except subprocess.TimeoutExpired:
+        return None
+    finally:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+
+    got = expected = None
+    for line in result.stdout.splitlines():
+        if line.startswith("__GOT__"):
+            got = line[len("__GOT__"):]
+        elif line.startswith("__EXPECTED__"):
+            expected = line[len("__EXPECTED__"):]
+
+    if got is None or expected is None:
+        return None
+
+    def _truncate(value: str) -> str:
+        if len(value) > MAX_VALUE_LENGTH:
+            return value[:MAX_VALUE_LENGTH] + "..."
+        return value
+
+    return {
+        "call": _truncate(call_src),
+        "expected": _truncate(expected),
+        "got": _truncate(got),
+    }
+
+
 def _parse_error(stderr: str) -> tuple:
     """Extract exception class name and a short message from a traceback.
 
@@ -226,8 +342,14 @@ def run_executor(
     completion: str,
     dataset: str = "humaneval",
     timeout_seconds: int = DEFAULT_TIMEOUT,
+    capture_failing_case: bool = False,
 ) -> dict:
     """Execute a model completion against the visible tests for a task.
+
+    When ``capture_failing_case`` is set and the run failed an assertion,
+    one extra sandboxed subprocess re-runs the failing call to record the
+    value actually produced (the grounded+ rung, D24). Off by default, so
+    no existing caller pays for the extra execution.
 
     Returns
         {
@@ -237,6 +359,7 @@ def run_executor(
             "error_type": str | None,
             "error_message": str | None,
             "timed_out": bool,
+            "failing_case": dict | None,   # only when capture_failing_case
         }
     """
     problems = get_problems(dataset)
@@ -260,10 +383,25 @@ def run_executor(
         timeout_seconds=timeout_seconds,
     )
 
+    failing_case = None
+    if (
+        capture_failing_case
+        and not result["passed"]
+        and result.get("error_type") == "AssertionError"
+        and result.get("error_message")
+    ):
+        failing_case = probe_failing_case(
+            full_code=full_code,
+            assert_expr=result["error_message"],
+            entry_point=visible["entry_point"],
+            timeout_seconds=timeout_seconds,
+        )
+
     return {
         "task_id": task_id,
         "dataset": dataset,
         **result,
+        "failing_case": failing_case,
     }
 
 

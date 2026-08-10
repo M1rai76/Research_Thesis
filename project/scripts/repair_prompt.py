@@ -2,6 +2,7 @@
 repair_prompt.py
 Thesis - Prompt Engineering for LLM Code Generation
 Author : Samyak Diwan (z5611048)
+Edited by: Gurdiraj Bal (z5386590)
 
 Build repair prompts for the iterative self-repair loop. When a task
 fails a round, this module constructs a new prompt containing the
@@ -11,6 +12,11 @@ code_executor.py, then asks the model to fix its own attempt.
 One fixed template is used across all tasks and rounds - only the
 task content, broken code, and error info vary. This isolates the
 effect of the repair loop design rather than per-task prompt tuning.
+
+The ``feedback_mode`` parameter implements the feedback-content ablation
+(decisions.md D24): it varies ONLY how much of the execution failure is
+disclosed to the model, holding the rest of the prompt fixed. See
+FEEDBACK_MODES for the ladder.
 
 Functions
     build_repair_prompt()   - construct the full repair prompt text
@@ -37,13 +43,63 @@ from code_executor import run_executor
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+# Feedback-content ablation ladder (decisions.md D24), ordered most to
+# least informative. "blind" carries no failure signal at all and is
+# handled by the caller (self_repair) as a re-run of the Round 0
+# generation prompt, so it never reaches the repair-prompt builders.
+FEEDBACK_MODES = ("grounded+", "full", "error-type", "binary", "blind")
+
+
 def _format_error_line(
     error_type: Optional[str],
     error_message: Optional[str],
+    feedback_mode: str = "full",
+    failing_case: Optional[dict] = None,
 ) -> str:
-    """Format executor error fields consistently across repair prompts."""
+    """Format executor error fields consistently across repair prompts.
+
+    ``feedback_mode`` selects a rung of the D24 information ladder:
+        ``grounded+``  - the concrete failing case: what was called, what it
+                         returned, and what was expected
+        ``full``       - exception class and message (the default; this is
+                         the behaviour every pre-ablation run used)
+        ``error-type`` - exception class only, message withheld
+        ``binary``     - one bit: the attempt failed, nothing more
+
+    Note that ``full`` already exposes the call and the expected value for
+    assertion failures, because code_executor rewrites a bare
+    AssertionError into the failing assertion expression. The only thing
+    ``grounded+`` adds is the value the code actually produced - and it can
+    only add it when the code ran far enough to produce one, so for
+    crash-type failures (NameError, IndentationError, ...) it falls back to
+    ``full``.
+
+    ``blind`` is not a valid mode here - a blind arm shows the model no
+    failure signal at all, so it does not build a repair prompt.
+    """
+    if feedback_mode not in FEEDBACK_MODES:
+        raise ValueError(
+            f"Unsupported feedback_mode: {feedback_mode!r}. "
+            f"Expected one of {FEEDBACK_MODES}."
+        )
+    if feedback_mode == "blind":
+        raise ValueError(
+            "feedback_mode 'blind' does not build a repair prompt - the "
+            "caller re-runs the Round 0 generation prompt instead."
+        )
+
+    if feedback_mode == "binary":
+        return "This attempt failed."
+
+    if feedback_mode == "grounded+" and failing_case:
+        return (
+            "This attempt produced the wrong result. "
+            f"Calling {failing_case['call']} returned {failing_case['got']}, "
+            f"but the expected result is {failing_case['expected']}."
+        )
+
     if error_type is not None:
-        if error_message:
+        if error_message and feedback_mode in ("full", "grounded+"):
             return f"This attempt failed with: {error_type}: {error_message}"
         return f"This attempt failed with: {error_type}"
 
@@ -75,6 +131,8 @@ def build_repair_prompt(
     error_type: Optional[str],
     error_message: Optional[str],
     dataset: str = "humaneval",
+    feedback_mode: str = "full",
+    failing_case: Optional[dict] = None,
 ) -> str:
     """Construct a lean repair prompt for the self-repair loop.
 
@@ -96,11 +154,15 @@ def build_repair_prompt(
         error_type         : exception class name from code_executor, or None
         error_message      : truncated error message, or None
         dataset            : "humaneval" or "mbpp"
+        feedback_mode      : D24 ablation rung - how much of the failure to
+                             disclose ("full", "error-type", "binary")
 
     Returns
         The full prompt string ready to send to the model.
     """
-    error_line = _format_error_line(error_type, error_message)
+    error_line = _format_error_line(
+        error_type, error_message, feedback_mode, failing_case
+    )
     output_constraints = _output_constraints(dataset)
 
     return (
@@ -120,14 +182,20 @@ def build_repair_prompt_cot(
     error_type: Optional[str],
     error_message: Optional[str],
     dataset: str = "humaneval",
+    feedback_mode: str = "full",
+    failing_case: Optional[dict] = None,
 ) -> str:
     """Construct a chain-of-thought repair prompt for the self-repair loop.
 
     The model is asked to reason through the failure before emitting a final
     corrected code section. The final code must appear after the exact marker
     ``### Fixed Code`` so callers can separate reasoning from executable code.
+
+    ``feedback_mode`` behaves as in build_repair_prompt (D24 ablation).
     """
-    error_line = _format_error_line(error_type, error_message)
+    error_line = _format_error_line(
+        error_type, error_message, feedback_mode, failing_case
+    )
     output_constraints = _output_constraints(dataset)
 
     return (
@@ -195,14 +263,16 @@ def build_repair_context(executor_result: dict, dataset: str) -> dict:
     than crashing).
 
     Returns
-        {"error_type": str | None, "error_message": str | None}
+        {"error_type": str | None, "error_message": str | None,
+         "failing_case": dict | None}
     """
     if executor_result.get("passed", False):
-        return {"error_type": None, "error_message": None}
+        return {"error_type": None, "error_message": None, "failing_case": None}
 
     return {
         "error_type": executor_result.get("error_type"),
         "error_message": executor_result.get("error_message"),
+        "failing_case": executor_result.get("failing_case"),
     }
 
 

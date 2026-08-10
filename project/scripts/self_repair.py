@@ -2,6 +2,7 @@
 self_repair.py
 Thesis - Prompt Engineering for LLM Code Generation
 Author : Samyak Diwan (z5611048)
+Edited by: Gurdiraj Bal (z5386590)
 
 Orchestrator for the iterative self-repair loop. Runs a single task
 through up to N rounds of LLM-driven repair, tying together
@@ -31,6 +32,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from code_executor import run_executor
 from safety_check import check_safety
 from repair_prompt import (
+    FEEDBACK_MODES,
     build_repair_prompt,
     build_repair_prompt_cot,
     build_repair_context,
@@ -40,6 +42,7 @@ from generate_samples import (
     load_env_file,
     get_client,
     generate_raw_completion,
+    build_prompt,
     post_process,
     post_process_solution,
     ENV_PATH,
@@ -69,6 +72,8 @@ def run_self_repair(
     backend: str,
     max_repair_rounds: int = 2,
     repair_strategy: str = "cot",
+    feedback_mode: str = "full",
+    prompt_strategy: str = "cop",
 ) -> dict:
     """Run the full N-round repair loop for a single task.
 
@@ -93,6 +98,18 @@ def run_self_repair(
     while a non-stalled failure means the model tried and couldn't fix
     the underlying bug.
 
+    ``feedback_mode`` drives the feedback-content ablation (decisions.md
+    D24). It varies ONLY the failure signal shown to the model, holding the
+    number of attempts and the ground-truth stopping oracle fixed, so every
+    arm gets the same repair budget and stops on the same condition:
+        ``full``       - exception class and message (pre-ablation behaviour)
+        ``error-type`` - exception class only
+        ``binary``     - "This attempt failed." and nothing more
+        ``blind``      - no failure signal at all: the Round 0 generation
+                         prompt is re-run, making the arm a pure resampling
+                         control. ``prompt_strategy`` selects that prompt and
+                         must match the one that produced the Round 0 seed.
+
     Returns a trajectory dict capturing every round's completion,
     executor result, and safety scan for per-round thesis analysis.
     """
@@ -100,6 +117,11 @@ def run_self_repair(
         raise ValueError(
             "Unsupported repair_strategy: "
             f"{repair_strategy!r}. Expected 'minimal' or 'cot'."
+        )
+    if feedback_mode not in FEEDBACK_MODES:
+        raise ValueError(
+            "Unsupported feedback_mode: "
+            f"{feedback_mode!r}. Expected one of {FEEDBACK_MODES}."
         )
 
     problems = get_problems(dataset)
@@ -111,6 +133,7 @@ def run_self_repair(
     previous_completion = None
     current_completion = initial_completion
     current_cot_extraction_method = None
+    api_failed = False
 
     total_rounds = 1 + max_repair_rounds
 
@@ -119,6 +142,7 @@ def run_self_repair(
             task_id=task_id,
             completion=current_completion,
             dataset=dataset,
+            capture_failing_case=(feedback_mode == "grounded+"),
         )
 
         safety_result = check_safety(
@@ -166,6 +190,7 @@ def run_self_repair(
                 "task_id": task_id,
                 "dataset": dataset,
                 "repair_strategy": repair_strategy,
+                "feedback_mode": feedback_mode,
                 "solved": True,
                 "solved_at_round": round_num,
                 "stalled": False,
@@ -176,13 +201,21 @@ def run_self_repair(
             break
 
         context = build_repair_context(exec_result, dataset)
-        if repair_strategy == "minimal":
+        if feedback_mode == "blind":
+            # Zero-bit control: the model is not told it failed, or that a
+            # previous attempt exists at all - it simply generates again from
+            # the original task prompt. Isolates plain resampling from the
+            # contribution of the feedback content.
+            repair_prompt_text = build_prompt(task_prompt, prompt_strategy, dataset)
+        elif repair_strategy == "minimal":
             repair_prompt_text = build_repair_prompt(
                 task_prompt=task_prompt,
                 broken_completion=current_completion,
                 error_type=context["error_type"],
                 error_message=context["error_message"],
                 dataset=dataset,
+                feedback_mode=feedback_mode,
+                failing_case=context["failing_case"],
             )
         else:
             repair_prompt_text = build_repair_prompt_cot(
@@ -191,17 +224,26 @@ def run_self_repair(
                 error_type=context["error_type"],
                 error_message=context["error_message"],
                 dataset=dataset,
+                feedback_mode=feedback_mode,
+                failing_case=context["failing_case"],
             )
 
         raw_response = generate_raw_completion(client, model, repair_prompt_text)
 
         if raw_response is None:
+            # A quota/API failure is NOT a result - the task simply did not get
+            # its repair attempt. Flagged so the caller can refuse to persist
+            # this trajectory, otherwise --resume-missing would treat the task
+            # as complete and permanently bake the failure into the data.
             print(f"  Round {round_num + 1}: SKIPPED (API error)")
+            api_failed = True
             break
 
         response_for_post_process = raw_response
         next_cot_extraction_method = None
-        if repair_strategy == "cot":
+        # A blind round re-runs the plain generation prompt, so its response
+        # has no "### Fixed Code" marker to extract from.
+        if repair_strategy == "cot" and feedback_mode != "blind":
             response_for_post_process, next_cot_extraction_method = (
                 extract_code_from_cot_response(raw_response)
             )
@@ -237,9 +279,11 @@ def run_self_repair(
         "task_id": task_id,
         "dataset": dataset,
         "repair_strategy": repair_strategy,
+        "feedback_mode": feedback_mode,
         "solved": False,
         "solved_at_round": None,
         "stalled": stalled,
+        "api_failed": api_failed,
         "rounds": rounds,
     }
 
@@ -308,6 +352,23 @@ def parse_args() -> argparse.Namespace:
         choices=["minimal", "cot"],
         help="Repair prompt strategy to use. Default: cot.",
     )
+    parser.add_argument(
+        "--feedback_mode",
+        default="full",
+        choices=list(FEEDBACK_MODES),
+        help=(
+            "Feedback-content ablation rung (D24): how much of the execution "
+            "failure the model is shown. Default: full."
+        ),
+    )
+    parser.add_argument(
+        "--prompt_strategy",
+        default="cop",
+        help=(
+            "Round 0 generation strategy, re-used as the regeneration prompt "
+            "when --feedback_mode blind. Must match the seed. Default: cop."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -324,6 +385,7 @@ def main() -> None:
     print(f"Model    : {args.model}")
     print(f"Max rds  : {args.max_rounds}")
     print(f"Strategy : {args.repair_strategy}")
+    print(f"Feedback : {args.feedback_mode}")
     print()
 
     result = run_self_repair(
@@ -335,6 +397,8 @@ def main() -> None:
         backend=args.backend,
         max_repair_rounds=args.max_rounds,
         repair_strategy=args.repair_strategy,
+        feedback_mode=args.feedback_mode,
+        prompt_strategy=args.prompt_strategy,
     )
 
     print()
