@@ -119,8 +119,10 @@ Added as a third generality model. Its value is not another data point of the sa
 | Run | Base | Plus | Gap | Brittleness (1 − Plus/Base) |
 |---|---|---|---|---|
 | R0 (`cop` seed) | 0.825 | 0.698 | 0.127 | 15.4% |
-| `cot` R2 | 0.857 | 0.720 | 0.137 | 16.0% |
-| `minimal` R2 | 0.844 | 0.712 | 0.132 | 15.6% |
+| `cot` R1 | 0.854 | 0.720 | 0.135 | 15.8% |
+| `cot` R2 | 0.857 | 0.720 | 0.138 | 16.0% |
+| `minimal` R1 | 0.841 | 0.712 | 0.130 | 15.4% |
+| `minimal` R2 | 0.844 | 0.712 | 0.132 | 15.7% |
 
 Within-model deltas: `cot` **+3.2pp Base / +2.2pp Plus**, `minimal` **+1.9pp / +1.4pp**. Both **widen** the Gap, and `cot` again beats `minimal`.
 
